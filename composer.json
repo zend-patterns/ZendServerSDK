@@ -1,0 +1,15 @@
+{
+    "name": "zendserver/sdk",
+    "require": {
+        "php": ">=5.3.3",
+        "zendserverwebapi/zendserverwebapi": "dev-dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "ZendSDK\\": "module/ZendSDK/src"
+        },
+        "classmap": [
+            "./module/ZendSDK/Module.php"
+        ]
+    }
+}
