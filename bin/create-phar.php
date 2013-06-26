@@ -24,7 +24,7 @@ $phar->startBuffering();
 $phar->addFromString("index.php", substr(php_strip_whitespace("$srcRoot/bin/zs-client.php"), 19));
 
 addDir($phar, "$srcRoot/vendor", $srcRoot);
-if(is_dir($srcRoot/config)) {
+if(is_dir("$srcRoot/config")) {
     addDir($phar, "$srcRoot/config", $srcRoot);
 }
 addDir($phar, "$srcRoot/module", $srcRoot);
