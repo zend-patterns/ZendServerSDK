@@ -52,7 +52,12 @@ class ZpkInvokable extends ZpkWebAPI
         $properties = $this->getProperties($sourceFolder."/deployment.properties");
 
         $outZipPath = $destinationFolder."/$name-$version.zpk";
-        error_log("WARNING: Non-Ascii file/folder names are supported only with PHP zip extension >=1.11.0\n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
+
+        $ext = new \ReflectionExtension('zip');
+        $zipVersion = $ext->getVersion();
+        if(!version_compare($zipVersion,'1.11.0','>=')) {
+            error_log("WARNING: Non-Ascii file/folder names are supported only with PHP zip extension >=1.11.0 (your version is: $zipVersion)\n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
+        }
 
         $zpk = new \ZipArchive();
         $zpk->open($outZipPath, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
@@ -84,12 +89,13 @@ class ZpkInvokable extends ZpkWebAPI
         return $outZipPath;
     }
 
-    protected function fixZipPath($name)
+    protected function fixZipPath($path)
     {
-        return $name;
+        $path = preg_replace('/(\/{2,})/', '/', $path);
+        return $path;
     }
 
-     /**
+    /**
      * Add a directory in zip
      *
      * @param ZipArchive $zpk
@@ -106,7 +112,6 @@ class ZpkInvokable extends ZpkWebAPI
                 $currentZipFolder = basename($directory);
             }
 
-            $zpk->addEmptyDir($currentZipFolder);
             while($path = $dir->read()) {
                 if(in_array($path, array('.','..'))) {
                     continue;
