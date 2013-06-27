@@ -33,5 +33,5 @@ Run the following command to produce the zs-client.phar file.
 php bin/create-phar.php
 ```
 
-The generated file should be saved under bin/zs-client.php. You can copy it
+The generated file should be saved under bin/zs-client.phar. You can copy it
 and use it without the need to have the other PHP files.
