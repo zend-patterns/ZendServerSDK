@@ -25,8 +25,8 @@ class ZpkInvokable extends ZpkWebAPI
         }
 
         ErrorHandler::start();
-        copy(__DIR__.'/../../config/zpk/deployment.xml', $sourceFolder);
-        copy(__DIR__.'/../../config/zpk/deployment.properties', $sourceFolder);
+        copy(__DIR__.'/../../../config/zpk/deployment.xml', $sourceFolder."/deployment.xml");
+        copy(__DIR__.'/../../../config/zpk/deployment.properties', $sourceFolder."/deployment.properties");
         ErrorHandler::stop(true);
     }
 
