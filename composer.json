@@ -1,8 +1,8 @@
 {
-    "name": "ZendDevOps/Client",
+    "name": "zenddevops/client",
     "require": {
         "php": ">=5.3.3",
-        "zendserverwebapi/zendserverwebapi": "dev-dev"
+        "zenddevops/webapi": "dev-dev"
     },
     "require-dev": {
 	"phpunit/phpunit" : "3.7.*",
