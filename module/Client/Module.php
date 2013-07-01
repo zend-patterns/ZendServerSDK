@@ -1,5 +1,5 @@
 <?php
-namespace ZendSDK;
+namespace Client;
 
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\Console\Adapter\AdapterInterface as Console;
@@ -60,6 +60,6 @@ EOT;
      */
     public function getConsoleBanner (Console $console)
     {
-        return 'ZendSDK Client v1.0';
+        return 'Zend Server Client v1.0';
     }
 }

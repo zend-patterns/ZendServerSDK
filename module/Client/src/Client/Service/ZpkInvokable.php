@@ -1,5 +1,5 @@
 <?php
-namespace ZendSDK\Service;
+namespace Client\Service;
 
 use Zend\Stdlib\ErrorHandler;
 use ZendServerWebApi\Service\ZpkInvokable as ZpkWebAPI;

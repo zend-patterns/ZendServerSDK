@@ -1,15 +1,18 @@
 {
-    "name": "zendserver/sdk",
+    "name": "ZendDevOps/Client",
     "require": {
         "php": ">=5.3.3",
         "zendserverwebapi/zendserverwebapi": "dev-dev"
     },
     "autoload": {
         "psr-0": {
-            "ZendSDK\\": "module/ZendSDK/src"
+            "Client\\": "module/Client/src"
         },
         "classmap": [
-            "./module/ZendSDK/Module.php"
+            "module/Client/Module.php"
         ]
-    }
+    },
+    "bin": [
+        "bin/zs-client.php"
+    ]
 }
