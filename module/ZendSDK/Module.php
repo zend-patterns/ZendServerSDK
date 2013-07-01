@@ -13,7 +13,18 @@ class Module implements ConsoleBannerProviderInterface
      */
     public function getConfig ()
     {
-        return include __DIR__ . '/config/module.config.php';
+        $config = include __DIR__ . '/config/module.config.php';
+        if(!getenv('DEBUG')) {
+            $config['view_manager']['exception_message'] = <<<EOT
+======================================================================
+   The application has thrown an exception!
+======================================================================
+ :className
+ :message
+
+EOT;
+        }
+        return $config;
     }
 
     /**
@@ -39,7 +50,7 @@ class Module implements ConsoleBannerProviderInterface
      */
     public function onBootstrap ($event)
     {
-        
+
     }
 
     /**
