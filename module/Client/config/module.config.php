@@ -25,7 +25,7 @@ return array (
                                 ),
                             'packZpk'   => array(
                                 'options' => array (
-                                    'route' => 'packZpk [--folder=] [--destination=]',
+                                    'route' => 'packZpk [--folder=] [--destination=] [--name=]',
                                     'defaults' => array (
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'pack',
@@ -36,7 +36,8 @@ return array (
                                                 'info' => array(
                                                     'Creates a ZPK package from PHP project with ZPK support',
                                                     array('folder','Folder where the source code is located'),
-                                                    array('destination','Folder in which to save the created ZPK file')
+                                                    array('destination','Folder in which to save the created ZPK file'),
+                                                    array('name','The name of the package. If not provided the name will be constructed from the name of the application and its version.')
                                                 )
                                 ),
                             )

@@ -35,7 +35,7 @@ class ZpkInvokable extends ZpkWebAPI
      * @param string $sourceFolder
      * @param string $destinationFolder
      */
-    public function pack($sourceFolder, $destinationFolder=".")
+    public function pack($sourceFolder, $destinationFolder=".", $fileName=null)
     {
         $sourceFolder = realpath($sourceFolder);
         if(!file_exists($sourceFolder."/deployment.xml")) {
@@ -51,7 +51,11 @@ class ZpkInvokable extends ZpkWebAPI
 
         $properties = $this->getProperties($sourceFolder."/deployment.properties");
 
-        $outZipPath = $destinationFolder."/$name-$version.zpk";
+        if(!$fileName) {
+            $fileName = "$name-$version.zpk";
+        }
+
+        $outZipPath = $destinationFolder.'/'.$fileName;
 
         $ext = new \ReflectionExtension('zip');
         $zipVersion = $ext->getVersion();

@@ -32,7 +32,7 @@ class ZpkController extends AbstractActionController
         $folder = $this->getRequest()->getParam('folder');
         $destination = $this->getRequest()->getParam('destination');
         $zpk = $this->serviceLocator->get('zpk');
-        $zpkFile = $zpk->pack($folder, $destination);
+        $zpkFile = $zpk->pack($folder, $destination, $this->getRequest()->getParam('name'));
         $this->getResponse()->setContent($zpkFile);
 
         return $this->getResponse();

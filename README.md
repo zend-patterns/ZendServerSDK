@@ -4,7 +4,7 @@ Installation
 Run 
 
 ```
-php composer.phar install
+php composer.phar install --no-dev
 ```
 
 to get the dependant packages.
@@ -85,7 +85,8 @@ Run the following command.
 php bin/zs-client.php packZpk --folder="<folder-where-the-PHP-code-is>" --destination="<folder-where-the-package-will-be-created>"
 ```
 It will output the name of the newly created package file. You have to use this name to install
-or update an existing application on Zend Server.
+or update an existing application on Zend Server. If you want to use other name for
+the output file you can use the --name="{desired-zpk-name}" option.
 
 ### Deploy Package
 Run the following command to install a package.
