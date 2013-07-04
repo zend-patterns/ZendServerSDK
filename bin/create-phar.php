@@ -40,6 +40,7 @@ $stub = <<<EOF
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 define('PHAR', true);
+define('CWD', getcwd());
 chdir(dirname(__DIR__));
 Phar::mapPhar('$filename');
 require 'phar://$filename/index.php';
@@ -71,8 +72,12 @@ function addDir($phar, $sDir, $baseDir = null)
         RecursiveIteratorIterator::SELF_FIRST
     );
 
+    $allowedExtensions = array (
+        'php','phtml','xsd'
+    );
+
     foreach ($oDir as $sFile) {
-        if (preg_match ('/\\.php$/i', $sFile)) {
+        if (in_array(pathinfo($sFile, PATHINFO_EXTENSION),$allowedExtensions)){
             addFile($phar, $sFile, $baseDir);
         }
     }

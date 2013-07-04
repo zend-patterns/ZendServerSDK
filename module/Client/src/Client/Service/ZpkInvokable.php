@@ -87,8 +87,11 @@ class ZpkInvokable extends ZpkWebAPI
                 }
             }
         }
+        if(!$zpk->close()) {
+            throw new \Zend\ServiceManager\Exception\RuntimeException('Failed creating zpk file: '.$outZipPath.". ".
+                                                                       $zpk->getStatusString());
+        }
         ErrorHandler::stop(true);
-        $zpk->close();
 
         return $outZipPath;
     }
