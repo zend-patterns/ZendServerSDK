@@ -15,7 +15,6 @@ class ZpkInvokable extends ZpkWebAPI
      */
     public function create($sourceFolder)
     {
-        $sourceFolder = realpath($sourceFolder);
         if(file_exists($sourceFolder."/deployment.xml")) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('The specified directory already has deployment.xml.');
         }
@@ -37,7 +36,6 @@ class ZpkInvokable extends ZpkWebAPI
      */
     public function pack($sourceFolder, $destinationFolder=".", $fileName=null)
     {
-        $sourceFolder = realpath($sourceFolder);
         if(!file_exists($sourceFolder."/deployment.xml")) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('The specified directory does not have deployment.xml.');
         }

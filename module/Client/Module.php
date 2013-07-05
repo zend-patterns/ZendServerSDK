@@ -3,6 +3,7 @@ namespace Client;
 
 use Zend\ModuleManager\Feature\ConsoleBannerProviderInterface;
 use Zend\Console\Adapter\AdapterInterface as Console;
+use Zend\Mvc\MvcEvent;
 
 class Module implements ConsoleBannerProviderInterface
 {
@@ -52,7 +53,37 @@ EOT;
      */
     public function onBootstrap ($event)
     {
+         $eventManager = $event->getApplication()->getEventManager();
+         $eventManager->attach(MvcEvent::EVENT_ROUTE,
+                array(
+                        $this,
+                        'postRoute'
+                ), - 2);
+    }
 
+    public function postRoute($event)
+    {
+        $match = $event->getRouteMatch();
+        if(!$match) {
+            return;
+        }
+
+        $services = $event->getApplication()->getServiceManager();
+        $config = $services->get('config');
+        $path   = $services->get('path');
+
+        // Translate all paths to real absolute paths
+        $routeName = $match->getMatchedRouteName();
+        if (isset(
+                $config['console']['router']['routes'][$routeName]['options']['files'])
+        ) {
+            foreach ($config['console']['router']['routes'][$routeName]['options']['files'] as $param) {
+                if ($value = $match->getParam($param)) {
+                    print "$param:$value => ".$path->getAbsolute($value)."\n";
+                    $match->setParam($param, $path->getAbsolute($value));
+                }
+            }
+        }
     }
 
     /**
