@@ -14,7 +14,6 @@ return array (
                                     'defaults' => array (
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'create',
-                                        'no-target' => true,
                                         'folder' => '.',
                                     ),
                                     'info' => array(
@@ -23,7 +22,8 @@ return array (
                                     ),
                                     'files' => array(
                                         'folder'
-                                    )
+                                    ),
+                                    'no-target' => true,
                                 ),
                             ),
                             'packZpk'   => array(
@@ -32,7 +32,6 @@ return array (
                                     'defaults' => array (
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'pack',
-                                        'no-target' => true,
                                         'folder' => '.',
                                         'destination' => '.',
                                     ),
@@ -44,7 +43,8 @@ return array (
                                     ),
                                     'files' => array(
                                         'folder', 'destination'
-                                    )
+                                    ),
+                                    'no-target' => true,
                                 ),
                             )
                         ),

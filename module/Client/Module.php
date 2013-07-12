@@ -79,7 +79,6 @@ EOT;
         ) {
             foreach ($config['console']['router']['routes'][$routeName]['options']['files'] as $param) {
                 if ($value = $match->getParam($param)) {
-                    print "$param:$value => ".$path->getAbsolute($value)."\n";
                     $match->setParam($param, $path->getAbsolute($value));
                 }
             }
