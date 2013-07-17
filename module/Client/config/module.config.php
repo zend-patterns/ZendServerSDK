@@ -2,13 +2,38 @@
 return array (
         'controllers' => array (
                 'invokables' => array (
-                        'webapi-zpk-controller' => 'Client\Controller\ZpkController'
+                        'webapi-zpk-controller' => 'Client\Controller\ZpkController',
+                        'webapi-app-controller' => 'Client\Controller\AppController',
+                        'webapi-api-controller' => 'Client\Controller\ApiController',
                 )
         ),
         'console' => array (
                 'router' => array (
                         'routes' => array (
-                                'createZpk' => array(
+                            'installApp' => array (
+                                'options' => array (
+                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--target=] [--zsurl=] [--zskey=] [--zssecret=]',
+                                    'defaults' => array (
+                                        'controller' => 'webapi-app-controller',
+                                        'action' => 'install'
+                                    ),
+                                    'info' => array (
+                                        'This command installs or updates an application',
+                                        array('--zpk', 'The zpk package file'),
+                                        array('--baseUri','The baseUri of where the application will be installed'),
+                                        array('--userParams', 'User parameters that have to formated as a query string'),
+                                        array('--userAppName', 'Name of the application'),
+                                        array('--target', 'The unique name of the target'),
+                                        array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
+                                        array('--zskey', 'The name of the API key'),
+                                        array('--zssecret', 'The hash of the API key'),
+                                    ),
+                                    'arrays' => array (
+                                        'userParams',
+                                    )
+                                )
+                            ),
+                            'createZpk' => array(
                                 'options' => array (
                                     'route' => 'createZpk [--folder=]',
                                     'defaults' => array (
