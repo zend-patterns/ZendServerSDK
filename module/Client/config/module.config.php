@@ -30,6 +30,9 @@ return array (
                                     ),
                                     'arrays' => array (
                                         'userParams',
+                                    ),
+                                    'files' => array (
+                                        'zpk',
                                     )
                                 )
                             ),
