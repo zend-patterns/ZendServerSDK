@@ -5,6 +5,7 @@ return array (
                         'webapi-zpk-controller' => 'Client\Controller\ZpkController',
                         'webapi-app-controller' => 'Client\Controller\AppController',
                         'webapi-api-controller' => 'Client\Controller\ApiController',
+                        'webapi-lib-controller' => 'Client\Controller\LibController',
                 )
         ),
         'console' => array (
