@@ -13,6 +13,7 @@ ini_set('user_agent', 'Zend Server WebAPI Client');
 
 $basePath = dirname(__DIR__);
 if(!defined('PHAR')) {
+    define('CWD',getcwd());
     chdir($basePath);
 }
 
