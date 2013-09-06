@@ -8,6 +8,8 @@ use Zend\Console\Exception\RuntimeException;
  */
 class ComposerInvokable
 {
+    protected static $tempFolders = array();
+
     /**
      * Runs the composer install command in the specified directory
      * @param string $folder
@@ -15,21 +17,29 @@ class ComposerInvokable
     public function install($folder)
     {
         $location = $this->getComposer($folder);
-        /**
-        $realServerArgs = $_SERVER['argv'];
-        $_SERVER['argv'] = array(
-            1 => array('install'),
-        );
 
-        require $location;
-        $_SERVER['argv'] = $realServerArgs;
-        */
+        /**
+         * Poor-man's package dependancy information and installation.
+         * 1. Create a temp directory
+         * 2. Copy the composer.json and composer.phar files to the temp directory
+         * 3. Run composer in the temp directory.
+         * 4. Get installed packages
+         */
+
+        $tempFolder = tempnam(sys_get_temp_dir(),'zsc');
+        if (file_exists($tempFolder)) {
+            unlink($tempFolder);
+        }
+        mkdir($tempFolder);
+
+        copy($location, $tempFolder."/composer.phar");
+        copy($folder.'/composer.json', $tempFolder.'/composer.json');
+
+        $cwd = getcwd();
+        chdir($tempFolder);
+
         $output = array();
         $retVal = 0;
-        $cwd = getcwd();
-        chdir($folder);
-        @rename("composer.lock","composer.lock.old");
-        @rename("vendor","vendor.old");
         exec("php $location install --no-dev", $output, $retVal);
 
         $installedPackages = array();
@@ -46,16 +56,13 @@ class ComposerInvokable
                 $installedPackages[$name] = $version;
             }
         }
-
-        unlink("composer.lock");
-        rename("composer.lock.old","composer.lock");
-
-        self::delTree("vendor");
-        rename("vendor.old","vendor");
-
         chdir($cwd);
+        self::$tempFolders[] = $tempFolder;
 
-        return $installedPackages;
+        return array(
+            'folder' => $tempFolder,
+            'packages' => $installedPackages,
+        );
     }
 
     /**
@@ -105,5 +112,12 @@ class ComposerInvokable
         }
 
         return rmdir($dir);
+    }
+
+    public function __destruct()
+    {
+        foreach(self::$tempFolders as $folder) {
+            self::delTree($folder);
+        }
     }
 }

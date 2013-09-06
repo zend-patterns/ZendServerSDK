@@ -60,15 +60,13 @@ class ZpkController extends AbstractActionController
                 }
 
                 if (count($dependancies['library'])) {
-                    $installedPackages = $composer->install($folder);
-                    foreach ($installedPackages as $library=>$version) {
-                        $libraryFolder = $folder.'/vendor/'.$library;
+                    $data = $composer->install($folder);
+                    foreach ($data['packages'] as $library=>$version) {
+                        $libraryFolder = $data['folder'].'/vendor/'.$library;
                         $zpk->create($libraryFolder, array(
                                                             'type'=>'library',
                                                             'name'=>$library,
                                                             'version'=> array('release'=>$version),
-                                                            'appdir'=>'',
-                                                            'scriptsdir'=>''
                                                      ));
                         $zpkFile = $zpk->pack($libraryFolder, $destination,"$library-$version.zpk");
                         $content.= $zpkFile."\n";
