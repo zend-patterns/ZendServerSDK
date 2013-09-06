@@ -1,11 +1,23 @@
 {
 	"name" : "zenddevops/client",
 	"description" : "ZF2 CLI tool to access Zend Server Web API",
+	"type" : "project",
+	"authors" : [{
+			"name" : "Slavey Karadzhov",
+			"email" : "slavey@zend.com",
+			"homepage" : "http://zend.com",
+			"role" : "Author"
+		}
+	],
 	"keywords" : [
 		"zf2",
 		"zend server",
 		"api",
 		"cli"
+	],
+	"homepage" : "https://github.com/zendtech/ZendServerSDK",
+	"license" : [
+		"BSD-3-Clause"
 	],
 	"require" : {
 		"php" : ">=5.3.3",
@@ -24,6 +36,7 @@
 			"module/Client/Module.php"
 		]
 	},
+	"support" : {},
 	"bin" : [
 		"bin/zs-client.php"
 	]
