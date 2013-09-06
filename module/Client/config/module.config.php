@@ -13,7 +13,7 @@ return array (
                         'routes' => array (
                             'installApp' => array (
                                 'options' => array (
-                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--target=] [--zsurl=] [--zskey=] [--zssecret=]',
+                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
                                     'defaults' => array (
                                         'controller' => 'webapi-app-controller',
                                         'action' => 'install'
@@ -28,6 +28,7 @@ return array (
                                         array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
                                         array('--zskey', 'The name of the API key'),
                                         array('--zssecret', 'The hash of the API key'),
+                                        array('--zsversion', 'The major Zend Server version. Ex: 6.1, 6.0 or 5.6'),
                                     ),
                                     'arrays' => array (
                                         'userParams',
@@ -75,7 +76,27 @@ return array (
                                     ),
                                     'no-target' => true,
                                 ),
-                            )
+                            ),
+                            'installLib' => array (
+                                'options' => array (
+                                    'route' => 'installLib --zpk= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
+                                    'defaults' => array (
+                                        'controller' => 'webapi-lib-controller',
+                                        'action' => 'install'
+                                    ),
+                                    'info' => array (
+                                        'This command installs a library. If the library is already installed then it does not do anything.',
+                                            array('--zpk', 'The zpk package file'),
+                                            array('--target', 'The unique name of the target'),
+                                            array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
+                                            array('--zskey', 'The name of the API key'),
+                                            array('--zssecret', 'The hash of the API key'),
+                                        ),
+                                        'files' => array (
+                                            'zpk',
+                                        )
+                                    )
+                                ),
                         ),
                 )
 

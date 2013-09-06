@@ -172,17 +172,17 @@ class ZpkInvokable
         $zpk = new \ZipArchive();
         $zpk->open($outZipPath, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
         $zpk->addFile($sourceFolder."/deployment.xml", 'deployment.xml');
-        $folderMap = array(
-            'appdir.includes' 	  => $appDir,
-            'scriptsdir.includes' => '',
-        );
 
+        $folderMap = array();
         if($type == self::TYPE_LIBRARY) {
             // Include all files and folders for the library
             $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
-            $folderMap = array(
-                'appdir.includes' 	  => '',
-            );
+            $folderMap['appdir.includes'] = '';
+        } else {
+            $folderMap['appdir.includes'] = $appDir;
+            if(isset($xml->scriptsdir)) {
+                $folderMap['scriptsdir.includes'] = $scriptsDir;
+            }
         }
 
         ErrorHandler::start();

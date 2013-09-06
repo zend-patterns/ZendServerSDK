@@ -2,6 +2,7 @@
 namespace Client\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Client\Service\ZpkInvokable;
+use Zend\Mvc\Exception\RuntimeException;
 
 /**
  * Library Console Controller
@@ -14,10 +15,7 @@ class LibController extends AbstractActionController
     {
         $requestParameters = array();
         $zpk     = $this->params('zpk');
-        $baseUri = $this->params('baseUri');
-        $userParams = $this->params('userParams', array());
-        $appName    = $this->params('userAppName');
-        $appId      = 0;
+        $libId   = 0;
 
         $zpkService = $this->serviceLocator->get('zpk');
         try {
@@ -27,7 +25,7 @@ class LibController extends AbstractActionController
         }
 
         if (!(isset($xml->type) && $xml->type == ZpkInvokable::TYPE_LIBRARY)) {
-            return $this->forward()->dispatch('webapi-app-controller');
+            throw new RuntimeException('The package is not a library. Use "installApp" to install an application.');
         }
 
         $apiManager = $this->serviceLocator->get('zend_server_api');
@@ -35,14 +33,8 @@ class LibController extends AbstractActionController
         // validate the package
         $zpkService->validateMeta($zpk);
 
-        if (!$appName) {
-            // get the name of the application from the package
-            $appName = sprintf("%s", $xml->name);
-            // or the baseUri
-            if (!$appName) {
-                $appName = str_replace($baseUri, '/', '');
-            }
-        }
+        // get  name and version from the package information
+        $appName = sprintf("%s", $xml->name);
         $version = sprintf("%s", $xml->version->release);
 
         // check what libraries are deployed
@@ -51,7 +43,7 @@ class LibController extends AbstractActionController
             if ($libElement->libraryName == $appName) {
                 foreach ($libElement->libraryVersions->libraryVersion as $versionElement) {
                     if ($versionElement->version == $version) {
-                        $appId = $versionElement->libraryVersionId;
+                        $libId = $versionElement->libraryVersionId;
                         break;
                     }
 
@@ -59,11 +51,12 @@ class LibController extends AbstractActionController
             }
         }
 
-        // if this one is not deployed, then try to deploy it.
-        if ($appId) {
+        // just exit if this version of the library is already deployed
+        if ($libId) {
             return $response->getHttpResponse();
         }
 
+        // otherwise try to deploy it
         $response = $this->forward()->dispatch('webapi-api-controller',array(
                         'action'      => 'libraryVersionDeploy',
                         'libPackage'  => $zpk,
