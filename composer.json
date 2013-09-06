@@ -1,5 +1,12 @@
 {
 	"name" : "zenddevops/client",
+	"description" : "ZF2 CLI tool to access Zend Server Web API",
+	"keywords" : [
+		"zf2",
+		"zend server",
+		"api",
+		"cli"
+	],
 	"require" : {
 		"php" : ">=5.3.3",
 		"openlss/lib-array2xml" : "dev-master",
