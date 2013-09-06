@@ -67,6 +67,7 @@ class ZpkController extends AbstractActionController
                                                             'type'=>'library',
                                                             'name'=>$library,
                                                             'version'=> array('release'=>$version),
+                                                            'appdir' => ''
                                                      ));
                         $zpkFile = $zpk->pack($libraryFolder, $destination,"$library-$version.zpk");
                         $content.= $zpkFile."\n";
