@@ -108,4 +108,11 @@ return array (
                 'path' => 'Client\Service\PathInvokable',
              )
         ),
+
+        'zsapi' => array(
+            //Target definition file
+            'file' => (isset($_SERVER['HOME'])? $_SERVER['HOME']:
+                        $_SERVER['HOMEDRIVE'].$_SERVER['HOMEPATH'] // Available on Windows
+                       ).DIRECTORY_SEPARATOR.'.zsapi.ini',
+        )
 );
