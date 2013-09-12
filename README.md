@@ -3,10 +3,10 @@ Installation
 
 Change directory
 
-...
+```
+cd /path-to/ZendServerSDK
+```
 
-cd /<path>/ZendServerSDK
-...
 	
 Install composer
 
