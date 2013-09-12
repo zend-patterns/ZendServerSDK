@@ -1,6 +1,20 @@
 Installation
 ============
 
+Change directory
+...
+
+cd /<path>/ZendServerSDK
+...
+	
+Install composer
+Run
+
+...
+
+curl -sS https://getcomposer.org/installer | php
+...
+
 Run 
 
 ```
