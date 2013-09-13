@@ -1,33 +1,51 @@
 Installation
 ============
 
-Change directory
 
+Stable Version
+--------
+You can copy locally the latest stable in a stand-alone file from:
+https://github.com/zendtech/ZendServerSDK/raw/master/bin/zs-client.phar
+
+Development Version
+--------
+Clone the latest source code
 ```
-cd /path-to/ZendServerSDK
+git clone https://github.com/zendtech/ZendServerSDK.git
 ```
 
+Then change the directory to the newly created one
+```
+cd ZendServerSDK
+```
 	
 Install composer
-
-
-Run
-
 ```
-curl -sS https://getcomposer.org/installer | php
+wget http://getcomposer.org/composer.phar
 ```
 
-Run 
-
+Get all dependant packages.
 ```
 php composer.phar install --no-dev
 ```
 
-to get the dependant packages.
-
 
 Usage
 ============
+
+Stable Version
+---------
+
+Run the phar file with --help to see the available commands:
+```
+php zs-client.phar  --help
+```
+
+See below for more options. 
+Notice: When using the stable version remember to use zs-client.phar instead of bin/zs-client.php.
+
+Development Version
+---------
 Run the following, from the directory where this file is located,  to see all commands:
 
 ```
