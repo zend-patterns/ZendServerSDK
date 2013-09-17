@@ -2,6 +2,7 @@
 return array (
         'controllers' => array (
                 'invokables' => array (
+                        'webapi-target-controller' => 'Client\Controller\TargetController',
                         'webapi-zpk-controller' => 'Client\Controller\ZpkController',
                         'webapi-app-controller' => 'Client\Controller\AppController',
                         'webapi-api-controller' => 'Client\Controller\ApiController',
@@ -11,6 +12,25 @@ return array (
         'console' => array (
                 'router' => array (
                         'routes' => array (
+                            'addTarget' => array (
+                                'options' => array (
+                                        'route' => 'addTarget --target= [--zsurl=] --zskey= --zssecret= [--zsversion=]',
+                                        'defaults' => array (
+                                        'controller' => 'webapi-target-controller',
+                                        'action' => 'add',
+                                        'zsurl'     => "http://localhost:10081",
+                                        'zsversion' => '6.1',
+                                    ),
+                                    'info' => array (
+                                        'This command has to be executed first if you do not want to pass always the zskey zssecret and zsurl.',
+                                        array('--target', 'The unique name of the target'),
+                                        array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
+                                        array('--zskey', 'The name of the API key'),
+                                        array('--zssecret', 'The hash of the API key'),
+                                    ),
+                                    'no-target' => true,
+                                )
+                            ),
                             'installApp' => array (
                                 'options' => array (
                                     'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',

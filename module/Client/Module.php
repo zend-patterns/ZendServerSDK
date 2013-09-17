@@ -119,12 +119,7 @@ EOT;
             return;
         }
         // Read the default target
-        if (!isset($config['zsapi']['target'])) {
-            $config['zsapi']['target'] = new ArrayObject();
-        } else if(is_array($config['zsapi']['target'])) {
-            $config['zsapi']['target'] = new ArrayObject($config['zsapi']['target']);
-        }
-        $targetConfig = $config['zsapi']['target'];
+        $targetConfig = $services->get('targetConfig');
 
         // Add manage named target (defined in zsapi.ini)
         $target = $match->getParam('target');
@@ -132,6 +127,9 @@ EOT;
             try {
                 $reader = new ConfigReader();
                 $data = $reader->fromFile($config['zsapi']['file']);
+                if(empty($data[$target])) {
+                    throw new \Zend\Console\Exception\RuntimeException('Invalid target specified.');
+                }
                 foreach($data[$target] as $k=>$v) {
                     $targetConfig[$k] = $v;
                 }
