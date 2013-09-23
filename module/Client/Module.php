@@ -6,7 +6,6 @@ use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\Mvc\MvcEvent;
 use Zend\Config\Reader\Ini as ConfigReader;
 use Zend\Http\Response as HttpResponse;
-use Zend\Stdlib\ArrayObject;
 
 class Module implements ConsoleBannerProviderInterface
 {
@@ -18,7 +17,7 @@ class Module implements ConsoleBannerProviderInterface
     public function getConfig ()
     {
         $config = include __DIR__ . '/config/module.config.php';
-        if(!getenv('DEBUG')) {
+        if (!getenv('DEBUG')) {
             $config['view_manager']['exception_message'] = <<<EOT
 ======================================================================
    The application has thrown an exception!
@@ -28,6 +27,7 @@ class Module implements ConsoleBannerProviderInterface
 
 EOT;
         }
+
         return $config;
     }
 
@@ -91,10 +91,17 @@ EOT;
             foreach ($config['console']['router']['routes'][$routeName]['options']['arrays'] as $arrayParam) {
                 if ($value = $match->getParam($arrayParam)) {
                     $data = array();
-                    // @todo: add exception if the value is not a valid query
-                    // string
-                    parse_str($value, $data); // the values is provided like
-                                              // a query string
+                    if (strpos($value,'&')===false & strpos($value,'=')===false) {
+                        // the value is comma separated values
+                        $data = explode(',',$value);
+                        foreach ($data as &$v) {
+                            $v = trim($v);
+                        }
+                    } else {
+                        // check if the values is provided like a query string
+                        parse_str($value, $data);
+                    }
+
                     $match->setParam($arrayParam, $data);
                 }
             }
@@ -127,10 +134,10 @@ EOT;
             try {
                 $reader = new ConfigReader();
                 $data = $reader->fromFile($config['zsapi']['file']);
-                if(empty($data[$target])) {
+                if (empty($data[$target])) {
                     throw new \Zend\Console\Exception\RuntimeException('Invalid target specified.');
                 }
-                foreach($data[$target] as $k=>$v) {
+                foreach ($data[$target] as $k=>$v) {
                     $targetConfig[$k] = $v;
                 }
             } catch (\Zend\Config\Exception\RuntimeException $ex) {
@@ -148,7 +155,6 @@ EOT;
             throw new \Zend\Console\Exception\RuntimeException(
                     'Specify either a --target= parameter or --zsurl=http://localhost:10081/ZendServer --zskey= --zssecret=');
         }
-
 
         // optional: override the target parameters from the command line
         foreach (array(
