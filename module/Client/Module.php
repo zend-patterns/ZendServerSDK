@@ -94,8 +94,8 @@ EOT;
                     if (strpos($value,'&')===false & strpos($value,'=')===false) {
                         // the value is comma separated values
                         $data = explode(',',$value);
-                        foreach ($data as &$v) {
-                            $v = trim($v);
+                        foreach ($data as $i=>$v) {
+                            $data[$i] = trim($v);
                         }
                     } else {
                         // check if the values is provided like a query string
