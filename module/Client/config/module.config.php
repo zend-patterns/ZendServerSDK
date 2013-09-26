@@ -28,6 +28,7 @@ return array (
                                         array('--zskey', 'The name of the API key'),
                                         array('--zssecret', 'The hash of the API key'),
                                     ),
+                                    'group'=>'target',
                                     'no-target' => true,
                                 )
                             ),
@@ -38,6 +39,7 @@ return array (
                                         'controller' => 'webapi-app-controller',
                                         'action' => 'install'
                                     ),
+                                    'group'=>'high-level',
                                     'info' => array (
                                         'This command installs or updates an application',
                                         array('--zpk', 'The zpk package file'),
@@ -80,6 +82,7 @@ return array (
                                         'folder'
                                     ),
                                     'no-target' => true,
+                                    'group' => 'packaging'
                                 ),
                             ),
                             'packZpk'   => array(
@@ -101,6 +104,7 @@ return array (
                                         'folder', 'destination'
                                     ),
                                     'no-target' => true,
+                                    'group' => 'packaging'
                                 ),
                             ),
                             'installLib' => array (
@@ -110,22 +114,22 @@ return array (
                                         'controller' => 'webapi-lib-controller',
                                         'action' => 'install'
                                     ),
+                                    'files' => array (
+                                        'zpk',
+                                    ),
+                                    'group'=>'high-level',
                                     'info' => array (
                                         'This command installs a library. If the library is already installed then it does not do anything.',
-                                            array('--zpk', 'The zpk package file'),
-                                            array('--target', 'The unique name of the target'),
-                                            array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
-                                            array('--zskey', 'The name of the API key'),
-                                            array('--zssecret', 'The hash of the API key'),
-                                        ),
-                                        'files' => array (
-                                            'zpk',
-                                        )
-                                    )
-                                ),
+                                        array('--zpk', 'The zpk package file'),
+                                        array('--target', 'The unique name of the target'),
+                                        array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
+                                        array('--zskey', 'The name of the API key'),
+                                        array('--zssecret', 'The hash of the API key'),
+                                    ),
+                                )
+                            ),
                         ),
                 )
-
         ),
 
         'service_manager' => array (
