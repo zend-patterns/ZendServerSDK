@@ -17,9 +17,14 @@ class PathInvokable
      */
     public function getAbsolute($path)
     {
+        $isWindows = $this->isWindows();
+        if(!$isWindows && substr($path,0,1)=='~') {
+            $path = getenv('HOME').substr($path,1);
+        }
+
         if (
             strpos($path, '/')!==0 ||
-            ($this->isWindows() && !preg_match("/^[a-z]:\\/i", $path))
+            ($isWindows && !preg_match("/^[a-z]:\\/i", $path))
         ) { // if we have relative path
             $cwd = $this->getCwd();
             $path = $cwd.'/'.$path;

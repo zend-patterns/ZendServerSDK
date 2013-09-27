@@ -200,6 +200,14 @@ class ZpkInvokable
                 $path = trim($path);
                 $fullPath = $sourceFolder.'/'.$path;
                 if(is_file($fullPath)) {
+                    // Fix the script properties to match the behaviour of ZendStudio
+                    if($key=='scriptsdir.includes') {
+                        $hardCodedPrefix = 'scripts/';
+                        if(strpos($path, $hardCodedPrefix)===0) {
+                            $path = substr($path, strlen($hardCodedPrefix));
+                        }
+                    }
+
                     $zpk->addFile($fullPath, $this->fixZipPath($baseDir.$path));
                 } else if(is_dir($fullPath)) {
                     $countFiles = scandir($fullPath);

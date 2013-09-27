@@ -27,18 +27,18 @@ class AppController extends AbstractActionController
             throw new \Zend\Mvc\Exception\RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
         }
 
-        if (isset($xml->type) && $xml->type == ZpkInvokable::TYPE_LIBRARY) {
+        if(isset($xml->type) && $xml->type == ZpkInvokable::TYPE_LIBRARY) {
             return $this->forward()->dispatch('webapi-lib-controller');
         }
 
         // validate the package
         $zpkService->validateMeta($zpk);
 
-        if (!$appName) {
+        if(!$appName) {
             // get the name of the application from the package
             $appName = sprintf("%s", $xml->name);
             // or the baseUri
-            if (!$appName) {
+            if(!$appName) {
                 $appName = str_replace($baseUri, '/', '');
             }
         }
@@ -46,20 +46,29 @@ class AppController extends AbstractActionController
         // check what applications are deployed
         $response = $apiManager->applicationGetStatus();
         foreach ($response->responseData->applicationsList->applicationInfo as $appElement) {
-            if ($appElement->appName == $appName) {
+            if($appElement->appName == $appName) {
                 $appId = $appElement->id;
                 break;
             }
         }
 
-        if (!$appId) {
-            $response = $this->forward()->dispatch('webapi-api-controller',array(
+        if(!$appId) {
+            $params = array(
                 'action'      => 'applicationDeploy',
                 'appPackage'  => $zpk,
                 'baseUrl'     => $baseUri,
                 'userAppName' => $appName,
                 'userParams'  => $userParams,
-            ));
+            );
+
+            $optionalParams = array('createVhost', 'defaultServer', 'ignoreFailures');
+            foreach ($optionalParams as $key) {
+                $value = $this->params($key);
+                if ($value) {
+                    $params[$key] = $value;
+                }
+            }
+            $response = $this->forward()->dispatch('webapi-api-controller',$params);
 
         } else {
             // otherwise update the application
