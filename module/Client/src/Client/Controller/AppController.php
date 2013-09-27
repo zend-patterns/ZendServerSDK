@@ -64,7 +64,7 @@ class AppController extends AbstractActionController
             $optionalParams = array('createVhost', 'defaultServer', 'ignoreFailures');
             foreach ($optionalParams as $key) {
                 $value = $this->params($key);
-                if ($value !==null) {
+                if ($value) {
                     $params[$key] = $value;
                 }
             }

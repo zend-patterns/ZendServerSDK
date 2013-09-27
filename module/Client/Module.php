@@ -108,7 +108,6 @@ EOT;
         }
 
         // [Translate all paths to real absolute paths]
-        $routeName = $match->getMatchedRouteName();
         if (isset(
                 $config['console']['router']['routes'][$routeName]['options']['files'])
         ) {
@@ -121,7 +120,6 @@ EOT;
         }
 
         // [Figure out the target]
-        $routeName = $match->getMatchedRouteName();
         if (isset($config['console']['router']['routes'][$routeName]['options']['no-target'])) {
             return;
         }

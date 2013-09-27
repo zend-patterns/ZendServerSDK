@@ -34,7 +34,7 @@ return array (
                             ),
                             'installApp' => array (
                                 'options' => array (
-                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost] [--defaultServer] [--ignoreFailures] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
+                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
                                     'defaults' => array (
                                         'controller' => 'webapi-app-controller',
                                         'action' => 'install'
