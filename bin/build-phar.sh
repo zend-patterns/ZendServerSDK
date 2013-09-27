@@ -2,6 +2,13 @@
 
 # Build script that automates the clean compilation of new phar file.
 
+BRANCH=`git rev-parse --abbrev-ref HEAD`
+if [ "$BRANCH" == "" ]; then
+	read -p "Which branch to use(master/composer)?" BRANCH
+fi
+
+echo "Using branch: $BRANCH";
+
 PWD=`pwd`
 cd /tmp
 TMP_DIR=`mktemp -d`
@@ -9,6 +16,7 @@ echo "Created temp directory $TMP_DIR."
 cd $TMP_DIR
 git clone https://github.com/zendtech/ZendServerSDK.git
 cd ZendServerSDK/
+git checkout $BRANCH
 wget http://getcomposer.org/composer.phar
 php composer.phar install --no-dev
 # Update the library to the git version
@@ -19,7 +27,7 @@ read -p "Do you want to commit-n-push the newly compiled phar file (Y/n)?" RESUL
 if [ "$RESULT" != "n" ]; then
 	git commit -a -m "Compiled new phar file."
 	if [ $? -eq 0 ]; then
-		git push origin master
+		git push origin $BRANCH
 	else 
 		echo "Nothing to commit" 	 
 	fi	
