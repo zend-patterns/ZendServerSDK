@@ -12,6 +12,8 @@ class ZpkInvokable
 
     protected static $keyOrder;
 
+    protected static $checkZipVersion=true;
+
     /**
      *
      * @param string $filename
@@ -163,11 +165,15 @@ class ZpkInvokable
 
         $outZipPath = $destinationFolder.'/'.$fileName;
 
-        $ext = new \ReflectionExtension('zip');
-        $zipVersion = $ext->getVersion();
-        if(!version_compare($zipVersion,'1.11.0','>=')) {
-            error_log("WARNING: Non-Ascii file/folder names are supported only with PHP zip extension >=1.11.0 (your version is: $zipVersion)\n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
+        if(self::$checkZipVersion) {
+            $ext = new \ReflectionExtension('zip');
+            $zipVersion = $ext->getVersion();
+            if(!version_compare($zipVersion,'1.11.0','>=')) {
+                error_log("WARNING: Non-Ascii file/folder names are supported only with PHP zip extension >=1.11.0 (your version is: $zipVersion)\n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
+            }
+            self::$checkZipVersion = false;
         }
+
 
         $zpk = new \ZipArchive();
         $zpk->open($outZipPath, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
