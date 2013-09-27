@@ -9,6 +9,7 @@ echo "Created temp directory $TMP_DIR."
 cd $TMP_DIR
 git clone https://github.com/zendtech/ZendServerSDK.git
 cd ZendServerSDK/
+git checkout composer
 wget http://getcomposer.org/composer.phar
 php composer.phar install --no-dev
 # Update the library to the git version
