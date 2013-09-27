@@ -167,6 +167,7 @@ php bin/zs-client.php installApp --zpk="<location-of-the-zpk-file>" \
 If you use the composer integration then packZpk can create multiple packages, instead of one. Below is a suggestion how you can
 deploy these newly created packages in the correct order.
 
+```
 ZPKS=`php bin/zs-client.php packZpk --folder="<folder-where-the-PHP-code-is>" \
 			      	        --destination="<folder-where-the-package-will-be-created>" \
 	                                --composer 2>/dev/null`;
@@ -177,6 +178,7 @@ for i in $ZPKS; do
                                  --baseUri="<baseUri>" \
                                  --userParams="APPLICATION_ENV=staging&DB_TYPE=mysql"
 done;
+```
 
 
 For questions and feedback write to slavey (at) zend DOT com.
