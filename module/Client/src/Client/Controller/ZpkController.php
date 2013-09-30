@@ -32,6 +32,50 @@ class ZpkController extends AbstractActionController
         return $this->initAction();
     }
 
+    /**
+     * Verifies the deployment.xml and the existance of the files that have to be packed as described in the deployment.properties file.
+     * @param string folder
+     * @param string zpk
+     */
+    public function verifyAction()
+    {
+        $zpk = $this->serviceLocator->get('zpk');
+        $from = $this->params('from');
+        if(is_dir($from)) {
+            // check the deployment.xml in the folder
+            $content = file_get_contents($from.'/deployment.xml');
+
+            // for a folder we check also the properties
+            $zpk->validateProperties($from);
+        } else {
+            $content = $zpk->getFileContent($from, 'deployment.xml');
+        }
+
+        // Check XML
+        $zpk->validateXml($content);
+    }
+
+    /**
+     * Tries to fix the deployment xml if it does not match the schema.xsd.
+     * @param string folder
+     */
+    public function fixAction()
+    {
+        $zpk = $this->serviceLocator->get('zpk');
+        $from = $this->params('from');
+        if(is_dir($from)) {
+            // check the deployment.xml in the folder
+            $content = file_get_contents($from.'/deployment.xml');
+            $result = $zpk->fixXml($content);
+            file_put_contents($from.'/deployment.xml',$result);
+
+            // @todo: for a folder fix also the properties
+        } else {
+            $content = $zpk->getFileContent($from, 'deployment.xml');
+            $result = $zpk->fixXml($content);
+            $zpk->setFileContent($from, 'deployment.xml',$result);
+        }
+    }
 
     /**
      * Creates a package from existing PHP code
@@ -44,7 +88,7 @@ class ZpkController extends AbstractActionController
         $destination = $this->getRequest()->getParam('destination');
         $zpk = $this->serviceLocator->get('zpk');
         $zpkFile = $zpk->pack($folder, $destination, $this->getRequest()->getParam('name'));
-        $this->getResponse()->setContent($zpkFile);
+        $this->getResponse()->setContent($zpkFile."\n");
 
         return $this->getResponse();
     }

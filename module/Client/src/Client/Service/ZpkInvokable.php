@@ -2,6 +2,7 @@
 namespace Client\Service;
 
 use Zend\Stdlib\ErrorHandler;
+use Zend\ServiceManager\Exception\RuntimeException;
 
 /**
  * ZPK Service
@@ -77,16 +78,59 @@ class ZpkInvokable
         return $xml->saveXML();
     }
 
+
     public function validateMeta($filename)
+    {
+        $content = $this->getFileContent($filename, 'deployment.xml');
+        $this->validateXml($content);
+    }
+
+    /**
+     * Extracts the content from a packed file in the zpk.
+     * @param string $zpkFile
+     * @param string $internalPath
+     * @return string
+     */
+    public function getFileContent($zpkFile, $internalPath)
     {
         $zip = new \ZipArchive;
 
         ErrorHandler::start();
-        $zip->open($filename);
-        $content = $zip->getFromName('deployment.xml');
+        $zip->open($zpkFile);
+        $content = $zip->getFromName($internalPath);
         $zip->close();
         ErrorHandler::stop(true);
 
+        return $content;
+    }
+
+    /**
+     * Extracts the content from a packed file in the zpk.
+     * @param string $zpkFile
+     * @param string $internalPath
+     * @return string
+     */
+    public function setFileContent($zpkFile, $internalPath, $content)
+    {
+        $internalPath = $this->fixZipPath($internalPath);
+        $zip = new \ZipArchive;
+
+        ErrorHandler::start();
+        $zip->open($zpkFile);
+        $content = $zip->addFromString($internalPath, $content);
+        $zip->close();
+        ErrorHandler::stop(true);
+
+        return $content;
+    }
+
+    /**
+     * Validates the deployment.xml against the specified schema.xsd
+     * @param unknown $content
+     * @throws \DOMException
+     */
+    public function validateXml($content)
+    {
         $dom = new \DOMDocument();
         $dom->loadXML($content);
 
@@ -102,6 +146,30 @@ class ZpkInvokable
         }
     }
 
+    /**
+     * Fixes deployment.xml file
+     * @param string $content
+     * @return string
+     */
+    public function fixXml($content)
+    {
+        $doc = new \DOMDocument();
+        ErrorHandler::start();
+        $doc->loadXML($content);
+        ErrorHandler::stop(true);
+        $data = \LSS\XML2Array::createArray($doc);
+
+        $root = $doc->documentElement;
+        $rootName = $root->tagName;
+        $data[$rootName]['@attributes']['xmlns'] = $root->getAttribute('xmlns');
+
+        // fix the order of the elements
+        $data[$rootName] = self::fixMetaKeyOrder($data[$rootName]);
+
+
+        $xml = \LSS\Array2XML::createXML($rootName, $data[$rootName]);
+        return $xml->saveXML();
+    }
 
     /**
      * Adds deployment support to an existing PHP application
@@ -281,7 +349,6 @@ class ZpkInvokable
     {
         $lines = file($file);
         $properties = array ();
-
         $key = "";
         $isWaitingOtherLine = false;
         foreach($lines as $i=>$line) {
@@ -314,6 +381,39 @@ class ZpkInvokable
         }
 
         return $properties;
+    }
+
+    /**
+     * Validates the existence of the files in the deployment.properties
+     * @param array $properties
+     * @throws RuntimeException
+     */
+    public function validateProperties($folder)
+    {
+        $properties = $this->getProperties($folder.'/deployment.properties');
+
+        $map = array(
+            'appdir.includes',
+            'scriptsdir.includes'
+        );
+
+        foreach($map as $key) {
+            if(!isset($properties[$key])) {
+                continue;
+            }
+
+            $error = "";
+            $files = $properties[$key];
+            foreach($files as $file) {
+                $path = $folder.'/'.trim($file);
+                if(!file_exists($path)) {
+                    $error.="File/folder does not exist: ".$path."\n";
+                }
+            }
+            if($error) {
+                throw new RuntimeException($error);
+            }
+        }
     }
 
     /**

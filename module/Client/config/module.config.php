@@ -77,7 +77,7 @@ return array (
                                     'info' => array(
                                         'DEPRECATED: Use initZpk instead!',
                                         'Adds ZPK support to existing PHP project',
-                                        array('folder','Folder where the source code is located')
+                                        array('--folder','Folder where the source code is located')
                                     ),
                                     'files' => array(
                                         'folder'
@@ -96,7 +96,7 @@ return array (
                                     ),
                                     'info' => array(
                                         'Adds ZPK support to existing PHP project',
-                                        array('folder','Folder where the source code is located')
+                                        array('--folder','Folder where the source code is located')
                                     ),
                                     'files' => array(
                                         'folder'
@@ -104,6 +104,42 @@ return array (
                                     'no-target' => true,
                                     'group' => 'packaging'
                                 ),
+                            ),
+                            'verifyZpk'   => array(
+                                'options' => array (
+                                    'route' => 'verifyZpk --from=',
+                                    'defaults' => array (
+                                        'controller' => 'webapi-zpk-controller',
+                                        'action' => 'verify',
+                                    ),
+                                    'info' => array(
+                                        'Verifies the deployment.xml and the existance of the files that have to be packed as described in the deployment.properties file.',
+                                        array('--from','Folder where the source code and the deployment.xml is located OR existing ZPK file.'),
+                                    ),
+                                    'files' => array(
+                                        'from'
+                                    ),
+                                    'no-target' => true,
+                                    'group' => 'packaging'
+                                ),
+                            ),
+                            'fixZpk'   => array(
+                                    'options' => array (
+                                        'route' => 'fixZpk --from=',
+                                        'defaults' => array (
+                                            'controller' => 'webapi-zpk-controller',
+                                            'action' => 'fix',
+                                        ),
+                                        'files' => array(
+                                            'from',
+                                        ),
+                                        'info' => array(
+                                            'Fixes the deployment.xml.',
+                                            array('--from','Folder where the source code and the deployment.xml is located OR existing ZPK file.'),
+                                        ),
+                                        'no-target' => true,
+                                        'group' => 'packaging'
+                                    ),
                             ),
                             'packZpk'   => array(
                                 'options' => array (
@@ -116,9 +152,9 @@ return array (
                                     ),
                                     'info' => array(
                                           'Creates a ZPK package from PHP project with ZPK support',
-                                          array('folder','Folder where the source code is located'),
-                                          array('destination','Folder in which to save the created ZPK file'),
-                                          array('name','The name of the package. If not provided the name will be constructed from the name of the application and its version.')
+                                          array('--folder','Folder where the source code is located'),
+                                          array('--destination','Folder in which to save the created ZPK file'),
+                                          array('--name','The name of the package. If not provided the name will be constructed from the name of the application and its version.')
                                     ),
                                     'files' => array(
                                         'folder', 'destination'
@@ -127,6 +163,7 @@ return array (
                                     'group' => 'packaging'
                                 ),
                             ),
+
                             'installLib' => array (
                                 'options' => array (
                                     'route' => 'installLib --zpk= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
