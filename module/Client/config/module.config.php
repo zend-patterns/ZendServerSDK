@@ -75,6 +75,26 @@ return array (
                                         'folder' => '.',
                                     ),
                                     'info' => array(
+                                        'DEPRECATED: Use initZpk instead!',
+                                        'Adds ZPK support to existing PHP project',
+                                        array('folder','Folder where the source code is located')
+                                    ),
+                                    'files' => array(
+                                        'folder'
+                                    ),
+                                    'no-target' => true,
+                                    'group' => 'deprecated'
+                                ),
+                            ),
+                            'initZpk' => array(
+                                'options' => array (
+                                    'route' => 'initZpk [--folder=]',
+                                    'defaults' => array (
+                                        'controller' => 'webapi-zpk-controller',
+                                        'action' => 'init',
+                                        'folder' => '.',
+                                    ),
+                                    'info' => array(
                                         'Adds ZPK support to existing PHP project',
                                         array('folder','Folder where the source code is located')
                                     ),

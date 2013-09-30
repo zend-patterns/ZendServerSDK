@@ -13,7 +13,7 @@ class ZpkController extends AbstractActionController
      * Adds deployment support to existing PHP code
      * @param string folder
      */
-    public function createAction()
+    public function initAction()
     {
         $folder = $this->getRequest()->getParam('folder');
         $zpk = $this->serviceLocator->get('zpk');
@@ -21,6 +21,17 @@ class ZpkController extends AbstractActionController
 
         return $this->getResponse();
     }
+
+    /**
+     * Adds deployment support to existing PHP code
+     * @param string folder
+     */
+    public function createAction()
+    {
+        error_log("WARNING: This method is deprecated. Please, use initZpk instead.");
+        return $this->initAction();
+    }
+
 
     /**
      * Creates a package from existing PHP code
