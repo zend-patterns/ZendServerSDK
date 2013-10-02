@@ -14,7 +14,7 @@ class ComposerInvokable
      * Runs the composer install command in the specified directory
      * @param string $folder
      */
-    public function install($folder)
+    public function install($folder, $options = null)
     {
         $location = $this->getComposer($folder);
 
@@ -40,7 +40,13 @@ class ComposerInvokable
 
         $output = array();
         $retVal = 0;
-        exec("php $location install --no-dev", $output, $retVal);
+	$command = "php $location install --no-dev";
+
+	if(!is_null($options)) {
+		$command = "php $location install $options";
+	}
+
+        exec($command, $output, $retVal);
 
         $installedPackages = array();
         foreach ($output as $line) {

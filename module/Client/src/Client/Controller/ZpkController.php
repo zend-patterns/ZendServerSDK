@@ -60,7 +60,9 @@ class ZpkController extends AbstractActionController
                 }
 
                 if (count($dependancies['library'])) {
-                    $data = $composer->install($folder);
+		    $composerOptions =  $this->getRequest()->getParam('composer-options') ? : null;
+                    $data = $composer->install($folder, $composerOptions);
+
                     foreach ($data['packages'] as $library=>$version) {
                         $libraryFolder = $data['folder'].'/vendor/'.$library;
                         $zpk->create($libraryFolder, array(
