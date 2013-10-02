@@ -46,7 +46,7 @@ class AppController extends AbstractActionController
         // check what applications are deployed
         $response = $apiManager->applicationGetStatus();
         foreach ($response->responseData->applicationsList->applicationInfo as $appElement) {
-            if ($appElement->appName == $appName) {
+            if ($appElement->userAppName == $appName) {
                 $appId = $appElement->id;
                 break;
             }
