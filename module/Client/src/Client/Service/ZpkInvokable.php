@@ -272,12 +272,7 @@ class ZpkInvokable
 
                     $zpk->addFile($fullPath, $this->fixZipPath($baseDir.$path));
                 } else if(is_dir($fullPath)) {
-                    $countFiles = scandir($fullPath);
-                    if(count($countFiles) <= 2) {
-                        $zpk->addEmptyDir($this->fixZipPath($baseDir.$path));
-                    } else {
-                        $this->addDir($zpk, $fullPath, $baseDir);
-                    }
+                    $this->addDir($zpk, $fullPath, $baseDir);
                 } else {
                     throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
                 }
@@ -322,7 +317,12 @@ class ZpkInvokable
 
                 $path = $directory."/".$path;
                 if(is_dir($path)) {
-                    $this->addDir($zpk, $path, $currentZipFolder);
+                    $countFiles = scandir($path);
+                    if(count($countFiles) <= 2) {
+                        $zpk->addEmptyDir($this->fixZipPath($currentZipFolder.'/'.basename($path)));
+                    } else {
+                        $this->addDir($zpk, $path, $currentZipFolder);
+                    }
                 } else if(file_exists($path)){
                     $success = $zpk->addFile($path, $this->fixZipPath($currentZipFolder.'/'.basename($path)));
                     if(!$success) {
@@ -458,3 +458,4 @@ class ZpkInvokable
 
     }
 }
+
