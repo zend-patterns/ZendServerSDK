@@ -272,12 +272,7 @@ class ZpkInvokable
 
                     $zpk->addFile($fullPath, $this->fixZipPath($baseDir.$path));
                 } else if(is_dir($fullPath)) {
-                    $countFiles = scandir($fullPath);
-                    if(count($countFiles) <= 2) {
-                        $zpk->addEmptyDir($this->fixZipPath($baseDir.$path));
-                    } else {
-                        $this->addDir($zpk, $fullPath, $baseDir);
-                    }
+                    $this->addDir($zpk, $fullPath, $baseDir);
                 } else {
                     throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
                 }
@@ -307,32 +302,37 @@ class ZpkInvokable
      */
     protected function addDir($zpk, $directory, $baseDir = null)
     {
-        $dir = dir($directory);
-        if($dir) {
-            if($baseDir) {
-                $currentZipFolder = $baseDir.'/'.basename($directory);
-            } else {
-                $currentZipFolder = basename($directory);
-            }
-
-            while($path = $dir->read()) {
-                if(in_array($path, array('.','..'))) {
-                    continue;
-                }
-
-                $path = $directory."/".$path;
-                if(is_dir($path)) {
-                    $this->addDir($zpk, $path, $currentZipFolder);
-                } else if(file_exists($path)){
-                    $success = $zpk->addFile($path, $this->fixZipPath($currentZipFolder.'/'.basename($path)));
-                    if(!$success) {
-                        throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$path' cannot be added zpk");
+        if($baseDir) {
+            $currentZipFolder = $baseDir.'/'.basename($directory);
+        } else {
+            $currentZipFolder = basename($directory);
+        }
+        
+        $countFiles = scandir($directory);
+        if(count($countFiles) <= 2) {
+            $zpk->addEmptyDir($currentZipFolder);
+        } else {
+            $dir = dir($directory);
+            if($dir) {
+                while($path = $dir->read()) {
+                    if(in_array($path, array('.','..'))) {
+                        continue;
                     }
-                } else {
-                    throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$path' is not existing. Verify your deployment.properties!");
+    
+                    $path = $directory."/".$path;
+                    if(is_dir($path)) {
+                        $this->addDir($zpk, $path, $currentZipFolder);
+                    } else if(file_exists($path)){
+                        $success = $zpk->addFile($path, $this->fixZipPath($currentZipFolder.'/'.basename($path)));
+                        if(!$success) {
+                            throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$path' cannot be added zpk");
+                        }
+                    } else {
+                        throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$path' is not existing. Verify your deployment.properties!");
+                    }
                 }
+                $dir->close();
             }
-            $dir->close();
         }
     }
 
