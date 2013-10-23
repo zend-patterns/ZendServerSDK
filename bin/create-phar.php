@@ -73,7 +73,7 @@ function addDir($phar, $sDir, $baseDir = null)
     );
 
     $allowedExtensions = array (
-        'php','phtml','xsd'
+        'php','phtml','xsd','xml','properties'
     );
 
     foreach ($oDir as $sFile) {
