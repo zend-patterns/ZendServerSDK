@@ -260,7 +260,13 @@ class ZpkInvokable
             }
             foreach($properties[$key] as $path) {
                 $path = trim($path);
-                $fullPath = $sourceFolder.'/'.$path;
+
+                if($key=='scriptsdir.includes' && isset($xml->scriptsdir)) {
+                	$fullPath = $sourceFolder.'/' . $xml->scriptsdir . '/' .$path;
+                } else {
+               	 	$fullPath = $sourceFolder.'/'.$path;
+                }
+                
                 if(is_file($fullPath)) {
                     // Fix the script properties to match the behaviour of ZendStudio
                     if($key=='scriptsdir.includes') {
@@ -283,10 +289,10 @@ class ZpkInvokable
                                                                        $zpk->getStatusString());
         }
         ErrorHandler::stop(true);
-
+        
         return $outZipPath;
     }
-
+    
     protected function fixZipPath($path)
     {
         $path = preg_replace('/(\/{2,})/', '/', $path);
