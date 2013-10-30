@@ -278,6 +278,9 @@ class ZpkInvokable
 
                     $zpk->addFile($fullPath, $this->fixZipPath($baseDir.$path));
                 } else if(is_dir($fullPath)) {
+               	 	if($key=='scriptsdir.includes' && isset($xml->scriptsdir) && empty($path)) {
+                	     $baseDir = null;           		
+                	}
                     $this->addDir($zpk, $fullPath, $baseDir);
                 } else {
                     throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
