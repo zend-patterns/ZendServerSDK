@@ -11,6 +11,8 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 ini_set('user_agent', 'Zend Server WebAPI Client');
 
+set_include_path(get_include_path(). PATH_SEPARATOR . getcwd());
+
 $basePath = dirname(__DIR__);
 if(!defined('PHAR')) {
     define('CWD',getcwd());
