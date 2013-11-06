@@ -35,6 +35,11 @@ class TargetController extends AbstractActionController
             }
         }
 
+        $httpOptions = $this->getRequest()->getParam('http');
+        foreach($httpOptions as $key=>$name) {
+            $data[$target]['http'][$key] = $name;
+        }
+
         $config = new ConfigWriter();
         $config->toFile($appConfig['zsapi']['file'], $data);
     }

@@ -14,12 +14,15 @@ return array (
                         'routes' => array (
                             'addTarget' => array (
                                 'options' => array (
-                                        'route' => 'addTarget --target= [--zsurl=] --zskey= --zssecret= [--zsversion=]',
+                                        'route' => 'addTarget --target= [--zsurl=] --zskey= --zssecret= [--zsversion=] [--http=]',
                                         'defaults' => array (
                                         'controller' => 'webapi-target-controller',
                                         'action' => 'add',
                                         'zsurl'     => "http://localhost:10081",
                                         'zsversion' => '6.1',
+                                    ),
+                                    'arrays' => array(
+                                          'http'
                                     ),
                                     'info' => array (
                                         'This command has to be executed first if you do not want to pass always the zskey zssecret and zsurl.',
@@ -27,6 +30,7 @@ return array (
                                         array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
                                         array('--zskey', 'The name of the API key'),
                                         array('--zssecret', 'The hash of the API key'),
+                                        array('--http', 'Optional array with additional HTTP client parameters. Example: --http="timeout=60&sslverifypeer=0" ')
                                     ),
                                     'group'=>'target',
                                     'no-target' => true,
