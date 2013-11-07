@@ -159,7 +159,8 @@ EOT;
                     'zsurl',
                     'zskey',
                     'zssecret',
-                    'zsversion'
+                    'zsversion',
+                    'http'
         ) as $key) {
                 if ( ! $match->getParam($key)) {
                     continue;
