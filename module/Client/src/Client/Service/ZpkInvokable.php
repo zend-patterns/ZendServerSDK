@@ -264,12 +264,11 @@ class ZpkInvokable
                 if(is_file($fullPath)) {
                     // Fix the script properties to match the behaviour of ZendStudio
                     if($key=='scriptsdir.includes') {
-                        $hardCodedPrefix = 'scripts/';
-                        if(strpos($path, $hardCodedPrefix)===0) {
-                            $path = substr($path, strlen($hardCodedPrefix));
+                        $prefix = $scriptsDir ? $scriptsDir : 'scripts/';
+                        if(strpos($path, $prefix)===0) {
+                            $path = substr($path, strlen($prefix));
                         }
                     }
-
                     $zpk->addFile($fullPath, $this->fixZipPath($baseDir.$path));
                 } else if(is_dir($fullPath)) {
                     $this->addDir($zpk, $fullPath, $baseDir);
@@ -378,6 +377,7 @@ class ZpkInvokable
 
         foreach ($properties as &$data) {
             $data = explode(',',trim($data));
+            array_walk($data, function(&$item, $key) { $item = trim($item); });
         }
 
         return $properties;
