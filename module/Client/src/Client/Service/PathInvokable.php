@@ -24,7 +24,7 @@ class PathInvokable
 
         if (
             strpos($path, '/')!==0 ||
-            ($isWindows && !preg_match("/^[a-z]:\\/i", $path))
+            ($isWindows && !preg_match("/^[a-z]:\\\/i", $path))
         ) { // if we have relative path
             $cwd = $this->getCwd();
             $path = $cwd.'/'.$path;
