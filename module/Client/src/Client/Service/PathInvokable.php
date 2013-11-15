@@ -22,8 +22,12 @@ class PathInvokable
             $path = getenv('HOME').substr($path,1);
         }
 
+        /*
+         * A path is relative when it does not start with / and, in the case of a Windows system,
+         * it does not start with x:\ where x is letter from a to z.
+         */
         if (
-            strpos($path, '/')!==0 ||
+            (!$isWindows && strpos($path, '/')!==0) ||
             ($isWindows && !preg_match("/^[a-z]:\\\/i", $path))
         ) { // if we have relative path
             $cwd = $this->getCwd();
@@ -68,4 +72,17 @@ class PathInvokable
 
         return self::$isWindows;
     }
+
+    /**
+     * Allows explicitly setting if this is a Windows system or not.
+     * @param boolean $isWindows
+     * @return boolean the old state
+     */
+    public function setWindows($isWindows)
+    {
+        $currentState = self::$isWindows;
+        self::$isWindows = $isWindows;
+        return $currentState;
+    }
+
 }
