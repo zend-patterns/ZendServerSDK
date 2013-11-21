@@ -45,10 +45,53 @@ class ZpkController extends AbstractActionController
             // check the deployment.xml in the folder
             $content = file_get_contents($from.'/deployment.xml');
 
-            // for a folder we check also the properties
-            $zpk->validateProperties($from);
-        } else {
-            $content = $zpk->getFileContent($from, 'deployment.xml');
+        $content = "";
+        if ($this->getRequest()->getParam('composer') && file_exists($folder.'/composer.json')) {
+            // Enable rudimentary composer support
+            $composer = $this->serviceLocator->get('composer');
+            $requirements = $composer->getMeta($folder, "require");
+            if (count($requirements)) {
+                $dependancies = array();
+                foreach ($requirements as $name=>$version) {
+                    if ($name == "php") {
+                        // add in the deployment.xml dependancy on this PHP version
+                        $dependancies['php'] = self::convertVersion($version);
+                    } elseif (strpos($name,'ext-')===0) {
+                        // add in the deployment.xml dependancy on this PHP extension
+                        $name = substr($name, 4);
+                        $dependancies['extension'][$name] = self::convertVersion($version);
+                    } elseif (strpos($name, 'lib-')===0) {
+                        // @todo: skip for now
+                    } else {
+                        $dependandPackages[$name] = $version;
+                        $dependancies['library'][] = array_merge(
+                                                        array('name' => $name),
+                                                        self::convertVersion($version)
+                                                     );
+                    }
+                }
+
+                if (count($dependancies['library'])) {
+		    $composerOptions =  $this->getRequest()->getParam('composer-options') ? : null;
+                    $data = $composer->install($folder, $composerOptions);
+
+                    foreach ($data['packages'] as $library=>$version) {
+                        $libraryFolder = $data['folder'].'/vendor/'.$library;
+                        $zpk->create($libraryFolder, array(
+                                                            'type'=>'library',
+                                                            'name'=>$library,
+                                                            'version'=> array('release'=>$version),
+                                                            'appdir' => ''
+                                                     ));
+                        $zpkFile = $zpk->pack($libraryFolder, $destination,"$library-$version.zpk");
+                        $content.= $zpkFile."\n";
+                    }
+                }
+
+                if (!empty($dependancies)) {
+                    $zpk->updateMeta($folder, array('dependencies'=> array('required'=> $dependancies)));
+                }
+            }
         }
 
         // Check XML

@@ -147,7 +147,7 @@ return array (
                             ),
                             'packZpk'   => array(
                                 'options' => array (
-                                    'route' => 'packZpk [--folder=] [--destination=] [--name=]',
+                                    'route' => 'packZpk [--folder=] [--destination=] [--name=]  [--composer] [--composer-options=]',
                                     'defaults' => array (
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'pack',
@@ -158,7 +158,9 @@ return array (
                                           'Creates a ZPK package from PHP project with ZPK support',
                                           array('--folder','Folder where the source code is located'),
                                           array('--destination','Folder in which to save the created ZPK file'),
-                                          array('--name','The name of the package. If not provided the name will be constructed from the name of the application and its version.')
+                                          array('--name','The name of the package. If not provided the name will be constructed from the name of the application and its version.'),
+                                          array('--composer','Enables rudimentary composer support.'),
+                                          array('--composer-options','Adds composer flags when running composer')
                                     ),
                                     'files' => array(
                                         'folder', 'destination'
@@ -167,7 +169,6 @@ return array (
                                     'group' => 'packaging'
                                 ),
                             ),
-
                             'installLib' => array (
                                 'options' => array (
                                     'route' => 'installLib --zpk= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
@@ -197,6 +198,7 @@ return array (
             'invokables' => array (
                 'zpk'  => 'Client\Service\ZpkInvokable',
                 'path' => 'Client\Service\PathInvokable',
+                'composer' => 'Client\Service\ComposerInvokable',
              )
         ),
 
