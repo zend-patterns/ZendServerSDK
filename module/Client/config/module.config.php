@@ -147,7 +147,7 @@ return array (
                             ),
                             'packZpk'   => array(
                                 'options' => array (
-                                    'route' => 'packZpk [--folder=] [--destination=] [--name=]  [--composer] [--composer-options=]',
+                                    'route' => 'packZpk [--folder=] [--destination=] [--name=]  [--composer] [--composer-options=] [--composer-dist-files=]',
                                     'defaults' => array (
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'pack',
@@ -160,10 +160,14 @@ return array (
                                           array('--destination','Folder in which to save the created ZPK file'),
                                           array('--name','The name of the package. If not provided the name will be constructed from the name of the application and its version.'),
                                           array('--composer','Enables rudimentary composer support.'),
-                                          array('--composer-options','Adds composer flags when running composer')
+                                          array('--composer-options','Adds composer options when running composer'),
+                                          array('--composer-dist-files', 'Comma separated list of YAML .dist files containing user parameters'),
+                                    ),
+                                    'arrays' => array(
+                                                'composer-dist-files',
                                     ),
                                     'files' => array(
-                                        'folder', 'destination'
+                                        'folder', 'destination','composer-dist-files',
                                     ),
                                     'no-target' => true,
                                     'group' => 'packaging'

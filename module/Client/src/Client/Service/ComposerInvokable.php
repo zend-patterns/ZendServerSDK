@@ -16,6 +16,7 @@ class ComposerInvokable
      */
     public function install($folder, $options = null)
     {
+        error_log("Installing composer packages...");
         $location = $this->getComposer($folder);
 
         /**
@@ -40,11 +41,11 @@ class ComposerInvokable
 
         $output = array();
         $retVal = 0;
-	$command = "php $location install --no-dev";
+        $command = "php $location install --no-dev --no-scripts";
 
-	if(!is_null($options)) {
-		$command = "php $location install $options";
-	}
+        if (!is_null($options)) {
+            $command = "php $location install $options";
+        }
 
         exec($command, $output, $retVal);
 
@@ -122,7 +123,7 @@ class ComposerInvokable
 
     public function __destruct()
     {
-        foreach(self::$tempFolders as $folder) {
+        foreach (self::$tempFolders as $folder) {
             self::delTree($folder);
         }
     }

@@ -47,6 +47,38 @@ class ZpkInvokable
     }
 
     /**
+     * Converts associative array with key and velue into ZPK parameters
+     * @param string $folder location of the deployment.xml file
+     * @param array $userParams
+     */
+    public function updateParameters($folder, array $userParams)
+    {
+        // <parameter display="test" id="test" readonly="false" required="false" type="string">
+        //		<defaultvalue>test</defaultvalue>
+        //</parameter>
+
+        $parameterUpdates = array ();
+        $i=0;
+        foreach ($userParams as $key => $value) {
+            $parameterUpdates[$i] = array(
+                    '@attributes' => array(
+                            'display'=> $key,
+                            'id'     => 'COMPOSER_'.$key,
+                            'type'   => 'string',
+                    )
+            );
+
+            if($value) {
+                $parameterUpdates[$i]['defaultValue'] = $value;
+            }
+            $i++;
+        }
+
+        return $this->updateMeta($folder, array('parameters' => $parameterUpdates));
+    }
+
+
+    /**
      * Simple XML update
      *
      * @param string $file
@@ -306,7 +338,7 @@ class ZpkInvokable
         } else {
             $currentZipFolder = basename($directory);
         }
-        
+
         $countFiles = scandir($directory);
         if(count($countFiles) <= 2) {
             $zpk->addEmptyDir($currentZipFolder);
@@ -317,7 +349,7 @@ class ZpkInvokable
                     if(in_array($path, array('.','..'))) {
                         continue;
                     }
-    
+
                     $path = $directory."/".$path;
                     if(is_dir($path)) {
                         $this->addDir($zpk, $path, $currentZipFolder);
