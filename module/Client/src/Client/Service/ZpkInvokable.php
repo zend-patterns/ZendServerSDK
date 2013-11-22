@@ -69,12 +69,12 @@ class ZpkInvokable
             );
 
             if($value) {
-                $parameterUpdates[$i]['defaultValue'] = $value;
+                $parameterUpdates[$i]['defaultvalue'] = $value;
             }
             $i++;
         }
 
-        return $this->updateMeta($folder, array('parameters' => $parameterUpdates));
+        return $this->updateMeta($folder, array('parameters' => array('parameter' => $parameterUpdates)));
     }
 
 

@@ -1,7 +1,9 @@
 <?php
 namespace Client\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
-use Zend\Config\Reader\Yaml;
+use Zend\Config\Reader\Yaml as YamlReader;
+use Zend\Config\Reader\Ini as IniReader;
+use Zend\Config\Writer\Ini as IniWriter;
 
 /**
  * Main Console Controller
@@ -117,10 +119,10 @@ class ZpkController extends AbstractActionController
 
                 if (count($dependancies['library'])) {
                     $composerOptions =  $this->getRequest()->getParam('composer-options') ? : null;
-                    $data = $composer->install($folder, $composerOptions);
+                    $packages = $composer->install($folder, $composerOptions);
 
-                    foreach ($data['packages'] as $library=>$version) {
-                        $libraryFolder = $data['folder'].'/vendor/'.$library;
+                    foreach ($packages as $library=>$version) {
+                        $libraryFolder = $folder.'/vendor/'.$library;
                         $zpk->create($libraryFolder, array(
                                                             'type'=>'library',
                                                             'name'=>$library,
@@ -136,7 +138,7 @@ class ZpkController extends AbstractActionController
                     $zpk->updateMeta($folder, array('dependencies'=> array('required'=> $dependancies)));
                 }
 
-                // @TODO: changes the vendor/composer/autoloader_class.php file to point to the names of the libraries.
+                // @TODO: changes the $folder/vendor/composer/autoloader_class.php file to point to the names of the libraries.
 
                 $scripts = $composer->getMeta($folder, "scripts");
                 if(!empty($scripts)) {
@@ -146,7 +148,7 @@ class ZpkController extends AbstractActionController
                         error_log('WARNING: If you have user parameters then you have to use --composer-dist-files to point to the YAML dist files.');
                     } else {
                         // Read the parameters from composer-dist-files are specified it gets the parameters from them and puts them as zpk parameters (with default values)
-                        $yaml = new Yaml();
+                        $yaml = new YamlReader(array('Spyc','YAMLLoadString'));
                         foreach ($distFiles as $file) {
                             $data = $yaml->fromFile($file);
                             $userParams = array_merge($userParams, $data['parameters']);
@@ -158,14 +160,23 @@ class ZpkController extends AbstractActionController
                         $zpk->updateParameters($folder, $userParams);
                     }
 
-                    // @TODO: find the scripts directory and copy in it the composer.phar and compose.lock files
-                    $scriptsDir = 'scripts';
+                    // Find the scripts directory and copy in it the composer.phar, composer.lock and composer.json files
+                    $xml = new \SimpleXMLElement(file_get_contents($folder."/deployment.xml"));
+                    $scriptsDir = "$folder/scripts";
+                    if($xml->scriptsdir) {
+                        $scriptsDir=$folder."/".$xml->scriptsdir;
+                    }
+                    if(!file_exists($scriptsDir)) {
+                        mkdir($scriptsDir);
+                    }
+
                     copy("$folder/composer.phar", "$scriptsDir/composer.phar");
                     copy("$folder/composer.lock", "$scriptsDir/composer.lock");
+                    copy("$folder/composer.json", "$scriptsDir/composer.json");
 
-                    // @TODO: add these two files to the deployment.properties file
+                    // @TODO: add the composer files the deployment.properties file
 
-                    // @TODO: creates post_stage.php script or adds at the end of an existing one the code needed to run composer.phar run-script [all] -n on the server.
+                    // @TODO: creates post_stage.php script that adds at the end of an existing one the code needed to run composer.phar run-script [all] -n on the server.
                 }
             }
         }

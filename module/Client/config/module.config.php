@@ -161,7 +161,7 @@ return array (
                                           array('--name','The name of the package. If not provided the name will be constructed from the name of the application and its version.'),
                                           array('--composer','Enables rudimentary composer support.'),
                                           array('--composer-options','Adds composer options when running composer'),
-                                          array('--composer-dist-files', 'Comma separated list of YAML .dist files containing user parameters'),
+                                          array('--composer-dist-files', 'Comma separated list of YAML .dist files containing user parameters.'),
                                     ),
                                     'arrays' => array(
                                                 'composer-dist-files',

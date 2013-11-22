@@ -13,44 +13,50 @@ class ComposerInvokable
     /**
      * Runs the composer install command in the specified directory
      * @param string $folder
+     * @return array list of installed packages and their versions
      */
     public function install($folder, $options = null)
     {
-        error_log("Installing composer packages...");
+        error_log("Fetching composer packages...");
         $location = $this->getComposer($folder);
 
         /**
          * Poor-man's package dependancy information and installation.
-         * 1. Create a temp directory
-         * 2. Copy the composer.json and composer.phar files to the temp directory
-         * 3. Run composer in the temp directory.
+         * 1. If the vendor directory exists rename it to .vendor
+         * 2. Create new vendor direcory
+         * 3. Run composer install
          * 4. Get installed packages
          */
 
-        $tempFolder = tempnam(sys_get_temp_dir(),'zsc');
-        if (file_exists($tempFolder)) {
-            unlink($tempFolder);
+        $backupName = "";
+        if(file_exists($folder."/vendor")) {
+            $backupName = $folder."/.vendor";
+            rename($folder."/vendor", $backupName);
         }
-        mkdir($tempFolder);
 
-        copy($location, $tempFolder."/composer.phar");
-        copy($folder.'/composer.json', $tempFolder.'/composer.json');
+        mkdir($folder."/vendor");
 
         $cwd = getcwd();
-        chdir($tempFolder);
+        chdir($folder);
 
-        $output = array();
-        $retVal = 0;
         $command = "php $location install --no-dev --no-scripts";
-
         if (!is_null($options)) {
             $command = "php $location install $options";
         }
 
-        exec($command, $output, $retVal);
+        $output = "";
+        if($handle = popen($command, 'r')) {
+            while(!feof($handle)) {
+                $buffer = fread($handle, 1024);
+                error_log($buffer);
+                $output.= $buffer;
+            }
+            pclose($handle);
+        }
+        $lines = explode("\n",$output);
 
         $installedPackages = array();
-        foreach ($output as $line) {
+        foreach ($lines as $line) {
             // strip bash colors
             $line = preg_replace("/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/","",$line);
             if (preg_match("/^  - Installing (.*?) \((.*?)\)$/", $line, $matches)) {
@@ -64,12 +70,9 @@ class ComposerInvokable
             }
         }
         chdir($cwd);
-        self::$tempFolders[] = $tempFolder;
+        self::$tempFolders[$folder."/vendor"] = $backupName;
 
-        return array(
-            'folder' => $tempFolder,
-            'packages' => $installedPackages,
-        );
+        return $installedPackages;
     }
 
     /**
@@ -123,8 +126,11 @@ class ComposerInvokable
 
     public function __destruct()
     {
-        foreach (self::$tempFolders as $folder) {
+        foreach (self::$tempFolders as $folder=>$backup) {
             self::delTree($folder);
+            if($backup) {
+                rename($backup, $folder);
+            }
         }
     }
 }
