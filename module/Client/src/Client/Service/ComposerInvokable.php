@@ -8,8 +8,6 @@ use Zend\Console\Exception\RuntimeException;
  */
 class ComposerInvokable
 {
-    protected static $tempFolders = array();
-
     /**
      * Runs the composer install command in the specified directory
      * @param string $folder
@@ -22,19 +20,27 @@ class ComposerInvokable
 
         /**
          * Poor-man's package dependancy information and installation.
-         * 1. If the vendor directory exists rename it to .vendor
-         * 2. Create new vendor direcory
-         * 3. Run composer install
-         * 4. Get installed packages
+         * If there is composer.lock file
+         * 		use it to get the list of installed packages
+         * Else
+         *  	Run composer install
+         *  	Get installed packages
          */
 
-        $backupName = "";
-        if(file_exists($folder."/vendor")) {
-            $backupName = $folder."/.vendor";
-            rename($folder."/vendor", $backupName);
-        }
+        $installedPackages = array();
+        $lockFile = $folder.'/composer.lock';
+        if(file_exists($lockFile)) {
+            $data = json_decode(file_get_contents($lockFile), true);
+            if ($data === null) {
+                throw new RuntimeException('Unable to read meta data from '.$location);
+            }
 
-        mkdir($folder."/vendor");
+            foreach ($data['packages'] as $package) {
+                $installedPackages[$package['name']] = $package['version'];
+            }
+
+            return $installedPackages;
+        }
 
         $cwd = getcwd();
         chdir($folder);
@@ -53,9 +59,8 @@ class ComposerInvokable
             }
             pclose($handle);
         }
-        $lines = explode("\n",$output);
 
-        $installedPackages = array();
+        $lines = explode("\n",$output);
         foreach ($lines as $line) {
             // strip bash colors
             $line = preg_replace("/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/","",$line);
@@ -70,7 +75,6 @@ class ComposerInvokable
             }
         }
         chdir($cwd);
-        self::$tempFolders[$folder."/vendor"] = $backupName;
 
         return $installedPackages;
     }
@@ -111,26 +115,5 @@ class ComposerInvokable
         }
 
         return $data[$parameter];
-    }
-
-    // Move this later to an Util class
-    public static function delTree($dir)
-    {
-        $files = array_diff(scandir($dir), array('.','..'));
-        foreach ($files as $file) {
-            (is_dir("$dir/$file")) ? self::delTree("$dir/$file") : unlink("$dir/$file");
-        }
-
-        return rmdir($dir);
-    }
-
-    public function __destruct()
-    {
-        foreach (self::$tempFolders as $folder=>$backup) {
-            self::delTree($folder);
-            if($backup) {
-                rename($backup, $folder);
-            }
-        }
     }
 }
