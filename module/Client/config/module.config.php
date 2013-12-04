@@ -203,6 +203,9 @@ return array (
                 'zpk'  => 'Client\Service\ZpkInvokable',
                 'path' => 'Client\Service\PathInvokable',
                 'composer' => 'Client\Service\ComposerInvokable',
+                'Composer\File' => 'Client\Service\Composer\File',
+                'Composer\Extra\ParamCollector' => 'Client\Service\Composer\Extra\ParamCollector',
+                'Composer\Extra\ParamFactory' => 'Client\Service\Composer\Extra\ParamFactory',
              )
         ),
 

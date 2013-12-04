@@ -2,12 +2,17 @@
 namespace Client\Service;
 
 use Zend\Console\Exception\RuntimeException;
+use Client\src\Client\Service\Composer\Extra\ParamCollector;
+use Client\src\Client\Service\Composer\Extra\ParamFactory;
 
 /**
  * Composer Service
  */
 class ComposerInvokable
 {
+    private $extraParamFactory;
+    private $extraParamCollector;
+
     /**
      * Runs the composer install command in the specified directory
      * @param string $folder
@@ -100,6 +105,14 @@ class ComposerInvokable
 
         return $location;
     }
+    
+    public function setComposerExtraParamFactory(ParamFactory $paramFactory) {
+        $this->extraParamFactory = $paramFactory;
+    }
+    
+    public function setComposerExtraParamCollector(ParamCollector $paramCollector) {
+        $this->extraParamCollector = $paramCollector;
+    }
 
     /**
      * Gets meta data about a certain parameter
@@ -108,12 +121,30 @@ class ComposerInvokable
      */
     public function getMeta($folder, $parameter)
     {
+        $data = $this->getComposerData($folder);
+
+        return $data[$parameter];
+    }
+    
+    public function setMeta($folder, $parameter, $data)
+    {
+        $composerData = $this->getComposerData($folder);
+    
+        $composerData[$parameter] = array_merge_recursive($composerData[$parameter], $data);
+    
+        $location = $folder.'/composer.json';
+        if (! file_put_contents($location, json_encode($composerData))) {
+            throw new RuntimeException('Unable to write meta data to '.$location);
+        }
+    }
+    
+    private function getComposerData($folder) {
         $location = $folder.'/composer.json';
         $data = json_decode(file_get_contents($location), true);
         if ($data === null) {
             throw new RuntimeException('Unable to read meta data from '.$location);
         }
-
-        return $data[$parameter];
+        
+        return $data;
     }
 }

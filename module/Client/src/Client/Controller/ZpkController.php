@@ -122,7 +122,15 @@ class ZpkController extends AbstractActionController
                     $packages = $composer->install($folder, $composerOptions);
 
                     foreach ($packages as $library=>$version) {
+                        if (!array_key_exists($library, $requirements)) {
+                            $dependancies['library'][] = array_merge(
+                                array('name' => $library),
+                                self::convertVersion($version)
+                            );
+                        }
                         $libraryFolder = $folder.'/vendor/'.$library;
+                        // @todo: how to handle dev-master versioning correctly?
+                        if ($version == 'dev-master') $version = '999.dev-master';
                         $zpk->create($libraryFolder, array(
                                                             'type'=>'library',
                                                             'name'=>$library,
@@ -134,12 +142,13 @@ class ZpkController extends AbstractActionController
                     }
                 }
 
-                if (!empty($dependancies)) {
+                if (!empty($packages)) {
                     $zpk->updateMeta($folder, array('dependencies'=> array('required'=> $dependancies)));
                 }
 
-                // @TODO: changes the $folder/vendor/composer/autoloader_class.php file to point to the names of the libraries.
-
+                $composerFile = $this->serviceLocator->get('Composer\File');
+                $composerFile->writeAutoloadZendserver($folder, $packages, $dependandPackages);
+                
                 $scripts = $composer->getMeta($folder, "scripts");
                 if(!empty($scripts)) {
                     $distFiles = $this->getRequest()->getParam('composer-dist-files');
@@ -159,7 +168,15 @@ class ZpkController extends AbstractActionController
                         // convert the parameters to deployment.xml ZPK parameters
                         $zpk->updateParameters($folder, $userParams);
                     }
-
+                    
+                    $paramCollector = $this->serviceLocator->get('Composer\Extra\ParamCollector');
+                    $paramFactory = $this->serviceLocator->get('Composer\Extra\ParamFactory');
+                    
+                    $paramCollector->setParamFactory($paramFactory);
+                    $paramCollector->setLibs(array_keys($dependandPackages));
+                    $paramCollector->setUserParams($userParams);
+                    $composerFile->writeComposerJson($folder, $composer, $paramCollector->getParams());
+                    
                     // Find the scripts directory and copy in it the composer.phar, composer.lock and composer.json files
                     $xml = new \SimpleXMLElement(file_get_contents($folder."/deployment.xml"));
                     $scriptsDir = "$folder/scripts";
@@ -169,14 +186,10 @@ class ZpkController extends AbstractActionController
                     if(!file_exists($scriptsDir)) {
                         mkdir($scriptsDir);
                     }
-
-                    copy("$folder/composer.phar", "$scriptsDir/composer.phar");
-                    copy("$folder/composer.lock", "$scriptsDir/composer.lock");
-                    copy("$folder/composer.json", "$scriptsDir/composer.json");
-
-                    // @TODO: add the composer files the deployment.properties file
-
-                    // @TODO: creates post_stage.php script that adds at the end of an existing one the code needed to run composer.phar run-script [all] -n on the server.
+                    
+                    $composerFile->copyComposerFiles($folder, $scriptsDir);
+                    $composerFile->writeDeploymentProperties($folder);
+                    $composerFile->writePostStage($folder);
                 }
             }
         }
@@ -192,12 +205,24 @@ class ZpkController extends AbstractActionController
     protected static function convertVersion($version)
     {
         $version = trim($version);
+        // @todo: how to handle dev-master versioning correctly?
+        if ($version == 'dev-master') {
+            return array('equals' => '999.dev-master');
+        }
+        
         if (strpos($version,'>=')===0) {
             return array ('min' => substr($version,2));
         }
 
         if (strpos($version,'<=')===0) {
             return array ('max' => substr($version,2));
+        }
+        
+        //@todo: specify max value also
+        if (strpos($version,'~')===0) {
+            return array (
+                'min' => substr($version,1)
+            );
         }
 
         return array('equals' => $version);

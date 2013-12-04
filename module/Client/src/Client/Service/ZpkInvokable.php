@@ -64,6 +64,7 @@ class ZpkInvokable
                     '@attributes' => array(
                             'display'=> $key,
                             'id'     => 'COMPOSER_'.$key,
+                            'required' => 'true',
                             'type'   => 'string',
                     )
             );
@@ -287,8 +288,10 @@ class ZpkInvokable
 
         ErrorHandler::start();
         foreach($folderMap as $key => $baseDir) {
-            if($baseDir) {
-                $baseDir .= '/';
+            $excludes = array();
+            if (array_key_exists('appdir.excludes', $properties)) {
+                $excludes = $properties['appdir.excludes'];
+                array_walk($excludes, function(&$item, $key, $prefix) {$item = $prefix . '/' . $item;}, $baseDir);
             }
             foreach($properties[$key] as $path) {
                 $path = trim($path);
@@ -301,14 +304,16 @@ class ZpkInvokable
                             $path = substr($path, strlen($prefix));
                         }
                     }
-                    $zpk->addFile($fullPath, $this->fixZipPath($baseDir.$path));
+                    if (in_array($baseDir . '/' . $path, $excludes)) continue;
+                    $zpk->addFile($fullPath, $this->fixZipPath($baseDir . '/' . $path));
                 } else if(is_dir($fullPath)) {
-                    $this->addDir($zpk, $fullPath, $baseDir);
+                    $this->addDir($zpk, $fullPath, $baseDir, $excludes);
                 } else {
                     throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
                 }
             }
         }
+
         if(!$zpk->close()) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('Failed creating zpk file: '.$outZipPath.". ".
                                                                        $zpk->getStatusString());
@@ -331,13 +336,15 @@ class ZpkInvokable
      * @param string $directory
      * @param string $baseDir
      */
-    protected function addDir($zpk, $directory, $baseDir = null)
+    protected function addDir($zpk, $directory, $baseDir = null, $excludes = array())
     {
         if($baseDir) {
             $currentZipFolder = $baseDir.'/'.basename($directory);
         } else {
             $currentZipFolder = basename($directory);
         }
+        
+        if (in_array($currentZipFolder, $excludes)) return;
 
         $countFiles = scandir($directory);
         if(count($countFiles) <= 2) {
@@ -352,7 +359,7 @@ class ZpkInvokable
 
                     $path = $directory."/".$path;
                     if(is_dir($path)) {
-                        $this->addDir($zpk, $path, $currentZipFolder);
+                        $this->addDir($zpk, $path, $currentZipFolder, $excludes);
                     } else if(file_exists($path)){
                         $success = $zpk->addFile($path, $this->fixZipPath($currentZipFolder.'/'.basename($path)));
                         if(!$success) {
