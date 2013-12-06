@@ -9,7 +9,12 @@
  */
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
-ini_set('user_agent', 'Zend Server WebAPI Client');
+ini_set('user_agent', 'Zend Server Client');
+
+$timeZone = ini_get('date.timezone');
+if(!$timeZone) {
+	ini_set('date.timezone', 'UTC');
+}
 
 set_include_path(get_include_path(). PATH_SEPARATOR . getcwd());
 

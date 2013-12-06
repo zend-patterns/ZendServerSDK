@@ -19,8 +19,8 @@ cd ZendServerSDK/
 git checkout $BRANCH
 wget http://getcomposer.org/composer.phar
 php composer.phar install --no-dev
-# Update the library to the git version
-(cd vendor/zenddevops/webapi/; git pull origin dev)
+# Update the library to the latest git version from master
+(cd vendor/zenddevops/webapi/; git pull origin master)
 php bin/create-phar.php 
 
 read -p "Do you want to commit-n-push the newly compiled phar file (Y/n)?" RESULT
