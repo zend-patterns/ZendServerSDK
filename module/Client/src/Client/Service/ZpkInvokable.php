@@ -240,8 +240,10 @@ class ZpkInvokable
      * Creates a package from the data in the source folder
      * @param string $sourceFolder
      * @param string $destinationFolder
+     * @param string $fileName
+     * @param array $extraProperties
      */
-    public function pack($sourceFolder, $destinationFolder=".", $fileName=null)
+    public function pack($sourceFolder, $destinationFolder=".", $fileName=null, array $extraProperties=null)
     {
         if(!file_exists($sourceFolder."/deployment.xml")) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('The specified directory does not have deployment.xml.');
@@ -256,6 +258,12 @@ class ZpkInvokable
         $type       = sprintf("%s", $xml->type);
 
         $properties = $this->getProperties($sourceFolder."/deployment.properties");
+        if($extraProperties !== null) {
+            $properties = array_merge_recursive($properties, $extraProperties);
+            foreach ($properties as $key=> $value) {
+                $properties[$key] = array_unique($value);
+            }
+        }
 
         if(!$fileName) {
             $fileName = "$name-$version.zpk";
@@ -343,7 +351,7 @@ class ZpkInvokable
         } else {
             $currentZipFolder = basename($directory);
         }
-        
+
         if (in_array($currentZipFolder, $excludes)) return;
 
         $countFiles = scandir($directory);

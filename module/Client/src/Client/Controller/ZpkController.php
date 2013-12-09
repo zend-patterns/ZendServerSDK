@@ -92,6 +92,8 @@ class ZpkController extends AbstractActionController
         $zpk = $this->serviceLocator->get('zpk');
 
         $content = "";
+        $adjustedVendorDir = "";
+        $adjustedProperties = array();
         if ($this->getRequest()->getParam('composer') && file_exists($folder.'/composer.json')) {
             // Enable rudimentary composer support
             $composer = $this->serviceLocator->get('composer');
@@ -122,15 +124,7 @@ class ZpkController extends AbstractActionController
                     $packages = $composer->install($folder, $composerOptions);
 
                     foreach ($packages as $library=>$version) {
-                        if (!array_key_exists($library, $requirements)) {
-                            $dependancies['library'][] = array_merge(
-                                array('name' => $library),
-                                self::convertVersion($version)
-                            );
-                        }
                         $libraryFolder = $folder.'/vendor/'.$library;
-                        // @todo: how to handle dev-master versioning correctly?
-                        if ($version == 'dev-master') $version = '999.dev-master';
                         $zpk->create($libraryFolder, array(
                                                             'type'=>'library',
                                                             'name'=>$library,
@@ -142,13 +136,13 @@ class ZpkController extends AbstractActionController
                     }
                 }
 
-                if (!empty($packages)) {
+                if (!empty($dependancies)) {
                     $zpk->updateMeta($folder, array('dependencies'=> array('required'=> $dependancies)));
                 }
 
                 $composerFile = $this->serviceLocator->get('Composer\File');
-                $composerFile->writeAutoloadZendserver($folder, $packages, $dependandPackages);
-                
+                $adjustedVendorDir = $composerFile->adjustAutoloader($folder);
+
                 $scripts = $composer->getMeta($folder, "scripts");
                 if(!empty($scripts)) {
                     $distFiles = $this->getRequest()->getParam('composer-dist-files');
@@ -168,35 +162,37 @@ class ZpkController extends AbstractActionController
                         // convert the parameters to deployment.xml ZPK parameters
                         $zpk->updateParameters($folder, $userParams);
                     }
-                    
+
+                    $composerFile->copyComposerFiles($folder);
+                    $adjustedProperties = $composerFile->adjustDeploymentProperties($folder);
+                    $composerFile->writePostStage($folder);
+
+                    /*
                     $paramCollector = $this->serviceLocator->get('Composer\Extra\ParamCollector');
                     $paramFactory = $this->serviceLocator->get('Composer\Extra\ParamFactory');
-                    
+
                     $paramCollector->setParamFactory($paramFactory);
                     $paramCollector->setLibs(array_keys($dependandPackages));
                     $paramCollector->setUserParams($userParams);
                     $composerFile->writeComposerJson($folder, $composer, $paramCollector->getParams());
-                    
-                    // Find the scripts directory and copy in it the composer.phar, composer.lock and composer.json files
-                    $xml = new \SimpleXMLElement(file_get_contents($folder."/deployment.xml"));
-                    $scriptsDir = "$folder/scripts";
-                    if($xml->scriptsdir) {
-                        $scriptsDir=$folder."/".$xml->scriptsdir;
-                    }
-                    if(!file_exists($scriptsDir)) {
-                        mkdir($scriptsDir);
-                    }
-                    
-                    $composerFile->copyComposerFiles($folder, $scriptsDir);
-                    $composerFile->writeDeploymentProperties($folder);
-                    $composerFile->writePostStage($folder);
+                    */
                 }
             }
         }
 
-        $zpkFile = $zpk->pack($folder, $destination, $this->getRequest()->getParam('name'));
-        $content.= $zpkFile."\n";
+        ignore_user_abort(true);
+        if($adjustedVendorDir) {
+            rename($folder.'/vendor', $folder.'/vendor.original');
+            rename($adjustedVendorDir, $folder.'/vendor');
+        }
+        $zpkFile = $zpk->pack($folder, $destination, $this->getRequest()->getParam('name'), $adjustedProperties);
+        if($adjustedVendorDir) {
+            rename($folder.'/vendor', $adjustedVendorDir);
+            rename($folder.'/vendor.original', $folder.'/vendor');
+        }
+        ignore_user_abort(false);
 
+        $content.= $zpkFile."\n";
         $this->getResponse()->setContent($content);
 
         return $this->getResponse();
@@ -209,7 +205,7 @@ class ZpkController extends AbstractActionController
         if ($version == 'dev-master') {
             return array('equals' => '999.dev-master');
         }
-        
+
         if (strpos($version,'>=')===0) {
             return array ('min' => substr($version,2));
         }
@@ -217,7 +213,7 @@ class ZpkController extends AbstractActionController
         if (strpos($version,'<=')===0) {
             return array ('max' => substr($version,2));
         }
-        
+
         //@todo: specify max value also
         if (strpos($version,'~')===0) {
             return array (

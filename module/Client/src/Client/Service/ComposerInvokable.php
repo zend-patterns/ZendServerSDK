@@ -10,11 +10,14 @@ use Client\src\Client\Service\Composer\Extra\ParamFactory;
  */
 class ComposerInvokable
 {
+
     private $extraParamFactory;
+
     private $extraParamCollector;
 
     /**
      * Runs the composer install command in the specified directory
+     *
      * @param string $folder
      * @return array list of installed packages and their versions
      */
@@ -26,18 +29,18 @@ class ComposerInvokable
         /**
          * Poor-man's package dependancy information and installation.
          * If there is composer.lock file
-         * 		use it to get the list of installed packages
+         * use it to get the list of installed packages
          * Else
-         *  	Run composer install
-         *  	Get installed packages
+         * Run composer install
+         * Get installed packages
          */
 
         $installedPackages = array();
-        $lockFile = $folder.'/composer.lock';
-        if(file_exists($lockFile)) {
+        $lockFile = $folder . '/composer.lock';
+        if (file_exists($lockFile)) {
             $data = json_decode(file_get_contents($lockFile), true);
             if ($data === null) {
-                throw new RuntimeException('Unable to read meta data from '.$location);
+                throw new RuntimeException('Unable to read meta data from ' . $location);
             }
 
             foreach ($data['packages'] as $package) {
@@ -51,28 +54,28 @@ class ComposerInvokable
         chdir($folder);
 
         $command = "php $location install --no-dev --no-scripts";
-        if (!is_null($options)) {
+        if (! is_null($options)) {
             $command = "php $location install $options";
         }
 
         $output = "";
-        if($handle = popen($command, 'r')) {
-            while(!feof($handle)) {
+        if ($handle = popen($command, 'r')) {
+            while (! feof($handle)) {
                 $buffer = fread($handle, 1024);
                 error_log($buffer);
-                $output.= $buffer;
+                $output .= $buffer;
             }
             pclose($handle);
         }
 
-        $lines = explode("\n",$output);
+        $lines = explode("\n", $output);
         foreach ($lines as $line) {
             // strip bash colors
-            $line = preg_replace("/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/","",$line);
+            $line = preg_replace("/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/", "", $line);
             if (preg_match("/^  - Installing (.*?) \((.*?)\)$/", $line, $matches)) {
                 $name = $matches[1];
                 $version = $matches[2];
-                $pos =strpos($version, ' ');
+                $pos = strpos($version, ' ');
                 if ($pos !== false) {
                     $version = substr($version, 0, $pos);
                 }
@@ -86,17 +89,18 @@ class ComposerInvokable
 
     /**
      * Gets the location of the composer.phar
-     * @param  string           $folder
+     *
+     * @param string $folder
      * @throws RuntimeException
      */
     public function getComposer($folder)
     {
-        $location = $folder.'/composer.phar';
-        if (!file_exists($location)) {
+        $location = $folder . '/composer.phar';
+        if (! file_exists($location)) {
             error_log("Downloading composer.phar...");
-            $fp = fopen($location,'w+');
-            if (!$fp) {
-                throw new RuntimeException('Unable to write file '.$folder.'/composer.phar');
+            $fp = fopen($location, 'w+');
+            if (! $fp) {
+                throw new RuntimeException('Unable to write file ' . $folder . '/composer.phar');
             }
 
             fwrite($fp, file_get_contents('http://getcomposer.org/composer.phar'));
@@ -105,17 +109,20 @@ class ComposerInvokable
 
         return $location;
     }
-    
-    public function setComposerExtraParamFactory(ParamFactory $paramFactory) {
+
+    public function setComposerExtraParamFactory(ParamFactory $paramFactory)
+    {
         $this->extraParamFactory = $paramFactory;
     }
-    
-    public function setComposerExtraParamCollector(ParamCollector $paramCollector) {
+
+    public function setComposerExtraParamCollector(ParamCollector $paramCollector)
+    {
         $this->extraParamCollector = $paramCollector;
     }
 
     /**
      * Gets meta data about a certain parameter
+     *
      * @param string $folder
      * @param string $parameter
      */
@@ -125,26 +132,27 @@ class ComposerInvokable
 
         return $data[$parameter];
     }
-    
+
     public function setMeta($folder, $parameter, $data)
     {
         $composerData = $this->getComposerData($folder);
-    
+
         $composerData[$parameter] = array_merge_recursive($composerData[$parameter], $data);
-    
-        $location = $folder.'/composer.json';
+
+        $location = $folder . '/composer.json';
         if (! file_put_contents($location, json_encode($composerData))) {
-            throw new RuntimeException('Unable to write meta data to '.$location);
+            throw new RuntimeException('Unable to write meta data to ' . $location);
         }
     }
-    
-    private function getComposerData($folder) {
-        $location = $folder.'/composer.json';
+
+    private function getComposerData($folder)
+    {
+        $location = $folder . '/composer.json';
         $data = json_decode(file_get_contents($location), true);
         if ($data === null) {
-            throw new RuntimeException('Unable to read meta data from '.$location);
+            throw new RuntimeException('Unable to read meta data from ' . $location);
         }
-        
+
         return $data;
     }
 }

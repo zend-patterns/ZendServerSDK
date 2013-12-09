@@ -2,101 +2,217 @@
 namespace Client\Service\Composer;
 
 use Zend\Console\Exception\RuntimeException;
-use Client\Service\ComposerInvokable;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 
-class File {
-    public function copyComposerFiles($baseDir, $scriptsDir) {
+class File
+{
+
+    protected $scripts = array();
+
+    protected function getScriptsDir($baseDir)
+    {
+        if (isset($this->scripts[$baseDir])) {
+            return $this->scripts[$baseDir];
+        }
+
+        // Find the scripts directory and copy in it the composer.phar, composer.lock and composer.json files
+        $xml = new \SimpleXMLElement(file_get_contents($baseDir . "/deployment.xml"));
+        $scriptsDir = "$baseDir/scripts";
+        if ($xml->scriptsdir) {
+            $scriptsDir = $baseDir . "/" . $xml->scriptsdir;
+        }
+        if (! file_exists($scriptsDir)) {
+            mkdir($scriptsDir);
+        }
+
+        $this->scripts[$baseDir] = $scriptsDir;
+
+        return $scriptsDir;
+    }
+
+    public function copyComposerFiles($baseDir)
+    {
+        $scriptsDir = $this->getScriptsDir($baseDir);
         copy("$baseDir/composer.phar", "$scriptsDir/composer.phar");
         copy("$baseDir/composer.lock", "$scriptsDir/composer.lock");
         copy("$baseDir/composer.json", "$scriptsDir/composer.json");
     }
-    
-    public function writeDeploymentProperties($baseDir) {
-        // @TODO: we need a more dynamic approach!
-        $deploymentProperties = <<< DEPLOYMENT_PROPERTIES
-appdir.includes = \
-    app,\
-    vendor,\
-    autoload_zendserver.php
-appdir.excludes = \
-    vendor/incenteev,\
-    vendor/psr
-scriptsdir.includes = \
-    scripts/composer.json,\
-    scripts/composer.lock,\
-    scripts/composer.phar,\
-    scripts/post_stage.php
-DEPLOYMENT_PROPERTIES;
-        
-        file_put_contents("$baseDir/deployment.properties", $deploymentProperties);
+
+    /**
+     * Adjusts the deployment.properties to
+     * - exclude vendor/* directories
+     * - include vendor/composer/*
+     * - add the composer.* files to the script path
+     *
+     * @param string $baseDir
+     * @param array $properties
+     */
+    public function adjustDeploymentProperties($baseDir)
+    {
+        $properties['appdir.includes'][] = 'vendor';
+
+        $properties['scriptsdir.includes'][] = "scripts/composer.json";
+        $properties['scriptsdir.includes'][] = "scripts/composer.lock";
+        $properties['scriptsdir.includes'][] = "scripts/composer.phar";
+
+        return $properties;
     }
-    
-    public function writePostStage($baseDir) {
-        // @TODO: creates post_stage.php script that adds at the end of an existing one the code needed to run composer.phar run-script [all] -n on the server.
-        // @todo: decide whether it's an update or fresh install
-        $postStage = <<<POST_STAGE
-<?php
-require_once zend_deployment_library_path('ZendServerDeploymentHelper') . '/deph.php';
-\$deph = new DepH();
-        
-\$log = \$deph->startGuiLog();
-        
-\$shell = \$deph->getShell();
-\$shell->exec('chmod 744 ' . __DIR__ . '/composer.phar');
-\$shell->exec('mv ' . __DIR__ . '/composer.json ' . getenv('ZS_APPLICATION_BASE_DIR'));
-#\$shell->exec('cd ' . __DIR__ . '; /usr/local/zend/bin/php ./composer.phar run-script post-install-cmd -n -d ' . getenv('ZS_APPLICATION_BASE_DIR'));
-\$shell->exec('COMPOSER_HOME="/mnt/hgfs/sandboxx/composer-phar/bin" /usr/local/zend/bin/php /mnt/hgfs/sandboxx/composer-phar/bin/composer.php run-script post-install-cmd -n -d ' . getenv('ZS_APPLICATION_BASE_DIR'));
-\$shell->exec('rm -f ' . getenv('ZS_APPLICATION_BASE_DIR') . '/composer.json ');
-?>
-POST_STAGE;
-        
-        file_put_contents("$baseDir/scripts/post_stage.php", $postStage);
-    }
-    
-    public function writeComposerJson($baseDir, ComposerInvokable $composer, $extraParams = array()) {
-        // @TODO: needs some cosmetic surgery...
-        $composer->setMeta($baseDir, 'autoload', array('files' => array('./autoload_zendserver.php')));
-        
-        $composer->setMeta($baseDir, 'extra', $extraParams);
-    }
-    
-    public function writeAutoloadZendserver($baseDir, $packages, $dependandPackages) {
-        $installedJson = json_decode(file_get_contents($baseDir."/vendor/composer/installed.json"), true);
-        if ($installedJson === null) {
-            #throw new RuntimeException('Unable to read meta data from '.$baseDir."/vendor/composer/installed.json");
-        }
-        
-        $libsArr = array();
-        foreach ($installedJson as $package) {
-            if (!array_key_exists($package['name'], $dependandPackages)) continue;
-        
-            // @todo: how to get the namespace correctly?
-            if (isset($package['target-dir'])) {
-                $namespace = str_replace('/', '\\', $package['target-dir']);
+
+    public function writePostStage($baseDir)
+    {
+        $scriptsDir = $this->getScriptsDir($baseDir);
+        $data = file(__DIR__ . '/../../../../config/composer/post_stage.php');
+
+        $postStageScript = "$scriptsDir/post_stage.php";
+        if (file_exists($postStageScript)) {
+            array_shift($data);
+            $oldContent = file_get_contents($postStageScript);
+            if(strpos($oldContent, $data['0'])!==false) {
+                return;
             }
-            else {
-                $parts = explode('/', $package['name']);
-                $parts = array_map(function ($a) {return ucfirst($a);}, $parts);
-                $namespace = join('\\', $parts);
-            }
-            //@todo: where to take the version number? from $packages[$package['name']] (CL output) or json definition?
-            $version = $packages[$package['name']];
-            if ($version == 'dev-master') $version = '999.dev-master';
-            $libsArr[] = "'$namespace' => array(zend_deployment_library_path('{$package['name']}', '$version'))";
         }
-        $libsArr = join(",\n", $libsArr);
-        $autoloadZS = <<<AUTOLOAD
-<?php
-\$libs = array(
-    $libsArr
-);
-        
-foreach (\$libs as \$namespace => \$path) {
-    \$loader->set(\$namespace, \$path);
-}
-?>
-AUTOLOAD;
-        
-                file_put_contents("$baseDir/autoload_zendserver.php", $autoloadZS);
+
+        $fh = fopen($postStageScript, 'a+');
+        fwrite($fh,"\n");
+        foreach ($data as $line) {
+            fwrite($fh, $line);
+        }
+        fclose($fh);
+    }
+
+    /*
+     * public function writeComposerJson($baseDir, ComposerInvokable $composer, $extraParams = array()) { // @TODO: needs some cosmetic surgery... $composer->setMeta($baseDir, 'autoload', array('files' => array('./autoload_zendserver.php'))); $composer->setMeta($baseDir, 'extra', $extraParams); }
+     */
+
+    /**
+     * Adjusts the composer autoloader to use zend_library_path
+     *
+     * @param string $folder
+     * @return string - the directory where the temporary vendor/composer folder is located
+     */
+    public function adjustAutoloader($folder)
+    {
+        $lockFile = $folder . '/composer.lock';
+        if (! file_exists($lockFile)) {
+            return false;
+        }
+
+        $data = @json_decode(file_get_contents($lockFile), true);
+        if ($data === null) {
+            throw new RuntimeException('Unable to read meta data from ' . $lockFile);
+        }
+
+        $source = $folder . '/vendor/composer';
+        $dest   = $folder . '/.vendor/composer';
+        @mkdir($dest, 0775, true);
+
+        // copy the vendor/composer directory to the  temporary directory
+        foreach ($iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST) as $item) {
+            if ($item->isDir()) {
+                mkdir($dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+            } else {
+                copy($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+            }
+        }
+
+        $classmapAutoloader = array();
+        $namespaceAutoloader = array();
+        $filesAutoloader = array();
+        foreach ($data['packages'] as $package) {
+            $packageLocation = "zend_deployment_library_path('{$package['name']}','{$package['version']}').'/'";
+
+            if (isset($package['autoload'])) {
+                if (isset($package['autoload']['files'])) {
+                    foreach ($package['autoload']['files'] as $file) {
+                        $filesAutoloader[$file] = $packageLocation . '"' . $file . '"';
+                    }
+                }
+
+                if (isset($package['autoload']['psr-0'])) {
+                    /*
+                     * From: 'Zend\\View\\' => array($vendorDir . '/zendframework/zend-view'), To: 'Zend\\View\\' => array(zend_deployment_library_path('zendframework/zend-view','version').''/zendframework/zend-view'),
+                     */
+                    foreach ($package['autoload']['psr-0'] as $namespace => $path) {
+                        $namespaceAutoloader[$namespace] = 'array(' . $packageLocation . '."' . $path . '")';
+                    }
+                }
+
+                if (isset($package['autoload']['classmap'])) {
+                    /*
+                     * From: 'ZendServerWebApi\\Module' => $vendorDir . '/zenddevops/webapi/Module.php', To 'ZendServerWebApi\\Module' => zend_deployment_library_path('zenddevops/webapi','version') "./Module.php',
+                     */
+                    foreach ($package['autoload']['classmap'] as $classMap) {
+                        $classmapAutoloader[] = $packageLocation . '"' . $classMap . '"';
+                    }
+                }
+            }
+        }
+
+        // Overwrite the files autoloader
+        if(file_exists("$dest/autoload_files.php")) {
+            $filesOriginalAutoloader = include "$dest/autoload_files.php";
+            if (is_array($filesOriginalAutoloader)) {
+                $content = sprintf('<?php
+$vendorDir = dirname(dirname(__FILE__));
+$baseDir = dirname($vendorDir);
+
+return array(
+             %s
+        );
+', implode(',', $filesAutoloader));
+                file_put_contents("$dest/autoload_files.php", $content);
+            }
+        }
+
+        // Overwrite the classmap autoloader
+        if(file_exists("$dest/autoload_classmap.php")) {
+            $classMapOriginalAutoloader = include "$dest/autoload_classmap.php";
+            if (is_array($classMapOriginalAutoloader)) {
+                $content = sprintf('<?php
+    $vendorDir = dirname(dirname(__FILE__));
+    $baseDir = dirname($vendorDir);
+
+    return array(
+                 %s
+            );
+    ', implode(',', array_merge($classMapOriginalAutoloader, $classmapAutoloader)));
+
+                file_put_contents("$dest/autoload_classmap.php", $content);
+            }
+        }
+
+        // Overwrite the namespace autoloader
+        if(file_exists("$dest/autoload_namespaces.php")) {
+            $namespacesOriginalAutoloader = include "$dest/autoload_namespaces.php";
+            if (is_array($namespacesOriginalAutoloader)) {
+                $autoloaderArray = "";
+                foreach ($namespacesOriginalAutoloader as $key => $value) {
+                    if (isset($namespaceAutoloader[$key])) {
+                        $value = $namespaceAutoloader[$key];
+                    }
+
+                    $autoloaderArray .= "'" . addslashes($key) . "'=> ";
+                    if (is_array($value)) {
+                        $autoloaderArray .= var_export($value, true);
+                    } else {
+                        $autoloaderArray .= $value;
+                    }
+                    $autoloaderArray .= ",\n";
+                }
+
+                $autoloaderArray = str_replace("'$baseDir", '$baseDir.\'', $autoloaderArray);
+                $content = sprintf('<?php
+    $vendorDir = dirname(dirname(__FILE__));
+    $baseDir = dirname($vendorDir);
+
+    return array(%s);
+    ', $autoloaderArray);
+
+                file_put_contents("$dest/autoload_namespaces.php", $content);
+            }
+        }
+
+        return $dest;
     }
 }
