@@ -117,6 +117,7 @@ class File
                 copy($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
             }
         }
+        copy($folder . '/vendor/autoload.php', $folder . '/.vendor/autoload.php');
 
         $classmapAutoloader = array();
         $namespaceAutoloader = array();
@@ -232,6 +233,6 @@ return array(
             }
         }
 
-        return $dest;
+        return $folder . '/.vendor/';
     }
 }
