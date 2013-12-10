@@ -4,6 +4,7 @@ namespace Client\Service\Composer;
 use Zend\Console\Exception\RuntimeException;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
+use Zend\File\ClassFileLocator;
 
 class File
 {
@@ -55,6 +56,7 @@ class File
         $properties['scriptsdir.includes'][] = "scripts/composer.json";
         $properties['scriptsdir.includes'][] = "scripts/composer.lock";
         $properties['scriptsdir.includes'][] = "scripts/composer.phar";
+        $properties['scriptsdir.includes'][] = "scripts/post_stage.php";
 
         return $properties;
     }
@@ -125,7 +127,7 @@ class File
             if (isset($package['autoload'])) {
                 if (isset($package['autoload']['files'])) {
                     foreach ($package['autoload']['files'] as $file) {
-                        $filesAutoloader[$file] = $packageLocation . '"' . $file . '"';
+                        $filesAutoloader[$file] = $packageLocation . '."' . $file . '"';
                     }
                 }
 
@@ -143,7 +145,19 @@ class File
                      * From: 'ZendServerWebApi\\Module' => $vendorDir . '/zenddevops/webapi/Module.php', To 'ZendServerWebApi\\Module' => zend_deployment_library_path('zenddevops/webapi','version') "./Module.php',
                      */
                     foreach ($package['autoload']['classmap'] as $classMap) {
-                        $classmapAutoloader[] = $packageLocation . '"' . $classMap . '"';
+                        $libraryPath = $folder.'/vendor/'.$package['name'].'/'.$classMap;
+                        $l = new ClassFileLocator($libraryPath);
+
+                        foreach ($l as $file) {
+                            $filename  = str_replace($libraryPath . '/', '', str_replace(DIRECTORY_SEPARATOR, '/', $file->getPath()) . '/' . $file->getFilename());
+
+                            // Add in relative path to library
+                            $filename  = $packageLocation . '."'. $filename.'"';
+
+                            foreach ($file->getClasses() as $class) {
+                                $classmapAutoloader[$class] = $filename;
+                            }
+                        }
                     }
                 }
             }
@@ -169,6 +183,12 @@ return array(
         if(file_exists("$dest/autoload_classmap.php")) {
             $classMapOriginalAutoloader = include "$dest/autoload_classmap.php";
             if (is_array($classMapOriginalAutoloader)) {
+                $data = '';
+                foreach($classmapAutoloader as $class => $path) {
+                    $data .= "'" . addslashes($class) . "'=> $path,\n";
+                }
+
+
                 $content = sprintf('<?php
     $vendorDir = dirname(dirname(__FILE__));
     $baseDir = dirname($vendorDir);
@@ -176,8 +196,7 @@ return array(
     return array(
                  %s
             );
-    ', implode(',', array_merge($classMapOriginalAutoloader, $classmapAutoloader)));
-
+    ', $data);
                 file_put_contents("$dest/autoload_classmap.php", $content);
             }
         }

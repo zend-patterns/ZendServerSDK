@@ -2,8 +2,8 @@
 namespace Client\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Config\Reader\Yaml as YamlReader;
-use Zend\Config\Reader\Ini as IniReader;
-use Zend\Config\Writer\Ini as IniWriter;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Main Console Controller
@@ -94,6 +94,19 @@ class ZpkController extends AbstractActionController
         $content = "";
         $adjustedVendorDir = "";
         $adjustedProperties = array();
+        $hasComposerScripts = false;
+
+        ignore_user_abort(true);
+        if(file_exists($folder.'/vendor.original')) {
+            // remove completely the vendor folder
+            // copy the vendor/composer directory to the  temporary directory
+            foreach ($iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($folder.'/vendor', RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $item) {
+                print "$item\n";
+                unlink($item);
+            }
+            rename($folder.'/vendor.original', $folder.'/vendor');
+        }
+        ignore_user_abort(false);
         if ($this->getRequest()->getParam('composer') && file_exists($folder.'/composer.json')) {
             // Enable rudimentary composer support
             $composer = $this->serviceLocator->get('composer');
@@ -128,7 +141,7 @@ class ZpkController extends AbstractActionController
                         $zpk->create($libraryFolder, array(
                                                             'type'=>'library',
                                                             'name'=>$library,
-                                                            'version'=> array('release'=>$version),
+                                                            'version'=> array('release'=> $version),
                                                             'appdir' => ''
                                                      ));
                         $zpkFile = $zpk->pack($libraryFolder, $destination,"$library-$version.zpk");
@@ -145,6 +158,7 @@ class ZpkController extends AbstractActionController
 
                 $scripts = $composer->getMeta($folder, "scripts");
                 if(!empty($scripts)) {
+                    $hasComposerScripts = true;
                     $distFiles = $this->getRequest()->getParam('composer-dist-files');
                     $userParams = array();
                     if(!count($distFiles)) {
@@ -181,6 +195,12 @@ class ZpkController extends AbstractActionController
         }
 
         ignore_user_abort(true);
+        if($hasComposerScripts ) {
+            $xml = new \SimpleXMLElement(file_get_contents($folder.'/deployment.xml'));
+            if(!isset($xml->scriptsdir)) {
+                $zpk->updateMeta($folder, array('scriptsdir'=> 'scripts'));
+            }
+        }
         if($adjustedVendorDir) {
             rename($folder.'/vendor', $folder.'/vendor.original');
             rename($adjustedVendorDir, $folder.'/vendor');

@@ -64,7 +64,7 @@ class ZpkInvokable
                     '@attributes' => array(
                             'display'=> $key,
                             'id'     => 'COMPOSER_'.$key,
-                            'required' => 'true',
+                            'required' => $value ? 'true':'false',
                             'type'   => 'string',
                     )
             );
@@ -334,6 +334,7 @@ class ZpkInvokable
     protected function fixZipPath($path)
     {
         $path = preg_replace('/(\/{2,})/', '/', $path);
+        $path = trim($path, '/');
         return $path;
     }
 
