@@ -100,7 +100,6 @@ class ZpkController extends AbstractActionController
         if(file_exists($folder.'/vendor.original')) {
             // The directory structure was not restored to its previous state. Try to fix this.
             foreach ($iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($folder.'/vendor', RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $item) {
-                print "$item\n";
                 unlink($item);
             }
             rename($folder.'/vendor.original', $folder.'/vendor');
