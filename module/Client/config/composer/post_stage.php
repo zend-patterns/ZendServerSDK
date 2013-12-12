@@ -8,7 +8,9 @@ foreach($_ENV as $key=> $value) {
     }
 }
 
-copy(__DIR__ . '/composer.json ', getenv('ZS_APPLICATION_BASE_DIR'));
+###libLines###
+
+copy(__DIR__ . '/composer.json', getenv('ZS_APPLICATION_BASE_DIR') . '/composer.json');
 $cwd = getcwd();
 chdir(__DIR__);
 

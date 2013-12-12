@@ -100,7 +100,6 @@ class ZpkController extends AbstractActionController
         if(file_exists($folder.'/vendor.original')) {
             // The directory structure was not restored to its previous state. Try to fix this.
             foreach ($iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($folder.'/vendor', RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $item) {
-                print "$item\n";
                 unlink($item);
             }
             rename($folder.'/vendor.original', $folder.'/vendor');
@@ -125,7 +124,7 @@ class ZpkController extends AbstractActionController
                     } else {
                         $dependandPackages[$name] = $version;
                         $dependancies['library'][] = array_merge(
-                                                        array('name' => $name),
+                                                        array('name' => self::normalizeLibName($name)),
                                                         self::convertVersion($version)
                                                      );
                     }
@@ -136,7 +135,9 @@ class ZpkController extends AbstractActionController
                     $packages = $composer->install($folder, $composerOptions);
 
                     foreach ($packages as $library=>$version) {
+                        $version = self::normalizeVersion($version);
                         $libraryFolder = $folder.'/vendor/'.$library;
+                        $library = self::normalizeLibName($library);
                         $zpk->create($libraryFolder, array(
                                                             'type'=>'library',
                                                             'name'=>$library,
@@ -219,7 +220,18 @@ class ZpkController extends AbstractActionController
 
     protected static function convertVersion($version)
     {
-        $version = trim($version);
+        $version = self::normalizeVersion($version);
+        if (count($versions = explode(',', $version)) > 1) {
+            $v1 = self::convertVersion(array_pop($versions));
+            $v2 = self::convertVersion(join(',', $versions));
+            $min = @self::compareMinVersion($v1['min'], $v2['min']);
+            $max = @self::compareMaxVersion($v1['max'], $v2['max']);
+
+            return array(
+            	'min' => $min,
+                'max' => $max
+            );
+        }
         // @todo: how to handle dev-master versioning correctly?
         if ($version == 'dev-master') {
             return array('equals' => '999.dev-master');
@@ -235,11 +247,39 @@ class ZpkController extends AbstractActionController
 
         //@todo: specify max value also
         if (strpos($version,'~')===0) {
+            $version = substr($version,1);
+            $versionParts = explode('.', $version);
+            array_pop($versionParts);
+            array_push($versionParts, 999);
+            $maxVersion = join('.', $versionParts);
             return array (
-                'min' => substr($version,1)
+                'min' => $version,
+                'max' => $maxVersion
             );
         }
 
         return array('equals' => $version);
+    }
+    
+    protected static function compareMinVersion($a, $b) {
+        if (!isset($a) && !isset($b)) return false;
+        elseif (isset($a) && !isset($b)) return $a;
+        elseif (!isset($a) && isset($b)) return $b;
+        return (version_compare($a, $b)) ? $a : $b;
+    }
+    
+    protected static function compareMaxVersion($a, $b) {
+        if (!isset($a) && !isset($b)) return false;
+        elseif (isset($a) && !isset($b)) return $a;
+        elseif (!isset($a) && isset($b)) return $b;
+        return (version_compare($a, $b)) ? $b : $a;
+    }
+    
+    protected static function normalizeVersion($version) {
+        return trim($version, ' v');
+    }
+    
+    protected static function normalizeLibName($library) {
+        return str_replace('/', '.', $library);
     }
 }

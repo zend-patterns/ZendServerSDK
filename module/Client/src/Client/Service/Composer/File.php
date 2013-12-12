@@ -74,12 +74,34 @@ class File
                 return;
             }
         }
-
         $fh = fopen($postStageScript, 'a+');
+        
+        fwrite($fh,"\n");
+        
+        $json = file_get_contents($baseDir . '/vendor/composer/installed.json');
+        $jsonData = json_decode($json, true);
+        
+        $libLines = array();
+        foreach ($jsonData as $package) {
+            $nameParts = explode('/', $package['name']);
+            $name = join('.', $nameParts);
+            $libLines[] = <<<LINE
+\$dir =  getenv('ZS_APPLICATION_BASE_DIR') . '/vendor/{$nameParts[0]}';
+@mkdir(\$dir);
+chdir(\$dir);
+\$libDir = zend_deployment_library_path('$name');
+shell_exec("ln -s \$libDir {$nameParts[1]}");
+    
+
+LINE;
+        }
+                
         fwrite($fh,"\n");
         foreach ($data as $line) {
+            $line = str_replace('###libLines###', join("\n", $libLines), $line);
             fwrite($fh, $line);
         }
+        
         fclose($fh);
     }
 
@@ -123,7 +145,9 @@ class File
         $namespaceAutoloader = array();
         $filesAutoloader = array();
         foreach ($data['packages'] as $package) {
-            $packageLocation = "zend_deployment_library_path('{$package['name']}','{$package['version']}').'/'";
+            $normalizedVersion =  trim($package['version'], ' v');
+            $normalizedName = str_replace('/', '.', $package['name']);
+            $packageLocation = "zend_deployment_library_path('$normalizedName','$normalizedVersion').'/'";
 
             if (isset($package['autoload'])) {
                 if (isset($package['autoload']['files'])) {
