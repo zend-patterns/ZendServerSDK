@@ -208,7 +208,7 @@ class ZpkInvokable
      * @param string $sourceFolder
      * @param string $destinationFolder
      */
-    public function pack($sourceFolder, $destinationFolder=".", $fileName=null)
+    public function pack($sourceFolder, $destinationFolder=".", $fileName=null, $customVersion="")
     {
         if(!file_exists($sourceFolder."/deployment.xml")) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('The specified directory does not have deployment.xml.');
@@ -221,6 +221,12 @@ class ZpkInvokable
         $appDir  	= sprintf("%s", $xml->appdir);
         $scriptsDir = sprintf("%s", $xml->scriptsdir);
         $type       = sprintf("%s", $xml->type);
+
+        if (!empty($customVersion)) {
+	    $version = $customVersion;
+            $xml->version->release = $version;
+            $xml->asXML($sourceFolder."/deployment.xml");
+        }
 
         $properties = $this->getProperties($sourceFolder."/deployment.properties");
 
