@@ -9,14 +9,13 @@
  */
 
 $srcRoot   = dirname(__DIR__);
-$buildRoot = __DIR__ ;
 $filename  = 'zs-client.phar';
+$pharPath = __DIR__ . "/$filename";
 
-if (file_exists($buildRoot . "/$filename")) {
-    unlink($buildRoot . "/$filename");
+if (file_exists($pharPath)) {
+    unlink($pharPath);
 }
 
-$pharPath = $buildRoot . "/$filename";
 $phar = new \Phar($pharPath, 0, $filename);
 $phar->startBuffering();
 
