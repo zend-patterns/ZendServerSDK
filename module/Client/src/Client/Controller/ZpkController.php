@@ -81,13 +81,15 @@ class ZpkController extends AbstractActionController
      * Creates a package from existing PHP code
      * @param string source - the source folder
      * @param string destination - the destination folder
+     * @param string name - The name of the package
+     * @param string version - The version release of the package
      */
     public function packAction()
     {
         $folder = $this->getRequest()->getParam('folder');
         $destination = $this->getRequest()->getParam('destination');
         $zpk = $this->serviceLocator->get('zpk');
-        $zpkFile = $zpk->pack($folder, $destination, $this->getRequest()->getParam('name'));
+        $zpkFile = $zpk->pack($folder, $destination, $this->getRequest()->getParam('name'), $this->getRequest()->getParam('version'));
         $this->getResponse()->setContent($zpkFile."\n");
 
         return $this->getResponse();
