@@ -140,4 +140,40 @@ php bin/zs-client.php installApp --zpk="<location-of-the-zpk-file>" \
                                  --userParams="APPLICATION_ENV=staging&DB_TYPE=mysql"
 ```
 
+HTTP tuning
+============
+
+### Changing Connection Timeout
+In some cases we may expect slower communication between the client and the server.
+In that case we can set explicitly the http timeout to a bigger value. The example below shows how to set it to 40 seconds.
+
+```
+php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
+                                    --http="timeout=40" 
+
+```
+
+### Accepting Self-Signed SSL Certificates
+In most cases the HTTPS access to your Zend Server will use self-signed certificate. 
+In order to instruct the client to accept the SSL certificate you can do the following.
+
+### Combining Multiple HTTP options
+If you want to combine multiple HTTP options in the same request then you can format the value of the http parameter as a valid 
+HTTP query string. Request with timeout of 40 seconds and acceptance of self-signed certificates will look like this.
+```
+php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
+                                    --http="timeout&sslverify=0"
+```
+
+### Persisting the HTTP Options
+If you want to keep the http options saved to a target then when defining or updating the target define also the http parameter. 
+Format the value as valid HTTP query string. Take a look at the following example.
+```
+php bin/zs-client.php addTarget --target="<name-of-the-target> \
+                                --zsurl="http://x.y.z" \
+                                --zskey="admin" \
+                                --zssecret="<secret-hash>" \
+                                --http="timeout&sslverify=0"
+```
+
 For questions and feedback write to slavey (at) zend DOT com.
