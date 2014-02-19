@@ -86,13 +86,27 @@ php bin/zs-client.php addTarget --target="<put-here-unique-name>" \
                                 --zskey="<put-here-the-webapi-key-name>" \
                                 --zssecret="<put-here-the-webapi-key-hash>" \
                                 --zsurl="<(optional)put-here-valid-url>" \
-                                --zsver="<(optional)put-here-the-version>"
+                                --zsversion="<(optional)put-here-the-version>"
 ```
 To update a target run the command with the same --target value and provide the 
 new values.
 
+zsurl: if not specified, the value `http://localhost:10081` is used.
+zsversion: if not specified, the value `6.1` is used.
+
 The information about the available targets is saved in the home directory of 
 the current user in a file named .zsapi.ini.
+
+Using Targets
+-------------
+Once a target has been defined, specify it in subsequent commands by adding
+its unique name to the argument list, as in this example:
+
+```
+php bin/zs-client.php monitorGetIssuesListPredefinedFilter \
+                             --target="<unique-name-from-addTarget-command>" \
+                             --filterId="Resources Issues"
+```
 
 Deploying PHP application
 -------------
