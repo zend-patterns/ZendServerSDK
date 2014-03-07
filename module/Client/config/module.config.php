@@ -38,12 +38,13 @@ return array (
                             ),
                             'installApp' => array (
                                 'options' => array (
-                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
+                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--wait]',
                                     'defaults' => array (
                                         'controller' => 'webapi-app-controller',
                                         'action' => 'install'
                                     ),
                                     'group'=>'high-level',
+                                    'async' => true,
                                     'info' => array (
                                         'This command installs or updates an application',
                                         array('--zpk', 'The zpk package file'),
@@ -61,6 +62,8 @@ return array (
                                         array('--zskey', 'The name of the API key'),
                                         array('--zssecret', 'The hash of the API key'),
                                         array('--zsversion', 'The major Zend Server version. Ex: 6.1, 6.0 or 5.6'),
+                                        array('--wait', 'If this option is present then the client will wait until the operation finishes successfully on all servers.'.
+                                                        'By default this option is not present which means that the client will return results and exit as soon as the server has reported that it started to handle the task.'),
                                     ),
                                     'arrays' => array (
                                         'userParams',
@@ -206,5 +209,11 @@ return array (
             'file' => (isset($_SERVER['HOME'])? $_SERVER['HOME']:
                         $_SERVER['HOMEDRIVE'].$_SERVER['HOMEPATH'] // Available on Windows
                        ).DIRECTORY_SEPARATOR.'.zsapi.ini',
+        ),
+
+        'controller_plugins' => array (
+            'invokables' => array(
+               'repeater' => 'Client\Controller\Plugin\Repeater'
+            )
         )
 );
