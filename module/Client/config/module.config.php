@@ -7,6 +7,7 @@ return array (
                         'webapi-app-controller' => 'Client\Controller\AppController',
                         'webapi-api-controller' => 'Client\Controller\ApiController',
                         'webapi-lib-controller' => 'Client\Controller\LibController',
+                        'client-update-controller' => 'Client\Controller\UpdateController',
                 )
         ),
         'console' => array (
@@ -193,6 +194,20 @@ return array (
                                     ),
                                 )
                             ),
+
+                            'pharUpdate' => array(
+                                    'options' => array (
+                                            'route' => 'pharUpdate',
+                                            'defaults' => array (
+                                                    'controller' => 'client-update-controller',
+                                                    'action' => 'phar'
+                                            ),
+                                            'group'=>'client',
+                                            'info' => array (
+                                                    'This command updates the phar file to the latest version.',
+                                            ),
+                                    ),
+                            )
                         ),
                 )
         ),
