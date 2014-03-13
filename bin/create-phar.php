@@ -17,6 +17,13 @@ if (file_exists($pharPath)) {
 }
 
 $phar = new \Phar($pharPath, 0, $filename);
+$privateKey = file_get_contents($srcRoot.'/certs/private.pem');
+$publicKeyFile = $srcRoot.'/certs/public.pem';
+if($privateKey && file_exists($srcRoot.'/certs/public.pem')) {
+    $phar->setSignatureAlgorithm(Phar::OPENSSL, $privateKey);
+    addFile($phar, $srcRoot.'/certs/public.pem');
+}
+
 $phar->startBuffering();
 
 // remove the first line in the index file
@@ -49,6 +56,8 @@ EOF;
 
 $phar->setStub($stub);
 $phar->stopBuffering();
+
+copy($publicKeyFile, $pharPath. '.pubkey');
 
 if (file_exists($pharPath)) {
     echo "Phar created successfully in $pharPath\n";

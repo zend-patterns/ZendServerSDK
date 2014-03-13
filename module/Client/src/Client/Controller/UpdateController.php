@@ -43,9 +43,20 @@ class UpdateController extends AbstractActionController
         } else {
             ErrorHandler::start();
             rename($file, $file . '.' . date('YmdHi') . '.backup');
-            $handler = fopen($file, 'w');
+
+            // create a temp file first, verify it and then replace it with the new one
+            $tempFile = tempnam('', 'delme');
+            $handler = fopen($tempFile, 'w');
             fwrite($handler, $response->getBody());
             fclose($handler);
+
+            copy('certs/public.pem', $tempFile.'.pubkey');
+            $phar = new \Phar($tempFile); // the verification at that moment.
+            $signature = $phar->getSignature();
+            if($signature['hash_type'] !== \Phar::OPENSSL) {
+                throw new \Exception('Invalid signature in the downloaded file!');
+            }
+            rename($tempFile, $file);
             ErrorHandler::stop(true);
 
             return 'The phar file was updated successfully.';
