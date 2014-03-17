@@ -77,6 +77,9 @@ class ApiController extends DefaultApiController
 
         $wait = $this->params('wait');
         if($wait) {
+            $keyService = $this->getServiceLocator()->get('defaultApiKey');
+            $keyService->setName(sprintf("%s",$response->responseData->clusterAdminKey->name));
+            $keyService->setKey(sprintf("%s",$response->responseData->clusterAdminKey->hash));
             $serverId = sprintf("%d", $response->responseData->serverInfo->id);
             $this->repeater()->doUntil(array($this,'onWaitServerAddToCluster'), array('serverId'=>$serverId));
         }
