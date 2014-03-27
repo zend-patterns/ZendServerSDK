@@ -136,6 +136,29 @@ It will output the name of the newly created package file. You have to use this 
 or update an existing application on Zend Server. If you want to use other name for
 the output file you can use the --name="{desired-zpk-name}" option.
 
+#### Composer Integration ####
+There is experimental integration with composer that allows you to download the dependant packages, as described in composer.json,
+download them and convert them to zpk files. The above command with composer integration will look like this
+
+```
+php bin/zs-client.php packZpk --folder="<folder-where-the-PHP-code-is>" \
+			      --destination="<folder-where-the-package-will-be-created>" \
+                              --composer
+```
+The result from the command will be list of packages in the order that they have to be installed (top first, bottom last). 
+Example:
+
+/tmp/zendframework.zend-stdlib-2.2.4.zpk
+/tmp/zendframework.zend-console-2.2.4.zpk
+/tmp/zendframework.zend-file-2.2.4.zpk
+/tmp/zendframework.zend-mvc-2.2.4.zpk
+/tmp/zendframework.zend-text-2.2.4.zpk
+/tmp/zendframework.zend-math-2.2.4.zpk
+/tmp/zendframework.zend-json-2.2.4.zpk
+/tmp/zendframework.zend-serializer-2.2.4.zpk
+/tmp/zenddevops.webapi-dev-dev.zpk
+/tmp/AddYourUniqueApplicationName-1.0.0.zpk
+
 ### Deploy Package
 Run the following command to install a package.
 ```
@@ -152,6 +175,22 @@ php bin/zs-client.php installApp --zpk="<location-of-the-zpk-file>" \
                                  --target="<the-name-of-the-target>" \
                                  --baseUri="<baseUri>" \
                                  --userParams="APPLICATION_ENV=staging&DB_TYPE=mysql"
+```
+#### Deploy Multiple Packages
+If you use the composer integration then packZpk can create multiple packages, instead of one. Below is a suggestion how you can
+deploy these newly created packages in the correct order.
+
+```
+ZPKS=`php bin/zs-client.php packZpk --folder="<folder-where-the-PHP-code-is>" \
+			      	        --destination="<folder-where-the-package-will-be-created>" \
+	                                --composer`;
+
+for i in $ZPKS; do 
+	php bin/zs-client.php installApp --zpk="$i" \
+                                 --target="<the-name-of-the-target>" \
+                                 --baseUri="<baseUri>" \
+                                 --userParams="APPLICATION_ENV=staging&DB_TYPE=mysql"
+done;
 ```
 
 HTTP tuning
@@ -170,6 +209,12 @@ php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
 ### Accepting Self-Signed SSL Certificates
 In most cases the HTTPS access to your Zend Server will use self-signed certificate. 
 In order to instruct the client to accept the SSL certificate you can do the following.
+
+```
+php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
+                                    --http="sslverify=0" 
+
+```
 
 ### Combining Multiple HTTP options
 If you want to combine multiple HTTP options in the same request then you can format the value of the http parameter as a valid 

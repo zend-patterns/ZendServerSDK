@@ -15,7 +15,7 @@ class ZpkInvokable
 
     /**
      *
-     * @param string $filename
+     * @param  string            $filename
      * @return \SimpleXMLElement
      */
     public function getMeta($filename)
@@ -28,7 +28,7 @@ class ZpkInvokable
         $zip->close();
         ErrorHandler::stop(true);
 
-        if(!$content) {
+        if (!$content) {
             throw new \Zend\Mvc\Exception\RuntimeException('Missing deployment.xml in the zpk file.');
         }
 
@@ -41,16 +41,48 @@ class ZpkInvokable
     {
         $file = $folder.'/deployment.xml';
         $content = $this->updateXML($file, $updates);
-        if($content) {
+        if ($content) {
             file_put_contents($file, $content);
         }
     }
 
     /**
+     * Converts associative array with key and velue into ZPK parameters
+     * @param string $folder     location of the deployment.xml file
+     * @param array  $userParams
+     */
+    public function updateParameters($folder, array $userParams)
+    {
+        // <parameter display="test" id="test" readonly="false" required="false" type="string">
+        //		<defaultvalue>test</defaultvalue>
+        //</parameter>
+
+        $parameterUpdates = array ();
+        $i=0;
+        foreach ($userParams as $key => $value) {
+            $parameterUpdates[$i] = array(
+                    '@attributes' => array(
+                            'display'=> $key,
+                            'id'     => 'COMPOSER_'.$key,
+                            'required' => $value ? 'true':'false',
+                            'type'   => 'string',
+                    )
+            );
+
+            if ($value) {
+                $parameterUpdates[$i]['defaultvalue'] = $value;
+            }
+            $i++;
+        }
+
+        return $this->updateMeta($folder, array('parameters' => array('parameter' => $parameterUpdates)));
+    }
+
+    /**
      * Simple XML update
      *
-     * @param string $file
-     * @param array $updates
+     * @param  string                               $file
+     * @param  array                                $updates
      * @return string
      * @throws \Zend\Mvc\Exception\RuntimeException
      */
@@ -58,7 +90,7 @@ class ZpkInvokable
     {
         // Load the current data
         $content = file_get_contents($file);
-        if(!$content) {
+        if (!$content) {
             throw new \Zend\Mvc\Exception\RuntimeException('Missing deployment.xml in the zpk file.');
         }
         $doc = new \DOMDocument();
@@ -75,9 +107,9 @@ class ZpkInvokable
         $data[$rootName] = self::fixMetaKeyOrder($data[$rootName]);
 
         $xml = \LSS\Array2XML::createXML($rootName, $data[$rootName]);
+
         return $xml->saveXML();
     }
-
 
     public function validateMeta($filename)
     {
@@ -87,8 +119,8 @@ class ZpkInvokable
 
     /**
      * Extracts the content from a packed file in the zpk.
-     * @param string $zpkFile
-     * @param string $internalPath
+     * @param  string $zpkFile
+     * @param  string $internalPath
      * @return string
      */
     public function getFileContent($zpkFile, $internalPath)
@@ -106,8 +138,8 @@ class ZpkInvokable
 
     /**
      * Extracts the content from a packed file in the zpk.
-     * @param string $zpkFile
-     * @param string $internalPath
+     * @param  string $zpkFile
+     * @param  string $internalPath
      * @return string
      */
     public function setFileContent($zpkFile, $internalPath, $content)
@@ -126,7 +158,7 @@ class ZpkInvokable
 
     /**
      * Validates the deployment.xml against the specified schema.xsd
-     * @param unknown $content
+     * @param  string        $content
      * @throws \DOMException
      */
     public function validateXml($content)
@@ -135,7 +167,7 @@ class ZpkInvokable
         $dom->loadXML($content);
 
         libxml_use_internal_errors(true);
-        if(!$dom->schemaValidate(__DIR__.'/../../../config/zpk/schema.xsd')){
+        if (!$dom->schemaValidate(__DIR__.'/../../../config/zpk/schema.xsd')) {
             $message = "";
             $errors = libxml_get_errors();
             foreach ($errors as $error) {
@@ -148,7 +180,7 @@ class ZpkInvokable
 
     /**
      * Fixes deployment.xml file
-     * @param string $content
+     * @param  string $content
      * @return string
      */
     public function fixXml($content)
@@ -166,8 +198,8 @@ class ZpkInvokable
         // fix the order of the elements
         $data[$rootName] = self::fixMetaKeyOrder($data[$rootName]);
 
-
         $xml = \LSS\Array2XML::createXML($rootName, $data[$rootName]);
+
         return $xml->saveXML();
     }
 
@@ -177,24 +209,25 @@ class ZpkInvokable
      */
     public function create($sourceFolder, array $updates=null, array $properties=null)
     {
-        if(file_exists($sourceFolder."/deployment.xml")) {
+        if (file_exists($sourceFolder."/deployment.xml")) {
             error_log('WARNING: The specified directory already has deployment.xml.');
+
             return false;
         }
 
-        if(!is_dir($sourceFolder)) {
+        if (!is_dir($sourceFolder)) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('The source folder parameter must be real directory.');
         }
 
         ErrorHandler::start();
         copy(__DIR__.'/../../../config/zpk/deployment.xml', $sourceFolder."/deployment.xml");
         copy(__DIR__.'/../../../config/zpk/deployment.properties', $sourceFolder."/deployment.properties");
-        if($updates!==null) {
+        if ($updates!==null) {
             $file = $sourceFolder."/deployment.xml";
             $content = $this->updateXML($file, $updates);
             file_put_contents($file, $content);
         }
-        if($properties!==null) {
+        if ($properties!==null) {
             // @TODO
         }
 
@@ -207,10 +240,13 @@ class ZpkInvokable
      * Creates a package from the data in the source folder
      * @param string $sourceFolder
      * @param string $destinationFolder
+     * @param string $fileName
+     * @param array  $extraProperties
+     * @param string $customVersion
      */
-    public function pack($sourceFolder, $destinationFolder=".", $fileName=null, $customVersion="")
+    public function pack($sourceFolder, $destinationFolder=".", $fileName=null, array $extraProperties=null, $customVersion="")
     {
-        if(!file_exists($sourceFolder."/deployment.xml")) {
+        if (!file_exists($sourceFolder."/deployment.xml")) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('The specified directory does not have deployment.xml.');
         }
 
@@ -223,14 +259,19 @@ class ZpkInvokable
         $type       = sprintf("%s", $xml->type);
 
         if (!empty($customVersion)) {
-	    $version = $customVersion;
+        $version = $customVersion;
             $xml->version->release = $version;
             $xml->asXML($sourceFolder."/deployment.xml");
         }
-
         $properties = $this->getProperties($sourceFolder."/deployment.properties");
+        if ($extraProperties !== null) {
+            $properties = array_merge_recursive($properties, $extraProperties);
+            foreach ($properties as $key=> $value) {
+                $properties[$key] = array_unique($value);
+            }
+        }
 
-        if(!$fileName) {
+        if (!$fileName) {
             $fileName = "$name-$version.zpk";
         }
         $fileName = str_replace(array('/'),array('.'), $fileName);
@@ -239,7 +280,7 @@ class ZpkInvokable
 
         $ext = new \ReflectionExtension('zip');
         $zipVersion = $ext->getVersion();
-        if(!version_compare($zipVersion,'1.11.0','>=')) {
+        if (!version_compare($zipVersion,'1.11.0','>=')) {
             error_log("WARNING: Non-Ascii file/folder names are supported only with PHP zip extension >=1.11.0 (your version is: $zipVersion)\n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
         }
 
@@ -248,42 +289,46 @@ class ZpkInvokable
         $zpk->addFile($sourceFolder."/deployment.xml", 'deployment.xml');
 
         $folderMap = array();
-        if($type == self::TYPE_LIBRARY) {
+        if ($type == self::TYPE_LIBRARY) {
             // Include all files and folders for the library
             $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
             $folderMap['appdir.includes'] = '';
         } else {
             $folderMap['appdir.includes'] = $appDir;
-            if(isset($xml->scriptsdir)) {
+            if (isset($xml->scriptsdir)) {
                 $folderMap['scriptsdir.includes'] = $scriptsDir;
             }
         }
 
         ErrorHandler::start();
-        foreach($folderMap as $key => $baseDir) {
-            if($baseDir) {
-                $baseDir .= '/';
+        foreach ($folderMap as $key => $baseDir) {
+            $excludes = array();
+            if (array_key_exists('appdir.excludes', $properties)) {
+                $excludes = $properties['appdir.excludes'];
+                array_walk($excludes, function(&$item, $key, $prefix) {$item = $prefix . '/' . $item;}, $baseDir);
             }
-            foreach($properties[$key] as $path) {
+            foreach ($properties[$key] as $path) {
                 $path = trim($path);
                 $fullPath = $sourceFolder.'/'.$path;
-                if(is_file($fullPath)) {
+                if (is_file($fullPath)) {
                     // Fix the script properties to match the behaviour of ZendStudio
-                    if($key=='scriptsdir.includes') {
+                    if ($key=='scriptsdir.includes') {
                         $prefix = $scriptsDir ? $scriptsDir : 'scripts/';
-                        if(strpos($path, $prefix)===0) {
+                        if (strpos($path, $prefix)===0) {
                             $path = substr($path, strlen($prefix));
                         }
                     }
-                    $zpk->addFile($fullPath, $this->fixZipPath($baseDir.$path));
-                } else if(is_dir($fullPath)) {
-                    $this->addDir($zpk, $fullPath, $baseDir);
+                    if (in_array($baseDir . '/' . $path, $excludes)) continue;
+                    $zpk->addFile($fullPath, $this->fixZipPath($baseDir . '/' . $path));
+                } elseif (is_dir($fullPath)) {
+                    $this->addDir($zpk, $fullPath, $baseDir, $excludes);
                 } else {
                     throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
                 }
             }
         }
-        if(!$zpk->close()) {
+
+        if (!$zpk->close()) {
             throw new \Zend\ServiceManager\Exception\RuntimeException('Failed creating zpk file: '.$outZipPath.". ".
                                                                        $zpk->getStatusString());
         }
@@ -295,6 +340,8 @@ class ZpkInvokable
     protected function fixZipPath($path)
     {
         $path = preg_replace('/(\/{2,})/', '/', $path);
+        $path = trim($path, '/');
+
         return $path;
     }
 
@@ -302,34 +349,36 @@ class ZpkInvokable
      * Add a directory in zip
      *
      * @param ZipArchive $zpk
-     * @param string $directory
-     * @param string $baseDir
+     * @param string     $directory
+     * @param string     $baseDir
      */
-    protected function addDir($zpk, $directory, $baseDir = null)
+    protected function addDir($zpk, $directory, $baseDir = null, $excludes = array())
     {
-        if($baseDir) {
+        if ($baseDir) {
             $currentZipFolder = $baseDir.'/'.basename($directory);
         } else {
             $currentZipFolder = basename($directory);
         }
-        
+
+        if (in_array($currentZipFolder, $excludes)) return;
+
         $countFiles = scandir($directory);
-        if(count($countFiles) <= 2) {
+        if (count($countFiles) <= 2) {
             $zpk->addEmptyDir($currentZipFolder);
         } else {
             $dir = dir($directory);
-            if($dir) {
-                while($path = $dir->read()) {
-                    if(in_array($path, array('.','..'))) {
+            if ($dir) {
+                while ($path = $dir->read()) {
+                    if (in_array($path, array('.','..'))) {
                         continue;
                     }
-    
+
                     $path = $directory."/".$path;
-                    if(is_dir($path)) {
-                        $this->addDir($zpk, $path, $currentZipFolder);
-                    } else if(file_exists($path)){
+                    if (is_dir($path)) {
+                        $this->addDir($zpk, $path, $currentZipFolder, $excludes);
+                    } elseif (file_exists($path)) {
                         $success = $zpk->addFile($path, $this->fixZipPath($currentZipFolder.'/'.basename($path)));
-                        if(!$success) {
+                        if (!$success) {
                             throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$path' cannot be added zpk");
                         }
                     } else {
@@ -344,7 +393,7 @@ class ZpkInvokable
     /**
      * Gets properties from file.
      *
-     * @param string $file
+     * @param  string $file
      * @return array
      *
      * @see http://blog.rafaelsanches.com/2009/08/05/reading-java-style-properties-file-in-php/
@@ -356,14 +405,14 @@ class ZpkInvokable
         $properties = array ();
         $key = "";
         $isWaitingOtherLine = false;
-        foreach($lines as $i=>$line) {
+        foreach ($lines as $i=>$line) {
             $line = trim($line);
 
-            if(empty($line) || (!$isWaitingOtherLine && strpos($line,"#") === 0)) {
+            if (empty($line) || (!$isWaitingOtherLine && strpos($line,"#") === 0)) {
                 continue;
             }
 
-            if(!$isWaitingOtherLine) {
+            if (!$isWaitingOtherLine) {
                 $key = trim(substr($line,0,strpos($line,'=')));
                 $value = substr($line,strpos($line,'=') + 1, strlen($line));
             } else {
@@ -371,7 +420,7 @@ class ZpkInvokable
             }
 
             /* Check if ends with single '\' */
-            if(strrpos($value,"\\") === strlen($value)-strlen("\\")) {
+            if (strrpos($value,"\\") === strlen($value)-strlen("\\")) {
                 $value = substr($value, 0, strlen($value)-1)."\n";
                 $isWaitingOtherLine = true;
             } else {
@@ -391,7 +440,7 @@ class ZpkInvokable
 
     /**
      * Validates the existence of the files in the deployment.properties
-     * @param array $properties
+     * @param  array            $properties
      * @throws RuntimeException
      */
     public function validateProperties($folder)
@@ -403,20 +452,20 @@ class ZpkInvokable
             'scriptsdir.includes'
         );
 
-        foreach($map as $key) {
-            if(!isset($properties[$key])) {
+        foreach ($map as $key) {
+            if (!isset($properties[$key])) {
                 continue;
             }
 
             $error = "";
             $files = $properties[$key];
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 $path = $folder.'/'.trim($file);
-                if(!file_exists($path)) {
+                if (!file_exists($path)) {
                     $error.="File/folder does not exist: ".$path."\n";
                 }
             }
-            if($error) {
+            if ($error) {
                 throw new RuntimeException($error);
             }
         }
@@ -424,12 +473,12 @@ class ZpkInvokable
 
     /**
      * Fixes the order of the keys in the meta data
-     * @param array $xsd
+     * @param  array $xsd
      * @return array
      */
     protected static function fixMetaKeyOrder(array $data)
     {
-        if(!isset(self::$keyOrder)) {
+        if (!isset(self::$keyOrder)) {
             // read the key order
             $doc = new \DOMDocument();
             $doc->load(__DIR__.'/../../../config/zpk/schema.xsd');
@@ -440,13 +489,13 @@ class ZpkInvokable
             );
 
             foreach ($xsd["xs:schema"]["xs:element"][0]["xs:complexType"]["xs:sequence"]["xs:element"] as $element) {
-                if(isset($element['@attributes']['name'])) {
+                if (isset($element['@attributes']['name'])) {
                     $name = $element['@attributes']['name'];
-                } else if($element['@attributes']['ref']) {
+                } elseif ($element['@attributes']['ref']) {
                     $name = $element['@attributes']['ref'];
                 }
 
-                if(!$name) {
+                if (!$name) {
                     continue;
                 }
                 self::$keyOrder[] = $name;
@@ -454,8 +503,8 @@ class ZpkInvokable
         }
 
         $meta = array();
-        foreach(self::$keyOrder as $key) {
-            if(isset($data[$key])) {
+        foreach (self::$keyOrder as $key) {
+            if (isset($data[$key])) {
                 $meta[$key] = $data[$key];
             }
         }

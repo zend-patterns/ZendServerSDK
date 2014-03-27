@@ -151,7 +151,7 @@ return array (
                             ),
                             'packZpk'   => array(
                                 'options' => array (
-                                    'route' => 'packZpk [--folder=] [--destination=] [--name=] [--version=]',
+                                    'route' => 'packZpk [--folder=] [--destination=] [--name=]  [--version=] [--composer] [--composer-options=] [--composer-dist-files=]',
                                     'defaults' => array (
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'pack',
@@ -163,16 +163,21 @@ return array (
                                           array('--folder','Folder where the source code is located'),
                                           array('--destination','Folder in which to save the created ZPK file'),
                                           array('--name','The name of the package. If not provided the name will be constructed from the name of the application and its version.'),
-                                          array('--version','The version release of the package. The version release will be replace in deployment.xml before creating ZPK package.')
+                                          array('--version','The version release of the package. The version release will be replace in deployment.xml before creating ZPK package.'),
+                                          array('--composer','Enables experimental composer support.'),
+                                          array('--composer-options','Adds composer options when running composer'),
+                                          array('--composer-dist-files', 'Comma separated list of YAML .dist files containing user parameters.'),
+                                    ),
+                                    'arrays' => array(
+                                                'composer-dist-files',
                                     ),
                                     'files' => array(
-                                        'folder', 'destination'
+                                        'folder', 'destination','composer-dist-files',
                                     ),
                                     'no-target' => true,
                                     'group' => 'packaging'
                                 ),
                             ),
-
                             'installLib' => array (
                                 'options' => array (
                                     'route' => 'installLib --zpk= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
@@ -216,6 +221,8 @@ return array (
             'invokables' => array (
                 'zpk'  => 'Client\Service\ZpkInvokable',
                 'path' => 'Client\Service\PathInvokable',
+                'composer' => 'Client\Service\ComposerInvokable',
+                'Composer\File' => 'Client\Service\Composer\File',
              )
         ),
 

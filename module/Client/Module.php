@@ -114,7 +114,14 @@ EOT;
             $path = $services->get('path');
             foreach ($config['console']['router']['routes'][$routeName]['options']['files'] as $param) {
                 if ($value = $match->getParam($param)) {
-                    $match->setParam($param, $path->getAbsolute($value));
+                    if (!is_array($value)) {
+                        $match->setParam($param, $path->getAbsolute($value));
+                    } else {
+                        $newValue = array_map(function($v) use ($path) {
+                            return $path->getAbsolute($v);
+                        }, $value);
+                        $match->setParam($param,$newValue);
+                    }
                 }
             }
         }
