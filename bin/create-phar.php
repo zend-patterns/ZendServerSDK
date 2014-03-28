@@ -29,7 +29,7 @@ if(is_dir("$srcRoot/config")) {
 addDir($phar, "$srcRoot/module", $srcRoot);
 
 $stub = <<<EOF
-#!/usr/bin/env php
+#!/usr/local/zend/bin/php
 <?php
 /*
  * This file is part of Zend Server WebAPI command line tool
