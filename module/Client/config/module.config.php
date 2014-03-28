@@ -8,7 +8,8 @@ return array (
                         'webapi-api-controller' => 'Client\Controller\ApiController',
                         'webapi-lib-controller' => 'Client\Controller\LibController',
                         'client-update-controller' => 'Client\Controller\UpdateController',
-                )
+                        'client-manual-controller' => 'Client\Controller\ManualController',
+                 )
         ),
         'console' => array (
                 'router' => array (
@@ -212,6 +213,20 @@ return array (
                                                     'This command updates the phar file to the latest version.',
                                             ),
                                     ),
+                            ),
+
+                            'gettingStartedManual' => array(
+                                'options' => array (
+                                        'route' => 'getting-started',
+                                        'defaults' => array (
+                                                'controller' => 'client-manual-controller',
+                                                'action' => 'gettingStarted'
+                                        ),
+                                        'group'=>'manual',
+                                        'info' => array (
+                                                'Run this command to get started with the tool',
+                                        ),
+                                ),
                             )
                         ),
                 )
@@ -236,6 +251,12 @@ return array (
         'controller_plugins' => array (
             'invokables' => array(
                'repeater' => 'Client\Controller\Plugin\Repeater'
+            )
+        ),
+
+        'view_manager' => array(
+           'template_path_stack' => array(
+               __DIR__ .'/../views/',
             )
         )
 );
