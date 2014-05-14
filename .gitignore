@@ -1,3 +1,7 @@
 composer.phar
 composer.lock
 vendor/
+.project
+.buildpath
+.settings
+php-cs-fixer.phar

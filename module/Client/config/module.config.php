@@ -258,5 +258,10 @@ return array (
            'template_path_stack' => array(
                __DIR__ .'/../views/',
             )
+        ),
+        'view_helpers' => array(
+            'invokables' => array(
+                'figlet' => 'Slk\View\Helper\Figlet',
+             )
         )
 );

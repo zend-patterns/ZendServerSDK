@@ -1,1 +1,68 @@
-This is the getting started ...
+[[[
+   ____      _   _   _               ____  _             _           _
+  / ___| ___| |_| |_(_)_ __   __ _  / ___|| |_ __ _ _ __| |_ ___  __| |
+ | |  _ / _ \ __| __| | '_ \ / _` | \___ \| __/ _` | '__| __/ _ \/ _` |
+ | |_| |  __/ |_| |_| | | | | (_| |  ___) | || (_| | |  | ||  __/ (_| |
+  \____|\___|\__|\__|_|_| |_|\__, | |____/ \__\__,_|_|   \__\___|\__,_|
+                             |___/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+]]]
+>>>
+
+Welcome to $script getting started tutorial.
+
+To get more information about the different commands available in this tool type:
+$script --help.
+
+Type below the command argument as given above to see a list of available command groups.
+>$_
+== --help
+=> args
+$_ $args
+
+The result from this command would be....
+------
+
+$result
+
+------
+>>>
+Now if you want to see commands in one specific group you have to type command:<group-name>.
+For example in order to get a list of all codetracing commands you have to type:
+
+$script command:codetracing
+
+Can you type below the argument to show all commands in the group "high-level"?
+>$_
+== command:high-level
+=> args
+
+$_ $args
+
+Let's see what commands are in this group:
+$result
+
+>>>$
+If you know a command but do not know its parameters then you can type:
+$script <command> --help.
+
+Now check what are the arguments for the addTarget command.
+
+>$_
+== /^\s*addTarget\s+\-\-help$/
+=== addTarget --help
+=> args
+
+$_ $args
+
+The result from this command would be....
+------
+
+$result
+
+------
+
+[[[
+    Adding Targets
+    ~~~~~~~~~~~~~~
+]]]
