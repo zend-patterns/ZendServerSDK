@@ -106,12 +106,12 @@ class AppController extends AbstractActionController
         ));
         $xml = new \SimpleXMLElement($response->getBody());
 
-        $status = $xml->responseData->applicationsList->applicationInfo->status;
+        $status = (string)$xml->responseData->applicationsList->applicationInfo->status;
         if(stripos($status,'error')!==false) {
             throw new \Exception(sprintf("Got error '%s' during deployment.\nThe followin error message is reported from the server:\n%s", $status, $xml->responseData->applicationsList->applicationInfo->messageList->error));
         }
 
-        if($server->status !='deployed') {
+        if($status !='deployed') {
             return;
         }
 
