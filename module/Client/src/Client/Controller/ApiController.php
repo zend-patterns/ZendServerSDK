@@ -27,8 +27,8 @@ class ApiController extends DefaultApiController
             $args['userAppName'] = sprintf("%s",$xml->name);
         }
         if(!preg_match("/^(\w+):\/\//", $args['baseUrl'])) {
-            $args['baseUrl']     = 'http://default-vhost/'. ltrim($args['baseUrl'],'/');
-            $args['createVhost'] = 'TRUE';
+            $args['baseUrl']     = 'http://default-server/'. ltrim($args['baseUrl'],'/');
+            $args['defaultServer'] = 'TRUE';
         }
         return $this->sendApiRequest($args);
     }
