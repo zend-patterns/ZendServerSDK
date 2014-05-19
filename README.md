@@ -118,7 +118,7 @@ Below are the steps that you need to take:
 
 ### Enable Deployment Support
 ```
-php bin/zs-client.php createZpk --folder="<folder-where-the-PHP-code-is>"
+php bin/zs-client.php initZpk --folder="<folder-where-the-PHP-code-is>"
 ```
 
 This will add two new files in the specified folder: deployment.xml and deployment.properties.
