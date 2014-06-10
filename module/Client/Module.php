@@ -99,7 +99,11 @@ EOT;
                         }
                     } else {
                         // check if the values is provided like a query string
-                        parse_str($value, $data);
+                        $pairs = explode('&', $value);
+                        foreach ($pairs as $pair) {
+                            list($k, $v) = explode('=', $pair);
+                            $data[$k] = $v;
+                        }
                     }
 
                     $match->setParam($arrayParam, $data);
