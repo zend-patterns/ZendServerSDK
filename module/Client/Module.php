@@ -98,12 +98,7 @@ EOT;
                             $data[$i] = trim($v);
                         }
                     } else {
-                        // check if the values is provided like a query string
-                        $pairs = explode('&', $value);
-                        foreach ($pairs as $pair) {
-                            list($k, $v) = explode('=', $pair);
-                            $data[$k] = $v;
-                        }
+                        Utils::parseString($value, $data);
                     }
 
                     $match->setParam($arrayParam, $data);
