@@ -295,9 +295,13 @@ class ZpkInvokable
             $folderMap['appdir.includes'] = '';
         } else {
             $folderMap['appdir.includes'] = $appDir;
-            if (isset($xml->scriptsdir)) {
+            if ($scriptsDir) {
                 $folderMap['scriptsdir.includes'] = $scriptsDir;
             }
+        }
+
+        if(isset($folderMap['scriptsdir.includes']) && !isset($properties['scriptsdir.includes'])) {
+            $properties['scriptsdir.includes'] = array ($scriptsDir);
         }
 
         ErrorHandler::start();
