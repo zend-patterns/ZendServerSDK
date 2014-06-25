@@ -227,6 +227,19 @@ return array (
                                                 'Run this command to get started with the tool',
                                         ),
                                 ),
+                            ),
+                            'autocomplete' => array(
+                                'options' => array (
+                                        'route' => 'auto-complete',
+                                        'defaults' => array (
+                                                'controller' => 'client-manual-controller',
+                                                'action' => 'autocomplete'
+                                        ),
+                                        'group'=>'manual',
+                                        'info' => array (
+                                                'Run this command to get the bash file needed for auto-completion',
+                                        ),
+                                ),
                             )
                         ),
                 )

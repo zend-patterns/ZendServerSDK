@@ -11,6 +11,7 @@ use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 use Slk\View\ICMRenderer;
+use Zend\View\Renderer\PhpRenderer;
 
 /**
  * Manual Pages Controller
@@ -22,12 +23,32 @@ class ManualController implements DispatchableInterface,
     protected $event;
     protected $serviceLocator;
 
+    /*
+     */
+    public function autocompleteAction(Request $request, Response $response = null)
+    {
+        $serviceManager = $this->getServiceLocator();
+        $console = 	$serviceManager->get('console');
+        $resolver = $serviceManager->get('ViewResolver');
+        $render = new PhpRenderer();
+        $render->setResolver($resolver);
+        $console->write($render->render('client/manual/autocomplete'));
+    }
+
+
     public function dispatch(Request $request, Response $response = null)
     {
         $serviceManager = $this->getServiceLocator();
         $routeMatch = $this->getEvent()->getRouteMatch();
+        $action = $routeMatch->getParam('action');
+        $callback = array($this, $action."Action");
+        if(is_callable($callback)) {
+
+            return call_user_func_array($callback, array($request, $response));
+        }
+
         $viewModel = new ViewModel();
-        $viewModel->setTemplate('client/manual/'.strtolower($routeMatch->getParam('action')));
+        $viewModel->setTemplate('client/manual/'.strtolower($action));
         $renderer = new ICMRenderer();
         $renderer->setConsoleAdapter($serviceManager->get('console'));
         $renderer->setResolver($serviceManager->get('ViewResolver'));
