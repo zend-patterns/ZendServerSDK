@@ -40,7 +40,7 @@ return array (
                             ),
                             'installApp' => array (
                                 'options' => array (
-                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--wait]',
+                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=] [--wait]',
                                     'defaults' => array (
                                         'controller' => 'webapi-app-controller',
                                         'action' => 'install'
@@ -64,11 +64,13 @@ return array (
                                         array('--zskey', 'The name of the API key'),
                                         array('--zssecret', 'The hash of the API key'),
                                         array('--zsversion', 'The major Zend Server version. Ex: 6.1, 6.0 or 5.6'),
+                                        array('--http', 'Allows you to set http connection parameters'),
                                         array('--wait', 'If this option is present then the client will wait until the operation finishes successfully on all servers.'.
                                                         'By default this option is not present which means that the client will return results and exit as soon as the server has reported that it started to handle the task.'),
                                     ),
                                     'arrays' => array (
                                         'userParams',
+                                        'http'
                                     ),
                                     'files' => array (
                                         'zpk',
@@ -181,7 +183,7 @@ return array (
                             ),
                             'installLib' => array (
                                 'options' => array (
-                                    'route' => 'installLib --zpk= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=]',
+                                    'route' => 'installLib --zpk= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=]',
                                     'defaults' => array (
                                         'controller' => 'webapi-lib-controller',
                                         'action' => 'install'
@@ -197,7 +199,11 @@ return array (
                                         array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
                                         array('--zskey', 'The name of the API key'),
                                         array('--zssecret', 'The hash of the API key'),
+                                        array('--http', 'Allows you to set http connection parameters'),
                                     ),
+                                    'arrays' => array(
+                                        'http'
+                                    )
                                 )
                             ),
 
