@@ -5,12 +5,12 @@
 # content of this file to /etc/bash_completion.d/zs-client.sh .
 #
 # The easies way will be to run
-# $ sudo <?= $_SERVER['PHP_SELF'] ?> auto-complete > /etc/bash_completion.d/zs-client.sh
+# $ sudo <?= $_SERVER['PHP_SELF'] ?> autocomplete > /etc/bash_completion.d/zs-client.sh
 # $ source /etc/bash_completion.d/zs-client.sh
 #
 # == Installation for the local user only ==
 # Try these commands
-# $ <?= $_SERVER['PHP_SELF'] ?> auto-complete >> ~/.bashrc
+# $ <?= $_SERVER['PHP_SELF'] ?> autocomplete >> ~/.bashrc
 # $ source ~/.bashrc
 #
 
@@ -44,5 +44,4 @@ _complete_zscli() {
 
 export COMP_WORDBREAKS="\ \"\\'><=;|&("
 complete -F _complete_zscli <?= basename($_SERVER['PHP_SELF']) ?>
-
-
+<php echo "\n" ?>
