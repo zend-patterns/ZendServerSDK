@@ -179,7 +179,7 @@ EOT;
             $outputFormat = "json";
         }
         $apiManager = $services->get('zend_server_api');
-        $apiManager->setOutputFormat('json');
+        $apiManager->setOutputFormat($outputFormat);
     }
 
     /**
