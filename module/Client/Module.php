@@ -173,6 +173,13 @@ EOT;
                 }
                 $targetConfig[$key] = $match->getParam($key);
         }
+
+        $outputFormat = $match->getParam('output-format', 'xml');
+        if ($outputFormat =='kv') {
+            $outputFormat = "json";
+        }
+        $apiManager = $services->get('zend_server_api');
+        $apiManager->setOutputFormat('json');
     }
 
     /**
@@ -184,6 +191,33 @@ EOT;
         $response = $event->getResponse();
         if ($response instanceof HttpResponse) {
             $response->setContent($response->getBody());
+        }
+
+        $match = $event->getRouteMatch();
+        if($match) {
+            $outputFormat = $match->getParam('output-format');
+            if($outputFormat != "kv") {
+                return;
+            }
+
+            $output = "";
+            $content = $response->getContent();
+            $data = json_decode($content, true);
+            if(isset($data['responseData'])) {
+                $responseData = $data['responseData'];
+                $rootKey = key($responseData);
+                foreach ($responseData[$rootKey] as $k=>$v) {
+                    if(is_scalar($v)) {
+                        $output .= "$k=$v\n";
+                    } else if(is_array($v)) {
+                        foreach($v as $k1=>$v1) {
+                            $output .= $k."[".$k1."]=$v1\n";
+                        }
+                    }
+                }
+            }
+
+            $response->setContent($output);
         }
     }
 
