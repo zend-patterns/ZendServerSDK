@@ -171,18 +171,35 @@ LINE;
                      */
                     foreach ($package['autoload']['classmap'] as $classMap) {
                         $libraryPath = $folder.'/vendor/'.$package['name'].'/'.$classMap;
-                        $l = new ClassFileLocator($libraryPath);
-
-                        foreach ($l as $file) {
-                            $filename  = str_replace($libraryPath . '/', '', str_replace(DIRECTORY_SEPARATOR, '/', $file->getPath()) . '/' . $file->getFilename());
-
-                            // Add in relative path to library
-                            $filename  = $packageLocation . '."'. $filename.'"';
-
-                            foreach ($file->getClasses() as $class) {
-                                $classmapAutoloader[$class] = $filename;
+                        if(is_dir($libraryPath)) {
+                            $l = new ClassFileLocator($libraryPath);
+                            foreach ($l as $file) {
+                                $filename  = str_replace($libraryPath . '/', '', str_replace(DIRECTORY_SEPARATOR, '/', $file->getPath()) . '/' . $file->getFilename());
+                            
+                                // Add in relative path to library
+                                $filename  = $packageLocation . '."'. $filename.'"';
+                            
+                                foreach ($file->getClasses() as $class) {
+                                    $classmapAutoloader[$class] = $filename;
+                                }
                             }
                         }
+                        else {
+                            $dirName = dirname($libraryPath);
+                            $baseName = basename($libraryPath);
+                            $l = new ClassFileLocator($dirName);
+                            foreach ($l as $file) {
+                                if($file->getFilename()!= $baseName) {
+                                    continue;
+                                }
+
+                                $filename  = $packageLocation . '."'. $classMap.'"';
+                                foreach ($file->getClasses() as $class) {
+                                    $classmapAutoloader[$class] = $filename;
+                                }    
+                                break;
+                            }
+                        }                        
                     }
                 }
             }

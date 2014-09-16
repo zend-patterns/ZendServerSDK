@@ -229,6 +229,10 @@ class ZpkController extends AbstractActionController
         if ($version == 'dev-master') {
             return array('equals' => '999.dev-master');
         }
+        
+        if (preg_match("/^[0-9\.]+\.\*$/", $version)) {
+            $version = ">=".substr($version, 0, strlen($version)-2).'.0';
+        }
 
         if (strpos($version,'>=')===0) {
             return array ('min' => substr($version,2));
