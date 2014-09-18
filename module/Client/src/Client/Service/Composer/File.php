@@ -144,6 +144,7 @@ LINE;
         $classmapAutoloader = array();
         $namespaceAutoloader = array();
         $filesAutoloader = array();
+        $includePaths = array();
         foreach ($data['packages'] as $package) {
             $normalizedVersion =  trim($package['version'], ' v');
             $normalizedName = str_replace('/', '.', $package['name']);
@@ -202,6 +203,15 @@ LINE;
                         }                        
                     }
                 }
+                
+                if(isset($package['include-path'])) {
+                    $paths = array();
+                    foreach($package['include-path'] as $path) {
+                        $paths[] = $packageLocation.'."'. $path.'"';
+                    }
+                    
+                    $includePaths = array_unique(($includePaths + $paths));
+                }
             }
         }
 
@@ -216,7 +226,7 @@ $baseDir = dirname($vendorDir);
 return array(
              %s
         );
-', implode(',', $filesAutoloader));
+', implode(",\n", $filesAutoloader));
                 file_put_contents("$dest/autoload_files.php", $content);
             }
         }
@@ -271,6 +281,18 @@ return array(
 
                 file_put_contents("$dest/autoload_namespaces.php", $content);
             }
+        }
+        
+        // Overwrite the include_files autoloader
+        if (file_exists("$dest/include_paths.php")) {
+            $content = sprintf('<?php
+    $vendorDir = dirname(dirname(__FILE__));
+    $baseDir = dirname($vendorDir);
+            
+    return array(%s);
+    ', implode(",\n", $includePaths));
+            
+            file_put_contents("$dest/include_paths.php", $content);
         }
 
         return $folder . '/.vendor/';
