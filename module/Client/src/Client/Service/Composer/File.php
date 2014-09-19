@@ -172,44 +172,43 @@ LINE;
                      */
                     foreach ($package['autoload']['classmap'] as $classMap) {
                         $libraryPath = $folder.'/vendor/'.$package['name'].'/'.$classMap;
-                        if(is_dir($libraryPath)) {
+                        if (is_dir($libraryPath)) {
                             $l = new ClassFileLocator($libraryPath);
                             foreach ($l as $file) {
                                 $filename  = str_replace($libraryPath . '/', '', str_replace(DIRECTORY_SEPARATOR, '/', $file->getPath()) . '/' . $file->getFilename());
-                            
+
                                 // Add in relative path to library
                                 $filename  = $packageLocation . '."'. $filename.'"';
-                            
+
                                 foreach ($file->getClasses() as $class) {
                                     $classmapAutoloader[$class] = $filename;
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             $dirName = dirname($libraryPath);
                             $baseName = basename($libraryPath);
                             $l = new ClassFileLocator($dirName);
                             foreach ($l as $file) {
-                                if($file->getFilename()!= $baseName) {
+                                if ($file->getFilename()!= $baseName) {
                                     continue;
                                 }
 
                                 $filename  = $packageLocation . '."'. $classMap.'"';
                                 foreach ($file->getClasses() as $class) {
                                     $classmapAutoloader[$class] = $filename;
-                                }    
+                                }
                                 break;
                             }
-                        }                        
+                        }
                     }
                 }
-                
-                if(isset($package['include-path'])) {
+
+                if (isset($package['include-path'])) {
                     $paths = array();
-                    foreach($package['include-path'] as $path) {
+                    foreach ($package['include-path'] as $path) {
                         $paths[] = $packageLocation.'."'. $path.'"';
                     }
-                    
+
                     $includePaths = array_unique(($includePaths + $paths));
                 }
             }
@@ -260,6 +259,9 @@ return array(
                 foreach ($namespacesOriginalAutoloader as $key => $value) {
                     if (isset($namespaceAutoloader[$key])) {
                         $value = $namespaceAutoloader[$key];
+                    } else {
+                        unset($namespacesOriginalAutoloader[$key]);
+                        continue;
                     }
 
                     $autoloaderArray .= "'" . addslashes($key) . "'=> ";
@@ -282,16 +284,16 @@ return array(
                 file_put_contents("$dest/autoload_namespaces.php", $content);
             }
         }
-        
+
         // Overwrite the include_files autoloader
         if (file_exists("$dest/include_paths.php")) {
             $content = sprintf('<?php
     $vendorDir = dirname(dirname(__FILE__));
     $baseDir = dirname($vendorDir);
-            
+
     return array(%s);
     ', implode(",\n", $includePaths));
-            
+
             file_put_contents("$dest/include_paths.php", $content);
         }
 
