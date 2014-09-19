@@ -1,5 +1,12 @@
 #!/bin/bash
 
+PWD=`pwd`
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+APP_BASE_DIR=$(dirname $DIR)
+
+cd $APP_BASE_DIR
+
 # Build script that automates the clean compilation of new phar file.
 
 BRANCH=`git rev-parse --abbrev-ref HEAD`
@@ -9,12 +16,11 @@ fi
 
 echo "Using branch: $BRANCH";
 
-PWD=`pwd`
 cd /tmp
 TMP_DIR=`mktemp -d`
 echo "Created temp directory $TMP_DIR."
 cd $TMP_DIR
-git clone https://github.com/zendtech/ZendServerSDK.git
+git clone $APP_BASE_DIR
 cd ZendServerSDK/
 git checkout $BRANCH
 wget http://getcomposer.org/composer.phar
@@ -25,9 +31,15 @@ php bin/create-phar.php
 
 read -p "Do you want to commit-n-push the newly compiled phar file (Y/n)?" RESULT
 if [ "$RESULT" != "n" ]; then
-	git commit -a -m "Compiled new phar file."
+	git commit -a --amend
 	if [ $? -eq 0 ]; then
-		git push origin $BRANCH
+		git push https://github.com/zend-patterns/ZendServerSDK.git $BRANCH
+		if [ $? -ne 0 ]; then
+			read -p "Do you want to force-push (Y/n)?" RESULT
+			if [ "$RESULT" != "n" ]; then
+				git push -f https://github.com/zend-patterns/ZendServerSDK.git $BRANCH
+			fi
+		fi 
 	else 
 		echo "Nothing to commit" 	 
 	fi	
