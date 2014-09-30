@@ -259,9 +259,13 @@ class ZpkInvokable
         $type       = sprintf("%s", $xml->type);
 
         if (!empty($customVersion)) {
-        $version = $customVersion;
+            $version = $customVersion;
             $xml->version->release = $version;
             $xml->asXML($sourceFolder."/deployment.xml");
+            $fixedContent = $this->updateXML($sourceFolder."/deployment.xml", array());
+            if($fixedContent) {
+                file_put_contents($sourceFolder."/deployment.xml", $fixedContent);
+            }
         }
         $properties = $this->getProperties($sourceFolder."/deployment.properties");
         if ($extraProperties !== null) {
@@ -309,7 +313,7 @@ class ZpkInvokable
             $excludes = array();
             if (array_key_exists('appdir.excludes', $properties)) {
                 $excludes = $properties['appdir.excludes'];
-                array_walk($excludes, function(&$item, $key, $prefix) {$item = $prefix . '/' . $item;}, $baseDir);
+                array_walk($excludes, function (&$item, $key, $prefix) {$item = $prefix . '/' . $item;}, $baseDir);
             }
             foreach ($properties[$key] as $path) {
                 $path = trim($path);
@@ -436,7 +440,7 @@ class ZpkInvokable
 
         foreach ($properties as &$data) {
             $data = explode(',',trim($data));
-            array_walk($data, function(&$item, $key) { $item = trim($item); });
+            array_walk($data, function (&$item, $key) { $item = trim($item); });
         }
 
         return $properties;
