@@ -235,4 +235,34 @@ php bin/zs-client.php addTarget --target="<name-of-the-target> \
                                 --http="timeout&sslverify=0"
 ```
 
+Output formats
+==============
+In the cases where the output is text zs-client supports three formats: xml, which is the default one,
+json and kv(key value). To specify the desired format you have to use the --output-format parameter. 
+
+Example:
+```
+php bin/zs-client.php getSystemInfo --target=zserver --output-format=kv
+```
+
+Will return
+```
+status=Error
+edition=ZendServerCluster
+zendServerVersion=7.0.0
+supportedApiVersions[0]=application/vnd.zend.serverapi;version=1.2
+supportedApiVersions[1]=application/vnd.zend.serverapi;version=1.3
+...
+supportedApiVersions[6]=application/vnd.zend.serverapi;version=1.8
+phpVersion=5.5.13
+operatingSystem=Linux
+deploymentVersion=2.0
+serverLicenseInfo[status]=OK
+...
+serverLicenseInfo[nodeLimit]=100
+serverLicenseInfo[edition]=ENTERPRISE
+...
+managerLicenseInfo[evaluation]=
+````
+
 For questions and feedback write to slavey (at) zend DOT com.
