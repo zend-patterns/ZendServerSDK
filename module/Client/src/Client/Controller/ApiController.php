@@ -69,6 +69,18 @@ class ApiController extends DefaultApiController
 
     public function serverAddToClusterAction($args)
     {
+        // check if the cluster DB is up and ready to be used
+        if($this->params('wait-db')) {
+            $this->repeater()->doUntil(array($this,'onWaitClusterDb'),
+                                       array(
+                                           'dbHost'=>$args['dbHost'],
+                                           'dbUsername'=>$args['dbUsername'],
+                                           'dbPassword'=>$args['dbPassword'],
+                                           'dbName'=>$args['dbName'],
+                                       )
+           );
+        }
+
         $zendServerClient = $this->serviceLocator->get('zendServerClient');
         // set the explicit timeout to 3 minutes
         $zendServerClient->setOptions(array('timeout'=> 180));
@@ -137,6 +149,35 @@ class ApiController extends DefaultApiController
         $count = sprintf("%d", $response->responseData->serversCount);
         if($count < $params['serverCount']) {
             return $response;
+        }
+    }
+
+    public function onWaitClusterDb($controller, $params)
+    {
+        if(function_exists('mysqli_connect')) {
+            $success = false;
+            $link = mysqli_connect($params['dbHost'], $params['dbUsername'], $params['dbPassword'], $params['dbName']);
+            if($link) {
+                $success = true;
+                mysqli_close($link);
+            }
+            if($success) {
+                return true;
+            }
+        } else if(function_exists('mysql_connect')) {
+            $success = false;
+            $link = mysql_connect($params['dbHost'], $params['dbUsername'], $params['dbPassword']);
+            if($link) {
+                $success = mysql_select_db($params['dbName'], $link);
+                mysql_close($link);
+            }
+
+            if($success) {
+                return true;
+            }
+        } else {
+            error_log("WARNING: No mysql extension found. Cannot precheck if the DB is up.");
+            return -1;
         }
     }
 }
