@@ -13,6 +13,40 @@ class ApiController extends DefaultApiController
 {
     protected $apiManager;
 
+    public function vhostAddSecureAction($args)
+    {
+        return $this->handleVhostAction($args);
+    }
+
+    public function vhostValidateTemplate($args)
+    {
+        return $this->handleVhostAction($args);
+    }
+
+    public function vhostEditAction($args)
+    {
+        return $this->handleVhostAction($args);
+    }
+
+    public function vhostAddSecureIbmi($args)
+    {
+        return $this->handleVhostAction($args);
+    }
+
+    public function vhostAddAction($args)
+    {
+        return $this->handleVhostAction($args);
+    }
+
+    private function handleVhostAction($args)
+    {
+        if (isset($args['template']) && is_file($args['template'])) {
+            $args['template'] = file_get_contents($args['template']);
+        }
+
+        return $this->sendApiRequest($args);
+    }
+
     /**
      * User-friendly verions of the applicationDeploy command.
      *
