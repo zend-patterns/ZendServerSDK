@@ -21,7 +21,6 @@ return array (
                                         'controller' => 'webapi-target-controller',
                                         'action' => 'add',
                                         'zsurl'     => "http://localhost:10081",
-                                        'zsversion' => '6.1',
                                     ),
                                     'arrays' => array(
                                           'http'
@@ -35,7 +34,7 @@ return array (
                                         array('--http', 'Optional array with additional HTTP client parameters. Example: --http="timeout=60&sslverifypeer=0" ')
                                     ),
                                     'group'=>'target',
-                                    'no-target' => true,
+                                    'ingore-target-load' => true,
                                 )
                             ),
                             'installApp' => array (

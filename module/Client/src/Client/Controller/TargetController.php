@@ -35,11 +35,24 @@ class TargetController extends AbstractActionController
             }
         }
 
+        $apiManager = $this->getServiceLocator()->get('zend_server_api');
+        $versions = $apiManager->getSupportedVersions();
+        $detectedVersion = $versions[0];
+
+        if(empty($data[$target]['zsversion'])) {
+            $data[$target]['zsversion'] = $detectedVersion;
+        } elseif ($data[$target]['zsversion'] < $detectedVersion) {
+            error_log(sprintf("WARNING: The best version for this server is: %s. ".
+                              "You are using: %s. Update your target zsversion to get best results.",
+                              $detectedVersion, $data[$target]['zsversion']
+                      ));
+        }
+
         $httpOptions = $this->getRequest()->getParam('http');
         if(is_array($httpOptions)) {
             foreach($httpOptions as $key=>$name) {
-            	$data[$target]['http'][$key] = $name;
-            }	
+                $data[$target]['http'][$key] = $name;
+            }
         }
 
         $config = new ConfigWriter();

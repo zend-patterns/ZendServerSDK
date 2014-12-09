@@ -14,7 +14,7 @@ class Module implements ConsoleBannerProviderInterface
      *
      * @see \Zend\ModuleManager\Feature\ConfigProviderInterface::getConfig()
      */
-    public function getConfig ()
+    public function getConfig()
     {
         $config = include __DIR__ . '/config/module.config.php';
         if (!getenv('DEBUG')) {
@@ -36,7 +36,7 @@ EOT;
      *
      * @see \Zend\ModuleManager\Feature\AutoloaderProviderInterface::getAutoloaderConfig()
      */
-    public function getAutoloaderConfig ()
+    public function getAutoloaderConfig()
     {
         return array(
                 'Zend\Loader\ClassMapAutoloader' => array(
@@ -54,7 +54,7 @@ EOT;
      *
      * @param MvcEvent $e
      */
-    public function onBootstrap ($event)
+    public function onBootstrap($event)
     {
          $eventManager = $event->getApplication()->getEventManager();
          $eventManager->attach(MvcEvent::EVENT_ROUTE,
@@ -75,7 +75,7 @@ EOT;
      *
      * @param MvcEvent $event
      */
-    public function postRoute (MvcEvent $event)
+    public function postRoute(MvcEvent $event)
     {
         $match = $event->getRouteMatch();
         if (! $match) {
@@ -116,7 +116,7 @@ EOT;
                     if (!is_array($value)) {
                         $match->setParam($param, $path->getAbsolute($value));
                     } else {
-                        $newValue = array_map(function($v) use ($path) {
+                        $newValue = array_map(function ($v) use ($path) {
                             return $path->getAbsolute($v);
                         }, $value);
                         $match->setParam($param,$newValue);
@@ -139,17 +139,21 @@ EOT;
                 $reader = new ConfigReader();
                 $data = $reader->fromFile($config['zsapi']['file']);
                 if (empty($data[$target])) {
-                    throw new \Zend\Console\Exception\RuntimeException('Invalid target specified.');
+                    if(!isset($config['console']['router']['routes'][$routeName]['options']['ingore-target-load'])) {
+                        throw new \Zend\Console\Exception\RuntimeException('Invalid target specified.');
+                    } else {
+                        $data[$target] = array();
+                    }
                 }
                 foreach ($data[$target] as $k=>$v) {
                     $targetConfig[$k] = $v;
                 }
             } catch (\Zend\Config\Exception\RuntimeException $ex) {
-                throw new \Zend\Console\Exception\RuntimeException(
+                 throw new \Zend\Console\Exception\RuntimeException(
                         'Make sure that you have set your target first. \n
                                                                 This can be done with ' .
                         __FILE__ .
-                        ' add-target --target=<UniqueName> --zsurl=http://localhost:10081/ZendServer --zskey= --zssecret=');
+                        ' addTarget --target=<UniqueName> --zsurl=http://localhost:10081/ZendServer --zskey= --zssecret=');
             }
         }
 
@@ -186,7 +190,7 @@ EOT;
      *
      * @param MvcEvent $event
      */
-    public function preFinish (MvcEvent $event)
+    public function preFinish(MvcEvent $event)
     {
         $response = $event->getResponse();
         if ($response instanceof HttpResponse) {
@@ -226,7 +230,7 @@ EOT;
      *
      * @see \Zend\ModuleManager\Feature\ConsoleBannerProviderInterface::getConsoleBanner()
      */
-    public function getConsoleBanner (Console $console)
+    public function getConsoleBanner(Console $console)
     {
         return 'Zend Server Client v1.0';
     }
