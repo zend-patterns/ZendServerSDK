@@ -149,11 +149,13 @@ EOT;
                     $targetConfig[$k] = $v;
                 }
             } catch (\Zend\Config\Exception\RuntimeException $ex) {
-                 throw new \Zend\Console\Exception\RuntimeException(
+                if(!isset($config['console']['router']['routes'][$routeName]['options']['ingore-target-load'])) {
+                    throw new \Zend\Console\Exception\RuntimeException(
                         'Make sure that you have set your target first. \n
                                                                 This can be done with ' .
                         __FILE__ .
                         ' addTarget --target=<UniqueName> --zsurl=http://localhost:10081/ZendServer --zskey= --zssecret=');
+                }
             }
         }
 
