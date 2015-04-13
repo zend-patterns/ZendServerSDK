@@ -329,7 +329,9 @@ class ZpkInvokable
                     if (in_array($baseDir . '/' . $path, $excludes)) continue;
                     $zpk->addFile($fullPath, $this->fixZipPath($baseDir . '/' . $path));
                 } elseif (is_dir($fullPath)) {
-                    $this->addDir($zpk, $fullPath, $baseDir, $excludes);
+                    // Scripts directories should be added differently
+                    $isScriptDirectory = ($key=='scriptsdir.includes');
+                    $this->addDir($zpk, $fullPath, $baseDir, $excludes, $isScriptDirectory);
                 } else {
                     throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
                 }
@@ -360,9 +362,11 @@ class ZpkInvokable
      * @param string     $directory
      * @param string     $baseDir
      */
-    protected function addDir($zpk, $directory, $baseDir = null, $excludes = array())
-    {
-        if ($baseDir) {
+    protected function addDir($zpk, $directory, $baseDir = null, $excludes = array(), $isSciptDirectory = false)
+    {   
+        if ($isSciptDirectory AND $baseDir) {
+            $currentZipFolder = $baseDir;
+        } elseif ($baseDir) {
             $currentZipFolder = $baseDir.'/'.basename($directory);
         } else {
             $currentZipFolder = basename($directory);
@@ -383,7 +387,7 @@ class ZpkInvokable
 
                     $path = $directory."/".$path;
                     if (is_dir($path)) {
-                        $this->addDir($zpk, $path, $currentZipFolder, $excludes);
+                        $this->addDir($zpk, $path, $currentZipFolder, $excludes, $isSciptDirectory);
                     } elseif (file_exists($path)) {
                         $success = $zpk->addFile($path, $this->fixZipPath($currentZipFolder.'/'.basename($path)));
                         if (!$success) {
