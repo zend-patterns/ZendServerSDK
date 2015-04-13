@@ -257,6 +257,7 @@ class ZpkInvokable
         $appDir  	= sprintf("%s", $xml->appdir);
         $scriptsDir = sprintf("%s", $xml->scriptsdir);
         $type       = sprintf("%s", $xml->type);
+        $icon       = sprintf("%s", $xml->icon);
 
         if (!empty($customVersion)) {
             $version = $customVersion;
@@ -291,7 +292,10 @@ class ZpkInvokable
         $zpk = new \ZipArchive();
         $zpk->open($outZipPath, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
         $zpk->addFile($sourceFolder."/deployment.xml", 'deployment.xml');
-
+        // Add the icon file that was specified!
+        if (!empty($icon))
+            $zpk->addFile($sourceFolder."/" . $icon, $icon);
+            
         $folderMap = array();
         if ($type == self::TYPE_LIBRARY) {
             // Include all files and folders for the library
