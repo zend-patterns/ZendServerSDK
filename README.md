@@ -5,13 +5,13 @@ Installation
 Stable Version
 --------
 You can copy locally the latest stable in a stand-alone file from:
-https://github.com/zendtech/ZendServerSDK/raw/master/bin/zs-client.phar
+https://github.com/zend-patterns/ZendServerSDK/raw/master/bin/zs-client.phar
 
 Development Version
 --------
 Clone the latest source code
 ```
-git clone https://github.com/zendtech/ZendServerSDK.git
+git clone https://github.com/zend-patterns/ZendServerSDK.git
 ```
 
 Then change the directory to the newly created one
