@@ -18,17 +18,30 @@ if (is_readable($testsPath . '/TestConfiguration.php')) {
     require_once $testsPath . '/TestConfiguration.php.dist';
 }
 
-$path = array(
-    ZF2_PATH,
-    get_include_path(),
-);
-set_include_path(implode(PATH_SEPARATOR, $path));
+$projectPath = dirname(dirname($rootPath));
+// Composer autoloading
+if (file_exists($projectPath.'/vendor/autoload.php')) {
+    $loader = include $projectPath.'/vendor/autoload.php';
+}
 
-require_once  'Zend/Loader/AutoloaderFactory.php';
-require_once  'Zend/Loader/StandardAutoloader.php';
+if(isset($loader)) {
+    $loader->add('Zend', ZF2_PATH);
+} else {
+    $path = array(
+        ZF2_PATH,
+        get_include_path(),
+    );
+    set_include_path(implode(PATH_SEPARATOR, $path));
+
+    require_once  'Zend/Loader/AutoloaderFactory.php';
+    require_once  'Zend/Loader/StandardAutoloader.php';
+}
+
+
 
 use Zend\Loader\AutoloaderFactory;
 use Zend\Loader\StandardAutoloader;
+use Zend\Loader\ClassMapAutoloader;
 
 // setup autoloader
 AutoloaderFactory::factory(

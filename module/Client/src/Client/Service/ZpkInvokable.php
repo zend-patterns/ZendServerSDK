@@ -1,9 +1,10 @@
 <?php
 namespace Client\Service;
 
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use Zend\Stdlib\ErrorHandler;
-use Zend\ServiceManager\Exception\RuntimeException;
-
+use Zend\Console\Exception\RuntimeException;
 /**
  * ZPK Service
  */
@@ -29,7 +30,7 @@ class ZpkInvokable
         ErrorHandler::stop(true);
 
         if (!$content) {
-            throw new \Zend\Mvc\Exception\RuntimeException('Missing deployment.xml in the zpk file.');
+            throw new RuntimeException('Missing deployment.xml in the zpk file.');
         }
 
         $xml = new \SimpleXMLElement($content);
@@ -84,14 +85,14 @@ class ZpkInvokable
      * @param  string                               $file
      * @param  array                                $updates
      * @return string
-     * @throws \Zend\Mvc\Exception\RuntimeException
+     * @throws RuntimeException
      */
     protected function updateXML($file, array $updates)
     {
         // Load the current data
         $content = file_get_contents($file);
         if (!$content) {
-            throw new \Zend\Mvc\Exception\RuntimeException('Missing deployment.xml in the zpk file.');
+            throw new RuntimeException('Missing deployment.xml in the zpk file.');
         }
         $doc = new \DOMDocument();
         $doc->loadXML($content);
@@ -216,7 +217,7 @@ class ZpkInvokable
         }
 
         if (!is_dir($sourceFolder)) {
-            throw new \Zend\ServiceManager\Exception\RuntimeException('The source folder parameter must be real directory.');
+            throw new RuntimeException('The source folder parameter must be real directory.');
         }
 
         ErrorHandler::start();
@@ -243,19 +244,21 @@ class ZpkInvokable
      * @param string $fileName
      * @param array  $extraProperties
      * @param string $customVersion
+     *
+     * @return string path to the created zpk
      */
     public function pack($sourceFolder, $destinationFolder=".", $fileName=null, array $extraProperties=null, $customVersion="")
     {
         if (!file_exists($sourceFolder."/deployment.xml")) {
-            throw new \Zend\ServiceManager\Exception\RuntimeException('The specified directory does not have deployment.xml.');
+            throw new RuntimeException('The specified directory does not have deployment.xml.');
         }
 
         // get the current meta information
         $xml = new \SimpleXMLElement(file_get_contents($sourceFolder."/deployment.xml"));
         $name 	 	= sprintf("%s", $xml->name);
         $version 	= sprintf("%s", $xml->version->release);
-        $appDir  	= sprintf("%s", $xml->appdir);
-        $scriptsDir = sprintf("%s", $xml->scriptsdir);
+        $appDir  	= trim(sprintf("%s", $xml->appdir));
+        $scriptsDir = trim(sprintf("%s", $xml->scriptsdir));
         $type       = sprintf("%s", $xml->type);
         $icon       = sprintf("%s", $xml->icon);
 
@@ -293,55 +296,41 @@ class ZpkInvokable
         $zpk->open($outZipPath, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
         $zpk->addFile($sourceFolder."/deployment.xml", 'deployment.xml');
         // Add the icon file that was specified!
-        if (!empty($icon))
+        if (!empty($icon)) {
             $zpk->addFile($sourceFolder."/" . $icon, $icon);
-            
-        $folderMap = array();
-        if ($type == self::TYPE_LIBRARY) {
-            // Include all files and folders for the library
-            $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
-            $folderMap['appdir.includes'] = '';
-        } else {
-            $folderMap['appdir.includes'] = $appDir;
-            if ($scriptsDir) {
-                $folderMap['scriptsdir.includes'] = $scriptsDir;
-            }
         }
 
-        if(isset($folderMap['scriptsdir.includes']) && !isset($properties['scriptsdir.includes'])) {
-            $properties['scriptsdir.includes'] = array ($scriptsDir);
+        // Get the include map
+        $includeMap = array();
+        if ($type == self::TYPE_LIBRARY) {
+            // Include all files and folders for the library
+           $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
+           $appDir = '';
+        }
+        $includeMap['appdir'] = $this->getAppPaths($appDir, $properties['appdir.includes']);
+
+        // get script paths
+        if(!empty($scriptsDir) && isset($properties['scriptsdir.includes'])) {
+            $includeMap['scriptsdir'] = $this->getScriptPaths($scriptsDir,
+                                                              $properties['scriptsdir.includes'],
+                                                              $sourceFolder
+                                                             );
         }
 
         ErrorHandler::start();
-        foreach ($folderMap as $key => $baseDir) {
+        foreach ($includeMap as $type => $paths) {
             $excludes = array();
-            if (array_key_exists('appdir.excludes', $properties)) {
-                $excludes = $properties['appdir.excludes'];
-                array_walk($excludes, function (&$item, $key, $prefix) {$item = $prefix . '/' . $item;}, $baseDir);
+            if(isset($properties[$type.'.excludes'])) {
+                $excludes = $properties[$type.'.excludes'];
             }
-            foreach ($properties[$key] as $path) {
-                $path = trim($path);
-                $fullPath = $sourceFolder.'/'.$path;
-                if (is_file($fullPath)) {
-                    // Fix the script properties to match the behaviour of ZendStudio
-                    if ($key=='scriptsdir.includes') {
-                        $prefix = $scriptsDir ? $scriptsDir : 'scripts/';
-                        if (strpos($path, $prefix)===0) {
-                            $path = substr($path, strlen($prefix));
-                        }
-                    }
-                    if (in_array($baseDir . '/' . $path, $excludes)) continue;
-                    $zpk->addFile($fullPath, $this->fixZipPath($baseDir . '/' . $path));
-                } elseif (is_dir($fullPath)) {
-                    $this->addDir($zpk, $fullPath, $baseDir, $excludes);
-                } else {
-                    throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
-                }
+
+            foreach ($paths as $localPath => $zpkPath) {
+                $this->addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes);
             }
         }
 
         if (!$zpk->close()) {
-            throw new \Zend\ServiceManager\Exception\RuntimeException('Failed creating zpk file: '.$outZipPath.". ".
+            throw new RuntimeException('Failed creating zpk file: '.$outZipPath.". ".
                                                                        $zpk->getStatusString());
         }
         ErrorHandler::stop(true);
@@ -349,9 +338,100 @@ class ZpkInvokable
         return $outZipPath;
     }
 
+    public function getAppPaths($appDir, array $includes)
+    {
+        $zpkPaths = array();
+        if(empty($includes)) {
+            return array('.' => $appDir.'/');
+        }
+
+        foreach($includes as $path) {
+            $zpkPaths[$path] = $appDir.'/'.$path;
+        }
+
+        return $zpkPaths;
+    }
+    /**
+     * Gets list of script files and directories
+     *
+     * @param string $scriptsDir the ZPK directory file name where the scripts will be stored
+     * @param array $includes files to be included
+     * @param string $sourceFolder is used as a base directory for the included paths
+     * @return array
+     *               key is the local path, without the sourceFolder
+     *               value is the desired path in the ZPK file.
+     */
+    public function getScriptPaths($scriptsDir, array $includes, $sourceFolder)
+    {
+        $zpkPaths = array();
+
+        if(count($includes) == 1) {
+            $path = $includes[0];
+            $localFiles = $this->getFilesOnly($path, $sourceFolder);
+
+            foreach ($localFiles as $file) {
+                $zpkPaths[$file] = $scriptsDir.'/'.basename($file);
+            }
+        } else {
+            foreach ($includes as $path) {
+                if(is_file($sourceFolder.'/'.$path)) {
+                    $zpkPaths[$path] = $scriptsDir.'/'.basename($path);
+                    continue;
+                }
+
+                $zpkPaths[$path] = $scriptsDir.'/'.$path;
+            }
+        }
+
+        return $zpkPaths;
+    }
+
+    /**
+     * Returns list of all files in the current path and sub-paths
+     *
+     * @param string $path path to start looking for files
+     * @param string $baseDir if this is set then it will be prepended to the path during search,
+     *                        but it will not be included in the returned list of files
+     * @return array list of files
+     */
+    private function getFilesOnly($path, $baseDir = '')
+    {
+        $startPos = 0;
+        if(!empty($baseDir)) {
+            $path = $baseDir.'/'.$path;
+            $startPos = strlen($baseDir)+1;
+        }
+
+        if(is_file($path)) {
+            return array(
+                substr($path, $startPos)
+            );
+        }
+
+        $files = array();
+        $paths = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($paths as $pathInfo) {
+            if(!$pathInfo->isFile()) {
+                continue;
+            }
+            $files[] = substr($pathInfo->getPathname(), $startPos);
+        }
+
+        return $files;
+    }
+
+    protected function normalizePath($path)
+    {
+        return preg_replace('/(\/{2,})/', '/', $path);
+    }
+
     protected function fixZipPath($path)
     {
-        $path = preg_replace('/(\/{2,})/', '/', $path);
+        $path = $this->normalizePath($path);
         $path = trim($path, '/');
 
         return $path;
@@ -364,41 +444,39 @@ class ZpkInvokable
      * @param string     $directory
      * @param string     $baseDir
      */
-    protected function addDir($zpk, $directory, $baseDir = null, $excludes = array())
+    protected function addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes = array())
     {
-        if ($baseDir) {
-            $currentZipFolder = $baseDir.'/'.basename($directory);
-        } else {
-            $currentZipFolder = basename($directory);
+        $localPath = $this->normalizePath($localPath);
+        if (in_array($localPath, $excludes)) {
+            return;
         }
 
-        if (in_array($currentZipFolder, $excludes)) return;
-
-        $countFiles = scandir($directory);
-        if (count($countFiles) <= 2) {
-            $zpk->addEmptyDir($currentZipFolder);
-        } else {
-            $dir = dir($directory);
-            if ($dir) {
-                while ($path = $dir->read()) {
-                    if (in_array($path, array('.','..'))) {
-                        continue;
-                    }
-
-                    $path = $directory."/".$path;
-                    if (is_dir($path)) {
-                        $this->addDir($zpk, $path, $currentZipFolder, $excludes);
-                    } elseif (file_exists($path)) {
-                        $success = $zpk->addFile($path, $this->fixZipPath($currentZipFolder.'/'.basename($path)));
-                        if (!$success) {
-                            throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$path' cannot be added zpk");
-                        }
-                    } else {
-                        throw new \Zend\ServiceManager\Exception\RuntimeException("Path '$path' is not existing. Verify your deployment.properties!");
-                    }
-                }
-                $dir->close();
+        $fullPath = $sourceFolder.'/'.$localPath;
+        if(is_file($fullPath)) {
+            $success = $zpk->addFile($fullPath, $this->fixZipPath($zpkPath));
+            if (!$success) {
+                throw new RuntimeException("Path '$fullPath' cannot be added to zpk");
             }
+            return;
+        }
+
+        if(!is_dir($fullPath)) {
+            throw new RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
+        }
+
+        // we are dealing with directories
+        $entries = scandir($fullPath);
+        if(count($entries) <= 2) {
+            $zpk->addEmptyDir($zpkPath);
+            return;
+        }
+
+        foreach ($entries as $name) {
+            if (in_array($name, array('.','..'))) {
+                continue;
+            }
+
+            $this->addPathToZpk($zpk, $sourceFolder, $localPath.'/'.$name, $zpkPath.'/'.$name, $excludes);
         }
     }
 

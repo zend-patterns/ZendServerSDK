@@ -9,4 +9,5 @@ return array(
   'Client\Controller\AppController'             => __DIR__ . '/src/Client/Controller/AppController.php',
   'Client\Controller\LibController'             => __DIR__ . '/src/Client/Controller/LibController.php',
   'Client\Controller\TargetController'          => __DIR__ . '/src/Client/Controller/TargetController.php',
+  'ClientTest\Framework\ZpkTestCase'            => __DIR__ . '/tests/ClientTest/Framework/ZpkTestCase.php',
 );
