@@ -76,7 +76,7 @@ class File
         }
         $fh = fopen($postStageScript, 'a+');
 
-        fwrite($fh,"\n");
+        fwrite($fh, "\n");
 
         $json = file_get_contents($baseDir . '/vendor/composer/installed.json');
         $jsonData = json_decode($json, true);
@@ -96,7 +96,7 @@ shell_exec("ln -s \$libDir {$nameParts[1]}");
 LINE;
         }
 
-        fwrite($fh,"\n");
+        fwrite($fh, "\n");
         foreach ($data as $line) {
             $line = str_replace('###libLines###', join("\n", $libLines), $line);
             fwrite($fh, $line);

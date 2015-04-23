@@ -1,7 +1,7 @@
 <?php
-return array (
-        'controllers' => array (
-                'invokables' => array (
+return array(
+        'controllers' => array(
+                'invokables' => array(
                         'webapi-target-controller' => 'Client\Controller\TargetController',
                         'webapi-zpk-controller' => 'Client\Controller\ZpkController',
                         'webapi-app-controller' => 'Client\Controller\AppController',
@@ -11,13 +11,13 @@ return array (
                         'client-manual-controller' => 'Client\Controller\ManualController',
                  )
         ),
-        'console' => array (
-                'router' => array (
-                        'routes' => array (
-                            'addTarget' => array (
-                                'options' => array (
+        'console' => array(
+                'router' => array(
+                        'routes' => array(
+                            'addTarget' => array(
+                                'options' => array(
                                         'route' => 'addTarget --target= [--zsurl=] --zskey= --zssecret= [--zsversion=] [--http=]',
-                                        'defaults' => array (
+                                        'defaults' => array(
                                         'controller' => 'webapi-target-controller',
                                         'action' => 'add',
                                         'zsurl'     => "http://localhost:10081",
@@ -25,7 +25,7 @@ return array (
                                     'arrays' => array(
                                           'http'
                                     ),
-                                    'info' => array (
+                                    'info' => array(
                                         'This command has to be executed first if you do not want to pass always the zskey zssecret and zsurl.',
                                         array('--target', 'The unique name of the target'),
                                         array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
@@ -37,16 +37,16 @@ return array (
                                     'ingore-target-load' => true,
                                 )
                             ),
-                            'installApp' => array (
-                                'options' => array (
+                            'installApp' => array(
+                                'options' => array(
                                     'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=] [--wait]',
-                                    'defaults' => array (
+                                    'defaults' => array(
                                         'controller' => 'webapi-app-controller',
                                         'action' => 'install'
                                     ),
                                     'group'=>'high-level',
                                     'async' => true,
-                                    'info' => array (
+                                    'info' => array(
                                         'This command installs or updates an application',
                                         array('--zpk', 'The zpk package file'),
                                         array('--baseUri','The baseUri of where the application will be installed'),
@@ -67,19 +67,19 @@ return array (
                                         array('--wait', 'If this option is present then the client will wait until the operation finishes successfully on all servers.'.
                                                         'By default this option is not present which means that the client will return results and exit as soon as the server has reported that it started to handle the task.'),
                                     ),
-                                    'arrays' => array (
+                                    'arrays' => array(
                                         'userParams',
                                         'http'
                                     ),
-                                    'files' => array (
+                                    'files' => array(
                                         'zpk',
                                     )
                                 )
                             ),
                             'createZpk' => array(
-                                'options' => array (
+                                'options' => array(
                                     'route' => 'createZpk [--folder=]',
-                                    'defaults' => array (
+                                    'defaults' => array(
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'create',
                                         'folder' => '.',
@@ -97,9 +97,9 @@ return array (
                                 ),
                             ),
                             'initZpk' => array(
-                                'options' => array (
+                                'options' => array(
                                     'route' => 'initZpk [--folder=]',
-                                    'defaults' => array (
+                                    'defaults' => array(
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'init',
                                         'folder' => '.',
@@ -116,9 +116,9 @@ return array (
                                 ),
                             ),
                             'verifyZpk'   => array(
-                                'options' => array (
+                                'options' => array(
                                     'route' => 'verifyZpk --from=',
-                                    'defaults' => array (
+                                    'defaults' => array(
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'verify',
                                     ),
@@ -134,9 +134,9 @@ return array (
                                 ),
                             ),
                             'fixZpk'   => array(
-                                    'options' => array (
+                                    'options' => array(
                                         'route' => 'fixZpk --from=',
-                                        'defaults' => array (
+                                        'defaults' => array(
                                             'controller' => 'webapi-zpk-controller',
                                             'action' => 'fix',
                                         ),
@@ -152,9 +152,9 @@ return array (
                                     ),
                             ),
                             'packZpk'   => array(
-                                'options' => array (
+                                'options' => array(
                                     'route' => 'packZpk [--folder=] [--destination=] [--name=]  [--version=] [--composer] [--composer-options=] [--composer-dist-files=]',
-                                    'defaults' => array (
+                                    'defaults' => array(
                                         'controller' => 'webapi-zpk-controller',
                                         'action' => 'pack',
                                         'folder' => '.',
@@ -180,18 +180,18 @@ return array (
                                     'group' => 'packaging'
                                 ),
                             ),
-                            'installLib' => array (
-                                'options' => array (
+                            'installLib' => array(
+                                'options' => array(
                                     'route' => 'installLib --zpk= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=]',
-                                    'defaults' => array (
+                                    'defaults' => array(
                                         'controller' => 'webapi-lib-controller',
                                         'action' => 'install'
                                     ),
-                                    'files' => array (
+                                    'files' => array(
                                         'zpk',
                                     ),
                                     'group'=>'high-level',
-                                    'info' => array (
+                                    'info' => array(
                                         'This command installs a library. If the library is already installed then it does not do anything.',
                                         array('--zpk', 'The zpk package file'),
                                         array('--target', 'The unique name of the target'),
@@ -207,41 +207,41 @@ return array (
                             ),
 
                             'pharUpdate' => array(
-                                    'options' => array (
+                                    'options' => array(
                                             'route' => 'pharUpdate',
-                                            'defaults' => array (
+                                            'defaults' => array(
                                                     'controller' => 'client-update-controller',
                                                     'action' => 'phar'
                                             ),
                                             'group'=>'client',
-                                            'info' => array (
+                                            'info' => array(
                                                     'This command updates the phar file to the latest version.',
                                             ),
                                     ),
                             ),
 
                             'gettingStartedManual' => array(
-                                'options' => array (
+                                'options' => array(
                                         'route' => 'getting-started',
-                                        'defaults' => array (
+                                        'defaults' => array(
                                                 'controller' => 'client-manual-controller',
                                                 'action' => 'gettingStarted'
                                         ),
                                         'group'=>'manual',
-                                        'info' => array (
+                                        'info' => array(
                                                 'Run this command to get started with the tool',
                                         ),
                                 ),
                             ),
                             'autocomplete' => array(
-                                'options' => array (
+                                'options' => array(
                                         'route' => 'auto-complete',
-                                        'defaults' => array (
+                                        'defaults' => array(
                                                 'controller' => 'client-manual-controller',
                                                 'action' => 'autocomplete'
                                         ),
                                         'group'=>'manual',
-                                        'info' => array (
+                                        'info' => array(
                                                 'Run this command to get the bash file needed for auto-completion',
                                         ),
                                 ),
@@ -250,8 +250,8 @@ return array (
                 )
         ),
 
-        'service_manager' => array (
-            'invokables' => array (
+        'service_manager' => array(
+            'invokables' => array(
                 'zpk'  => 'Client\Service\ZpkInvokable',
                 'path' => 'Client\Service\PathInvokable',
                 'composer' => 'Client\Service\ComposerInvokable',
@@ -266,7 +266,7 @@ return array (
                        ).DIRECTORY_SEPARATOR.'.zsapi.ini',
         ),
 
-        'controller_plugins' => array (
+        'controller_plugins' => array(
             'invokables' => array(
                'repeater' => 'Client\Controller\Plugin\Repeater'
             )

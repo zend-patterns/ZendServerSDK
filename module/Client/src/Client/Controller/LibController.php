@@ -1,5 +1,6 @@
 <?php
 namespace Client\Controller;
+
 use Zend\Mvc\Controller\AbstractActionController;
 use Client\Service\ZpkInvokable;
 use Zend\Mvc\Exception\RuntimeException;
@@ -46,7 +47,6 @@ class LibController extends AbstractActionController
                         $libId = $versionElement->libraryVersionId;
                         break;
                     }
-
                 }
             }
         }
@@ -57,7 +57,7 @@ class LibController extends AbstractActionController
         }
 
         // otherwise try to deploy it
-        $response = $this->forward()->dispatch('webapi-api-controller',array(
+        $response = $this->forward()->dispatch('webapi-api-controller', array(
                         'action'      => 'libraryVersionDeploy',
                         'libPackage'  => $zpk,
                     ));

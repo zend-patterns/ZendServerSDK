@@ -21,7 +21,7 @@ class UpdateController extends AbstractActionController
         $client = $this->serviceLocator->get('zendServerClient');
         $client = new Client();
 
-        if(defined('PHAR')) {
+        if (defined('PHAR')) {
             // the file from which the application was started is the phar file to replace
             $file = $_SERVER['SCRIPT_FILENAME'];
         } else {

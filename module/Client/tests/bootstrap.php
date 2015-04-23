@@ -24,7 +24,7 @@ if (file_exists($projectPath.'/vendor/autoload.php')) {
     $loader = include $projectPath.'/vendor/autoload.php';
 }
 
-if(isset($loader)) {
+if (isset($loader)) {
     $loader->add('Zend', ZF2_PATH);
 } else {
     $path = array(

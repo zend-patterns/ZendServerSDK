@@ -4,7 +4,7 @@
 // Map back all composer env variables.
 foreach ($_ENV as $key=> $value) {
     if (0 === ($pos = strpos($key, 'ZS_COMPOSER_'))) {
-        putenv(substr($key, $pos),$value);
+        putenv(substr($key, $pos), $value);
     }
 }
 

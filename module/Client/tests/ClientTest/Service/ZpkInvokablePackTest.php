@@ -28,7 +28,7 @@ class ZpkInvokablePackTest extends ZpkTestCase
 
     public function testProjectPack()
     {
-        $zpkPath = $this->zpkService->pack($this->tempDir,$this->tempDir);
+        $zpkPath = $this->zpkService->pack($this->tempDir, $this->tempDir);
         $zpkFiles = $this->getZpkEntriesRecursively($zpkPath);
 
         $actual = array_keys($zpkFiles);
@@ -46,14 +46,14 @@ class ZpkInvokablePackTest extends ZpkTestCase
         );
 
         $this->assertEquals(array_diff($actual, $expected), array());
-        $this->assertContains('data/EmptyDir/', $actual,'Unable to find EmptyDir.');
+        $this->assertContains('data/EmptyDir/', $actual, 'Unable to find EmptyDir.');
     }
 
     public function testLibraryPack()
     {
         $this->zpkService->updateMeta($this->tempDir, array('type'=>'library'));
 
-        $zpkPath = $this->zpkService->pack($this->tempDir,$this->tempDir);
+        $zpkPath = $this->zpkService->pack($this->tempDir, $this->tempDir);
         $zpkFiles = $this->getZpkEntriesRecursively($zpkPath);
 
         $actual = array_keys($zpkFiles);
@@ -76,7 +76,7 @@ class ZpkInvokablePackTest extends ZpkTestCase
         );
 
         $this->assertEquals(array_diff($actual, $expected), array());
-        $this->assertContains('/EmptyDir/', $actual,'Unable to find EmptyDir.');
+        $this->assertContains('/EmptyDir/', $actual, 'Unable to find EmptyDir.');
     }
 
     /**
@@ -90,13 +90,13 @@ class ZpkInvokablePackTest extends ZpkTestCase
         $paths = array();
 
         $startPos = 0;
-        if(!empty($baseDir)) {
+        if (!empty($baseDir)) {
             $startPos = strlen($baseDir)+1;
             $path = $baseDir.'/'.$path;
         }
 
-        if(!file_exists($path)) {
-            $paths[] = substr($path,$startPos);
+        if (!file_exists($path)) {
+            $paths[] = substr($path, $startPos);
         } else {
             $files = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
@@ -104,7 +104,7 @@ class ZpkInvokablePackTest extends ZpkTestCase
             );
 
             foreach ($files as $fileinfo) {
-                $paths[] = substr($fileinfo->getPathname(),$startPos);
+                $paths[] = substr($fileinfo->getPathname(), $startPos);
             }
         }
 
@@ -124,12 +124,12 @@ class ZpkInvokablePackTest extends ZpkTestCase
     {
         $paths = array();
         $zpk = new \ZipArchive();
-        if($zpk->open($zpkPath) !== true) {
+        if ($zpk->open($zpkPath) !== true) {
             throw new \Exception("Unable to open ZPK file");
         }
 
-        for( $i = 0; $i < $zpk->numFiles; $i++ ){
-            $stat = $zpk->statIndex( $i );
+        for ($i = 0; $i < $zpk->numFiles; $i++) {
+            $stat = $zpk->statIndex($i);
             $paths[$stat['name']] = $stat;
         }
 

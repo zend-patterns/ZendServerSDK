@@ -1,5 +1,6 @@
 <?php
 namespace Client\Controller;
+
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Config\Reader\Yaml as YamlReader;
 use RecursiveDirectoryIterator;
@@ -71,13 +72,13 @@ class ZpkController extends AbstractActionController
             // check the deployment.xml in the folder
             $content = file_get_contents($from.'/deployment.xml');
             $result = $zpk->fixXml($content);
-            file_put_contents($from.'/deployment.xml',$result);
+            file_put_contents($from.'/deployment.xml', $result);
 
             // @todo: for a folder fix also the properties
         } else {
             $content = $zpk->getFileContent($from, 'deployment.xml');
             $result = $zpk->fixXml($content);
-            $zpk->setFileContent($from, 'deployment.xml',$result);
+            $zpk->setFileContent($from, 'deployment.xml', $result);
         }
     }
 
@@ -118,7 +119,7 @@ class ZpkController extends AbstractActionController
                     if ($name == "php") {
                         // add in the deployment.xml dependancy on this PHP version
                         $dependancies['php'] = self::convertVersion($version);
-                    } elseif (strpos($name,'ext-')===0) {
+                    } elseif (strpos($name, 'ext-')===0) {
                         // add in the deployment.xml dependancy on this PHP extension
                         $name = substr($name, 4);
                         $dependancies['extension'][$name] = self::convertVersion($version);
@@ -147,7 +148,7 @@ class ZpkController extends AbstractActionController
                                                             'version'=> array('release'=> $version),
                                                             'appdir' => ''
                                                      ));
-                        $zpkFile = $zpk->pack($libraryFolder, $destination,"$library-$version.zpk");
+                        $zpkFile = $zpk->pack($libraryFolder, $destination, "$library-$version.zpk");
                         $content.= $zpkFile."\n";
                     }
                 }
@@ -229,28 +230,28 @@ class ZpkController extends AbstractActionController
         if ($version == 'dev-master') {
             return array('equals' => '999.dev-master');
         }
-        
+
         if (preg_match("/^[0-9\.]+\.\*$/", $version)) {
             $version = ">=".substr($version, 0, strlen($version)-2).'.0';
         }
 
-        if (strpos($version,'>=')===0) {
-            return array ('min' => substr($version,2));
+        if (strpos($version, '>=')===0) {
+            return array('min' => substr($version, 2));
         }
 
-        if (strpos($version,'<=')===0) {
-            return array ('max' => substr($version,2));
+        if (strpos($version, '<=')===0) {
+            return array('max' => substr($version, 2));
         }
 
         //@todo: specify max value also
-        if (strpos($version,'~')===0) {
-            $version = substr($version,1);
+        if (strpos($version, '~')===0) {
+            $version = substr($version, 1);
             $versionParts = explode('.', $version);
             array_pop($versionParts);
             array_push($versionParts, 999);
             $maxVersion = join('.', $versionParts);
 
-            return array (
+            return array(
                 'min' => $version,
                 'max' => $maxVersion
             );
@@ -261,17 +262,25 @@ class ZpkController extends AbstractActionController
 
     protected static function compareMinVersion($a, $b)
     {
-        if (!isset($a) && !isset($b)) return false;
-        elseif (isset($a) && !isset($b)) return $a;
-        elseif (!isset($a) && isset($b)) return $b;
+        if (!isset($a) && !isset($b)) {
+            return false;
+        } elseif (isset($a) && !isset($b)) {
+            return $a;
+        } elseif (!isset($a) && isset($b)) {
+            return $b;
+        }
         return (version_compare($a, $b)) ? $a : $b;
     }
 
     protected static function compareMaxVersion($a, $b)
     {
-        if (!isset($a) && !isset($b)) return false;
-        elseif (isset($a) && !isset($b)) return $a;
-        elseif (!isset($a) && isset($b)) return $b;
+        if (!isset($a) && !isset($b)) {
+            return false;
+        } elseif (isset($a) && !isset($b)) {
+            return $a;
+        } elseif (!isset($a) && isset($b)) {
+            return $b;
+        }
         return (version_compare($a, $b)) ? $b : $a;
     }
 

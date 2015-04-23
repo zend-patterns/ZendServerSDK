@@ -8,13 +8,13 @@ class Repeater extends AbstractPlugin
     public function doUntil($callback, array $params=array(), $maxWait=180, $sleep=2)
     {
         $start = time();
-        while(true) {
+        while (true) {
             $response = call_user_func($callback, $this->controller, $params);
-            if($response) {
+            if ($response) {
                 return $response;
             }
 
-            if((time()-$start) > $maxWait) {
+            if ((time()-$start) > $maxWait) {
                 throw new \Exception('The operation timed out!');
             }
             sleep($sleep);

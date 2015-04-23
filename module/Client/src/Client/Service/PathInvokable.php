@@ -18,8 +18,8 @@ class PathInvokable
     public function getAbsolute($path)
     {
         $isWindows = $this->isWindows();
-        if(!$isWindows && substr($path,0,1)=='~') {
-            $path = getenv('HOME').substr($path,1);
+        if (!$isWindows && substr($path, 0, 1)=='~') {
+            $path = getenv('HOME').substr($path, 1);
         }
 
         /*
@@ -35,7 +35,7 @@ class PathInvokable
         }
 
         $finalPath = realpath($path);
-        if($finalPath!==false) {
+        if ($finalPath!==false) {
             return $finalPath;
         }
         return $path;
@@ -47,8 +47,8 @@ class PathInvokable
      */
     public function getCwd()
     {
-        if(!self::$cwd) {
-            if(defined('CWD')) {
+        if (!self::$cwd) {
+            if (defined('CWD')) {
                 $cwd = constant('CWD');
             } else {
                 $cwd = getcwd();
@@ -65,7 +65,7 @@ class PathInvokable
      */
     protected function isWindows()
     {
-        if(self::$isWindows===null) {
+        if (self::$isWindows===null) {
             $os = php_uname('s');
             self::$isWindows = (boolean)stristr($os, 'windows');
         }
@@ -84,5 +84,4 @@ class PathInvokable
         self::$isWindows = $isWindows;
         return $currentState;
     }
-
 }

@@ -3,7 +3,6 @@ namespace ClientTest\Service;
 
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
-
 use ClientTest\Framework\ZpkTestCase;
 
 class ZpkInvokableScriptdirTest extends ZpkTestCase
@@ -23,9 +22,9 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
 
         foreach ($this->includes as $include) {
             $fullPath = $this->tempDir.'/'.$include;
-            if(preg_match("/\.php$/", $include)) {
+            if (preg_match("/\.php$/", $include)) {
                 $dir = dirname($include);
-                if($dir && !file_exists($this->tempDir.'/'.$dir)) {
+                if ($dir && !file_exists($this->tempDir.'/'.$dir)) {
                     mkdir($this->tempDir.'/'.$dir);
                 }
                 touch($fullPath);
@@ -42,7 +41,7 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
     public function testOneFilePath()
     {
         $scriptsDir = 'scripts';
-        $includes = array ($this->includes[0]);
+        $includes = array($this->includes[0]);
         $expected   = array(
             $this->includes[0] => $scriptsDir.'/'.basename($this->includes[0])
         );
@@ -57,7 +56,7 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
     public function testOneDirPath()
     {
         $scriptsDir = 'scripts';
-        $includes = array (
+        $includes = array(
             $this->includes[1]
         );
         $expected   = array(
@@ -75,7 +74,7 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
     public function testTwoDirsPath()
     {
         $scriptsDir = 'scripts';
-        $includes = array (
+        $includes = array(
             'dir1', 'dir2'
         );
         $expected   = array(
@@ -93,7 +92,7 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
     public function testFileDirPath()
     {
         $scriptsDir = 'scripts/zend';
-        $includes = array (
+        $includes = array(
             $this->includes[0],
             $this->includes[1]
         );

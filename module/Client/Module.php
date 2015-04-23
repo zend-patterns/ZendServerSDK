@@ -56,14 +56,14 @@ EOT;
      */
     public function onBootstrap($event)
     {
-         $eventManager = $event->getApplication()->getEventManager();
-         $eventManager->attach(MvcEvent::EVENT_ROUTE,
+        $eventManager = $event->getApplication()->getEventManager();
+        $eventManager->attach(MvcEvent::EVENT_ROUTE,
                 array(
                         $this,
                         'postRoute'
                 ), - 2);
 
-         $eventManager->attach(MvcEvent::EVENT_FINISH,
+        $eventManager->attach(MvcEvent::EVENT_FINISH,
                  array(
                          $this,
                          'preFinish'
@@ -91,9 +91,9 @@ EOT;
             foreach ($config['console']['router']['routes'][$routeName]['options']['arrays'] as $arrayParam) {
                 if ($value = $match->getParam($arrayParam)) {
                     $data = array();
-                    if (strpos($value,'&')===false & strpos($value,'=')===false) {
+                    if (strpos($value, '&')===false & strpos($value, '=')===false) {
                         // the value is comma separated values
-                        $data = explode(',',$value);
+                        $data = explode(',', $value);
                         foreach ($data as $i=>$v) {
                             $data[$i] = trim($v);
                         }
@@ -119,7 +119,7 @@ EOT;
                         $newValue = array_map(function ($v) use ($path) {
                             return $path->getAbsolute($v);
                         }, $value);
-                        $match->setParam($param,$newValue);
+                        $match->setParam($param, $newValue);
                     }
                 }
             }
@@ -139,7 +139,7 @@ EOT;
                 $reader = new ConfigReader();
                 $data = $reader->fromFile($config['zsapi']['file']);
                 if (empty($data[$target])) {
-                    if(!isset($config['console']['router']['routes'][$routeName]['options']['ingore-target-load'])) {
+                    if (!isset($config['console']['router']['routes'][$routeName]['options']['ingore-target-load'])) {
                         throw new \Zend\Console\Exception\RuntimeException('Invalid target specified.');
                     } else {
                         $data[$target] = array();
@@ -149,7 +149,7 @@ EOT;
                     $targetConfig[$k] = $v;
                 }
             } catch (\Zend\Config\Exception\RuntimeException $ex) {
-                if(!isset($config['console']['router']['routes'][$routeName]['options']['ingore-target-load'])) {
+                if (!isset($config['console']['router']['routes'][$routeName]['options']['ingore-target-load'])) {
                     throw new \Zend\Console\Exception\RuntimeException(
                         'Make sure that you have set your target first. \n
                                                                 This can be done with ' .
@@ -174,10 +174,10 @@ EOT;
                     'zsversion',
                     'http'
         ) as $key) {
-                if ( ! $match->getParam($key)) {
-                    continue;
-                }
-                $targetConfig[$key] = $match->getParam($key);
+            if (! $match->getParam($key)) {
+                continue;
+            }
+            $targetConfig[$key] = $match->getParam($key);
         }
 
         $outputFormat = $match->getParam('output-format', 'xml');
@@ -200,23 +200,23 @@ EOT;
         }
 
         $match = $event->getRouteMatch();
-        if($match) {
+        if ($match) {
             $outputFormat = $match->getParam('output-format');
-            if($outputFormat != "kv") {
+            if ($outputFormat != "kv") {
                 return;
             }
 
             $output = "";
             $content = $response->getContent();
             $data = json_decode($content, true);
-            if(isset($data['responseData'])) {
+            if (isset($data['responseData'])) {
                 $responseData = $data['responseData'];
                 $rootKey = key($responseData);
                 foreach ($responseData[$rootKey] as $k=>$v) {
-                    if(is_scalar($v)) {
+                    if (is_scalar($v)) {
                         $output .= "$k=$v\n";
-                    } else if(is_array($v)) {
-                        foreach($v as $k1=>$v1) {
+                    } elseif (is_array($v)) {
+                        foreach ($v as $k1=>$v1) {
                             $output .= $k."[".$k1."]=$v1\n";
                         }
                     }

@@ -12,15 +12,15 @@ ini_set("display_errors", 1);
 ini_set('user_agent', 'Zend Server Client');
 
 $timeZone = ini_get('date.timezone');
-if(!$timeZone) {
-	ini_set('date.timezone', 'UTC');
+if (!$timeZone) {
+    ini_set('date.timezone', 'UTC');
 }
 
 set_include_path(get_include_path(). PATH_SEPARATOR . getcwd());
 
 $basePath = dirname(__DIR__);
-if(!defined('PHAR')) {
-    define('CWD',getcwd());
+if (!defined('PHAR')) {
+    define('CWD', getcwd());
     chdir($basePath);
 }
 

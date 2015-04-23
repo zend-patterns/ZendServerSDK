@@ -5,6 +5,7 @@ use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Zend\Stdlib\ErrorHandler;
 use Zend\Console\Exception\RuntimeException;
+
 /**
  * ZPK Service
  */
@@ -58,7 +59,7 @@ class ZpkInvokable
         //		<defaultvalue>test</defaultvalue>
         //</parameter>
 
-        $parameterUpdates = array ();
+        $parameterUpdates = array();
         $i=0;
         foreach ($userParams as $key => $value) {
             $parameterUpdates[$i] = array(
@@ -255,9 +256,9 @@ class ZpkInvokable
 
         // get the current meta information
         $xml = new \SimpleXMLElement(file_get_contents($sourceFolder."/deployment.xml"));
-        $name 	 	= sprintf("%s", $xml->name);
-        $version 	= sprintf("%s", $xml->version->release);
-        $appDir  	= trim(sprintf("%s", $xml->appdir));
+        $name        = sprintf("%s", $xml->name);
+        $version    = sprintf("%s", $xml->version->release);
+        $appDir    = trim(sprintf("%s", $xml->appdir));
         $scriptsDir = trim(sprintf("%s", $xml->scriptsdir));
         $type       = sprintf("%s", $xml->type);
         $icon       = sprintf("%s", $xml->icon);
@@ -267,7 +268,7 @@ class ZpkInvokable
             $xml->version->release = $version;
             $xml->asXML($sourceFolder."/deployment.xml");
             $fixedContent = $this->updateXML($sourceFolder."/deployment.xml", array());
-            if($fixedContent) {
+            if ($fixedContent) {
                 file_put_contents($sourceFolder."/deployment.xml", $fixedContent);
             }
         }
@@ -282,13 +283,13 @@ class ZpkInvokable
         if (!$fileName) {
             $fileName = "$name-$version.zpk";
         }
-        $fileName = str_replace(array('/'),array('.'), $fileName);
+        $fileName = str_replace(array('/'), array('.'), $fileName);
 
         $outZipPath = $destinationFolder.'/'.$fileName;
 
         $ext = new \ReflectionExtension('zip');
         $zipVersion = $ext->getVersion();
-        if (!version_compare($zipVersion,'1.11.0','>=')) {
+        if (!version_compare($zipVersion, '1.11.0', '>=')) {
             error_log("WARNING: Non-Ascii file/folder names are supported only with PHP zip extension >=1.11.0 (your version is: $zipVersion)\n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
         }
 
@@ -305,12 +306,12 @@ class ZpkInvokable
         if ($type == self::TYPE_LIBRARY) {
             // Include all files and folders for the library
            $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
-           $appDir = '';
+            $appDir = '';
         }
         $includeMap['appdir'] = $this->getAppPaths($appDir, $properties['appdir.includes']);
 
         // get script paths
-        if(!empty($scriptsDir) && isset($properties['scriptsdir.includes'])) {
+        if (!empty($scriptsDir) && isset($properties['scriptsdir.includes'])) {
             $includeMap['scriptsdir'] = $this->getScriptPaths($scriptsDir,
                                                               $properties['scriptsdir.includes'],
                                                               $sourceFolder
@@ -320,7 +321,7 @@ class ZpkInvokable
         ErrorHandler::start();
         foreach ($includeMap as $type => $paths) {
             $excludes = array();
-            if(isset($properties[$type.'.excludes'])) {
+            if (isset($properties[$type.'.excludes'])) {
                 $excludes = $properties[$type.'.excludes'];
             }
 
@@ -341,11 +342,11 @@ class ZpkInvokable
     public function getAppPaths($appDir, array $includes)
     {
         $zpkPaths = array();
-        if(empty($includes)) {
+        if (empty($includes)) {
             return array('.' => $appDir.'/');
         }
 
-        foreach($includes as $path) {
+        foreach ($includes as $path) {
             $zpkPaths[$path] = $appDir.'/'.$path;
         }
 
@@ -365,7 +366,7 @@ class ZpkInvokable
     {
         $zpkPaths = array();
 
-        if(count($includes) == 1) {
+        if (count($includes) == 1) {
             $path = $includes[0];
             $localFiles = $this->getFilesOnly($path, $sourceFolder);
 
@@ -374,7 +375,7 @@ class ZpkInvokable
             }
         } else {
             foreach ($includes as $path) {
-                if(is_file($sourceFolder.'/'.$path)) {
+                if (is_file($sourceFolder.'/'.$path)) {
                     $zpkPaths[$path] = $scriptsDir.'/'.basename($path);
                     continue;
                 }
@@ -397,12 +398,12 @@ class ZpkInvokable
     private function getFilesOnly($path, $baseDir = '')
     {
         $startPos = 0;
-        if(!empty($baseDir)) {
+        if (!empty($baseDir)) {
             $path = $baseDir.'/'.$path;
             $startPos = strlen($baseDir)+1;
         }
 
-        if(is_file($path)) {
+        if (is_file($path)) {
             return array(
                 substr($path, $startPos)
             );
@@ -415,7 +416,7 @@ class ZpkInvokable
         );
 
         foreach ($paths as $pathInfo) {
-            if(!$pathInfo->isFile()) {
+            if (!$pathInfo->isFile()) {
                 continue;
             }
             $files[] = substr($pathInfo->getPathname(), $startPos);
@@ -452,7 +453,7 @@ class ZpkInvokable
         }
 
         $fullPath = $sourceFolder.'/'.$localPath;
-        if(is_file($fullPath)) {
+        if (is_file($fullPath)) {
             $success = $zpk->addFile($fullPath, $this->fixZipPath($zpkPath));
             if (!$success) {
                 throw new RuntimeException("Path '$fullPath' cannot be added to zpk");
@@ -460,13 +461,13 @@ class ZpkInvokable
             return;
         }
 
-        if(!is_dir($fullPath)) {
+        if (!is_dir($fullPath)) {
             throw new RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
         }
 
         // we are dealing with directories
         $entries = scandir($fullPath);
-        if(count($entries) <= 2) {
+        if (count($entries) <= 2) {
             $zpk->addEmptyDir($zpkPath);
             return;
         }
@@ -492,25 +493,25 @@ class ZpkInvokable
     public function getProperties($file)
     {
         $lines = file($file);
-        $properties = array ();
+        $properties = array();
         $key = "";
         $isWaitingOtherLine = false;
         foreach ($lines as $i=>$line) {
             $line = trim($line);
 
-            if (empty($line) || (!$isWaitingOtherLine && strpos($line,"#") === 0)) {
+            if (empty($line) || (!$isWaitingOtherLine && strpos($line, "#") === 0)) {
                 continue;
             }
 
             if (!$isWaitingOtherLine) {
-                $key = trim(substr($line,0,strpos($line,'=')));
-                $value = substr($line,strpos($line,'=') + 1, strlen($line));
+                $key = trim(substr($line, 0, strpos($line, '=')));
+                $value = substr($line, strpos($line, '=') + 1, strlen($line));
             } else {
                 $value .= trim($line);
             }
 
             /* Check if ends with single '\' */
-            if (strrpos($value,"\\") === strlen($value)-strlen("\\")) {
+            if (strrpos($value, "\\") === strlen($value)-strlen("\\")) {
                 $value = substr($value, 0, strlen($value)-1)."\n";
                 $isWaitingOtherLine = true;
             } else {
@@ -521,7 +522,7 @@ class ZpkInvokable
         }
 
         foreach ($properties as &$data) {
-            $data = explode(',',trim($data));
+            $data = explode(',', trim($data));
             array_walk($data, function (&$item, $key) { $item = trim($item); });
         }
 
@@ -600,6 +601,5 @@ class ZpkInvokable
         }
 
         return $meta;
-
     }
 }

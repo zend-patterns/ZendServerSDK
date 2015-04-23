@@ -23,7 +23,7 @@ $phar->startBuffering();
 $phar->addFromString("index.php", substr(php_strip_whitespace("$srcRoot/bin/zs-client.php"), 19));
 
 addDir($phar, "$srcRoot/vendor", $srcRoot);
-if(is_dir("$srcRoot/config")) {
+if (is_dir("$srcRoot/config")) {
     addDir($phar, "$srcRoot/config", $srcRoot);
 }
 addDir($phar, "$srcRoot/module", $srcRoot);
@@ -66,17 +66,17 @@ if (file_exists($pharPath)) {
  */
 function addDir($phar, $sDir, $baseDir = null)
 {
-    $oDir = new RecursiveIteratorIterator (
-        new RecursiveDirectoryIterator ($sDir),
+    $oDir = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($sDir),
         RecursiveIteratorIterator::SELF_FIRST
     );
 
-    $allowedExtensions = array (
-        'php','phtml','xsd','xml','properties'
+    $allowedExtensions = array(
+        'php', 'phtml', 'xsd', 'xml', 'properties'
     );
 
     foreach ($oDir as $sFile) {
-        if (in_array(pathinfo($sFile, PATHINFO_EXTENSION),$allowedExtensions)){
+        if (in_array(pathinfo($sFile, PATHINFO_EXTENSION), $allowedExtensions)) {
             addFile($phar, $sFile, $baseDir);
         }
     }

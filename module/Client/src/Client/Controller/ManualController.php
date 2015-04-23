@@ -9,7 +9,6 @@ use Zend\Mvc\InjectApplicationEventInterface;
 use Zend\EventManager\EventInterface as Event;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-
 use Slk\View\ICMRenderer;
 use Zend\View\Renderer\PhpRenderer;
 
@@ -28,7 +27,7 @@ class ManualController implements DispatchableInterface,
     public function autocompleteAction(Request $request, Response $response = null)
     {
         $serviceManager = $this->getServiceLocator();
-        $console = 	$serviceManager->get('console');
+        $console =    $serviceManager->get('console');
         $resolver = $serviceManager->get('ViewResolver');
         $render = new PhpRenderer();
         $render->setResolver($resolver);
@@ -42,8 +41,7 @@ class ManualController implements DispatchableInterface,
         $routeMatch = $this->getEvent()->getRouteMatch();
         $action = $routeMatch->getParam('action');
         $callback = array($this, $action."Action");
-        if(is_callable($callback)) {
-
+        if (is_callable($callback)) {
             return call_user_func_array($callback, array($request, $response));
         }
 
@@ -87,5 +85,4 @@ class ManualController implements DispatchableInterface,
     {
         return $this->serviceLocator;
     }
-
 }

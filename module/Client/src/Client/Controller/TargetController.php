@@ -1,5 +1,6 @@
 <?php
 namespace Client\Controller;
+
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Config\Writer\Ini as ConfigWriter;
 use Zend\Config\Reader\Ini as ConfigReader;
@@ -25,13 +26,14 @@ class TargetController extends AbstractActionController
         try {
             $reader = new ConfigReader();
             $data = $reader->fromFile($appConfig['zsapi']['file']);
-        } catch(ConfigException\RuntimeException $ex) {}
+        } catch (ConfigException\RuntimeException $ex) {
+        }
 
         $data[$target] = array();
         foreach (array('zsurl','zskey','zssecret', 'zsversion') as $key) {
             $value = $this->getRequest()->getParam($key);
-            if($value) {
-               $data[$target][$key] = $value;
+            if ($value) {
+                $data[$target][$key] = $value;
             }
         }
 
@@ -39,7 +41,7 @@ class TargetController extends AbstractActionController
         $versions = $apiManager->getSupportedVersions();
         $detectedVersion = $versions[0];
 
-        if(empty($data[$target]['zsversion'])) {
+        if (empty($data[$target]['zsversion'])) {
             $data[$target]['zsversion'] = $detectedVersion;
         } elseif ($data[$target]['zsversion'] < $detectedVersion) {
             error_log(sprintf("WARNING: The best version for this server is: %s. ".
@@ -49,8 +51,8 @@ class TargetController extends AbstractActionController
         }
 
         $httpOptions = $this->getRequest()->getParam('http');
-        if(is_array($httpOptions)) {
-            foreach($httpOptions as $key=>$name) {
+        if (is_array($httpOptions)) {
+            foreach ($httpOptions as $key=>$name) {
                 $data[$target]['http'][$key] = $name;
             }
         }

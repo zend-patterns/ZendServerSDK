@@ -18,7 +18,7 @@ class ZpkTestCase extends PHPUnit_Framework_TestCase
     {
         $this->zpkService = new ZpkInvokable();
 
-        $this->tempDir = tempnam(sys_get_temp_dir(),'phpunit');
+        $this->tempDir = tempnam(sys_get_temp_dir(), 'phpunit');
         unlink($this->tempDir);
         mkdir($this->tempDir);
     }
@@ -30,7 +30,7 @@ class ZpkTestCase extends PHPUnit_Framework_TestCase
 
     protected function removeDirectory($path)
     {
-        if(!file_exists($path)) {
+        if (!file_exists($path)) {
             return false;
         }
 

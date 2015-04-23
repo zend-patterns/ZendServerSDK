@@ -1,5 +1,6 @@
 <?php
 namespace Client\Controller;
+
 use ZendServerWebApi\Controller\ApiController as DefaultApiController;
 use Zend\Console\Response;
 
@@ -55,13 +56,13 @@ class ApiController extends DefaultApiController
      */
     public function applicationDeployAction($args)
     {
-        if(!isset($args['userAppName'])) {
+        if (!isset($args['userAppName'])) {
             // get the application name from the zpk file
             $xml = $this->serviceLocator->get('zpk')->getMeta($args['appPackage']);
-            $args['userAppName'] = sprintf("%s",$xml->name);
+            $args['userAppName'] = sprintf("%s", $xml->name);
         }
-        if(!preg_match("/^(\w+):\/\//", $args['baseUrl'])) {
-            $args['baseUrl']     = 'http://default-server/'. ltrim($args['baseUrl'],'/');
+        if (!preg_match("/^(\w+):\/\//", $args['baseUrl'])) {
+            $args['baseUrl']     = 'http://default-server/'. ltrim($args['baseUrl'], '/');
             $args['defaultServer'] = 'TRUE';
         }
         return $this->sendApiRequest($args);
@@ -79,18 +80,18 @@ class ApiController extends DefaultApiController
         $response = $this->sendApiRequest($args);
         $data = $response->responseData->bootstrap;
         $content = '';
-        if(sprintf('%s', $data->success) == "true") {
+        if (sprintf('%s', $data->success) == "true") {
             $name = sprintf("%s", $data->apiKey->name);
             $key = sprintf("%s", $data->apiKey->hash);
         }
 
-        if(isset($args['simple-output'])) {
+        if (isset($args['simple-output'])) {
             $response = new Response();
             $response->setContent("$name\n$key\n");
         }
 
         $wait = $this->params('wait');
-        if($wait) {
+        if ($wait) {
             $keyService = $this->getServiceLocator()->get('defaultApiKey');
             $keyService->setName($name);
             $keyService->setKey($key);
@@ -104,7 +105,7 @@ class ApiController extends DefaultApiController
     public function serverAddToClusterAction($args)
     {
         // check if the cluster DB is up and ready to be used
-        if($this->params('wait-db')) {
+        if ($this->params('wait-db')) {
             $this->repeater()->doUntil(array($this,'onWaitClusterDb'),
                                        array(
                                            'dbHost'=>$args['dbHost'],
@@ -122,10 +123,10 @@ class ApiController extends DefaultApiController
         $response = $this->sendApiRequest($args);
 
         $wait = $this->params('wait');
-        if($wait) {
+        if ($wait) {
             $keyService = $this->getServiceLocator()->get('defaultApiKey');
-            $keyService->setName(sprintf("%s",$response->responseData->clusterAdminKey->name));
-            $keyService->setKey(sprintf("%s",$response->responseData->clusterAdminKey->hash));
+            $keyService->setName(sprintf("%s", $response->responseData->clusterAdminKey->name));
+            $keyService->setKey(sprintf("%s", $response->responseData->clusterAdminKey->hash));
             $serverId = sprintf("%d", $response->responseData->serverInfo->id);
             $this->repeater()->doUntil(array($this,'onWaitServerAddToCluster'), array('serverId'=>$serverId));
         }
@@ -137,15 +138,15 @@ class ApiController extends DefaultApiController
     {
         $wait = $this->params('wait');
         $serverCount = 0;
-        if($wait) {
+        if ($wait) {
             // Count the number of servers at the current moment
-            $response = $this->sendApiRequest(array(),'clusterGetServersCount');
+            $response = $this->sendApiRequest(array(), 'clusterGetServersCount');
             $serverCount = sprintf("%d", $response->responseData->serversCount);
         }
 
         $response = $this->sendApiRequest($args);
 
-        if($wait) {
+        if ($wait) {
             $this->repeater()->doUntil(array($this,'onWaitClusterRemoveServer'),
                                                    array(
                                                         'serverCount'=> $serverCount
@@ -158,7 +159,7 @@ class ApiController extends DefaultApiController
     public function onWaitBootstrapSingleServer($controller, $params)
     {
         $response = $this->sendApiRequest(array(), 'tasksComplete');
-        if(sprintf("%s", $response->responseData->tasksComplete) == "true") {
+        if (sprintf("%s", $response->responseData->tasksComplete) == "true") {
             return $response;
         }
     }
@@ -171,7 +172,7 @@ class ApiController extends DefaultApiController
         */
         $response = $this->sendApiRequest(array('serverId'=> $params['serverId']), 'clusterGetServerStatus');
         $status = sprintf("%s", $response->responseData->serversList->serverInfo->status);
-        if($status == 'OK') {
+        if ($status == 'OK') {
             return $response;
         }
     }
@@ -181,32 +182,32 @@ class ApiController extends DefaultApiController
         // needs to poll on clusterGetServersCount until it is '0'
         $response = $this->sendApiRequest(array(), 'clusterGetServersCount');
         $count = sprintf("%d", $response->responseData->serversCount);
-        if($count < $params['serverCount']) {
+        if ($count < $params['serverCount']) {
             return $response;
         }
     }
 
     public function onWaitClusterDb($controller, $params)
     {
-        if(function_exists('mysqli_connect')) {
+        if (function_exists('mysqli_connect')) {
             $success = false;
             $link = mysqli_connect($params['dbHost'], $params['dbUsername'], $params['dbPassword'], $params['dbName']);
-            if($link) {
+            if ($link) {
                 $success = true;
                 mysqli_close($link);
             }
-            if($success) {
+            if ($success) {
                 return true;
             }
-        } else if(function_exists('mysql_connect')) {
+        } elseif (function_exists('mysql_connect')) {
             $success = false;
             $link = mysql_connect($params['dbHost'], $params['dbUsername'], $params['dbPassword']);
-            if($link) {
+            if ($link) {
                 $success = mysql_select_db($params['dbName'], $link);
                 mysql_close($link);
             }
 
-            if($success) {
+            if ($success) {
                 return true;
             }
         } else {

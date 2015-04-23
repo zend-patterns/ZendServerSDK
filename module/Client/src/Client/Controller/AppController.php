@@ -1,5 +1,6 @@
 <?php
 namespace Client\Controller;
+
 use Zend\Mvc\Controller\AbstractActionController;
 use Client\Service\ZpkInvokable;
 
@@ -69,15 +70,14 @@ class AppController extends AbstractActionController
                     $params[$key] = $value;
                 }
             }
-            $response = $this->forward()->dispatch('webapi-api-controller',$params);
-            if($wait) {
+            $response = $this->forward()->dispatch('webapi-api-controller', $params);
+            if ($wait) {
                 $xml = new \SimpleXMLElement($response->getBody());
                 $appId = $xml->responseData->applicationInfo->id;
             }
-
         } else {
             // otherwise update the application
-            $response = $this->forward()->dispatch('webapi-api-controller',array(
+            $response = $this->forward()->dispatch('webapi-api-controller', array(
                 'action'     => 'applicationUpdate',
                 'appId'      => $appId,
                 'appPackage' => $zpk,
@@ -85,8 +85,8 @@ class AppController extends AbstractActionController
             ));
         }
 
-        if($wait) {
-            $response = $this->repeater()->doUntil(array($this,'onWaitInstall'), array('appId'=>sprintf("%s",$appId)));
+        if ($wait) {
+            $response = $this->repeater()->doUntil(array($this,'onWaitInstall'), array('appId'=>sprintf("%s", $appId)));
         }
 
         return $response;
@@ -100,18 +100,18 @@ class AppController extends AbstractActionController
     public function onWaitInstall($controller, $params)
     {
         $appId = $params['appId'];
-        $response = $controller->forward()->dispatch('webapi-api-controller',array(
+        $response = $controller->forward()->dispatch('webapi-api-controller', array(
                     'action'     => 'applicationGetStatus',
                     'applications'  => array($appId)
         ));
         $xml = new \SimpleXMLElement($response->getBody());
 
         $status = (string)$xml->responseData->applicationsList->applicationInfo->status;
-        if(stripos($status,'error')!==false) {
+        if (stripos($status, 'error')!==false) {
             throw new \Exception(sprintf("Got error '%s' during deployment.\nThe followin error message is reported from the server:\n%s", $status, $xml->responseData->applicationsList->applicationInfo->messageList->error));
         }
 
-        if($status !='deployed') {
+        if ($status !='deployed') {
             return;
         }
 

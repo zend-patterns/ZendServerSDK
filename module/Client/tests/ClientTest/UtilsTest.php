@@ -16,14 +16,14 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
     public function testParseString()
     {
-        $map = array (
+        $map = array(
             "x=1&y=2" => array('x'=> 1, 'y'=> 2)
         );
 
         foreach ($map as $string => $array) {
             $data = array();
             Utils::parseString($string, $data);
-            $this->assertEquals($data,$array);
+            $this->assertEquals($data, $array);
         }
     }
 }
