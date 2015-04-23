@@ -13,12 +13,12 @@ before_script:
   - mkdir -p build/coverage
 
 script:
-  - vendor/bin/php-cs-fixer fix -v --dry-run
-  - vendor/bin/phpunit -c module/Client/tests/phpunit.xml --coverage-php build/coverage/coverage-{/.}.cov {};
+  - vendor/bin/php-cs-fixer fix -v --dry-run .
+  - vendor/bin/phpunit -c module/Client/tests/phpunit.xml --coverage-php build/coverage/coverage.cov
 
 after_script:
    # Merges the individual clover reports of each component into a single clover.xml
-  - php vendor/bin/phpcov.php --merge --clover build/logs/clover.xml --whitelist library build/coverage
+  - php vendor/bin/phpcov --merge --clover build/logs/clover.xml build/coverage
   - php vendor/bin/coveralls
 
 matrix:

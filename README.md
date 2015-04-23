@@ -1,3 +1,13 @@
+Into
+====
+ZendServerSDK, aka zs-client, is a command line application that communicates with
+Zend Server's WebAPI. It can run on all modern Operating Systems(OS) such
+as Linux, Mac OS X and Windows.
+
+Requirements
+============
+PHP version >=5.3.3 with enabled phar module. 
+
 Installation
 ============
 
@@ -6,6 +16,12 @@ Stable Version
 --------
 You can copy locally the latest stable in a stand-alone file from:
 https://github.com/zend-patterns/ZendServerSDK/raw/master/bin/zs-client.phar
+
+On Linux you just need to execute the following command:
+
+```
+wget https://github.com/zend-patterns/ZendServerSDK/raw/master/bin/zs-client.phar
+```
 
 Development Version
 --------
