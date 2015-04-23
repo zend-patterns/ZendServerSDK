@@ -221,7 +221,7 @@ If you want to combine multiple HTTP options in the same request then you can fo
 HTTP query string. Request with timeout of 40 seconds and acceptance of self-signed certificates will look like this.
 ```
 php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
-                                    --http="timeout&sslverify=0"
+                                    --http="timeout=40&sslverify=0"
 ```
 
 ### Persisting the HTTP Options
@@ -232,7 +232,7 @@ php bin/zs-client.php addTarget --target="<name-of-the-target> \
                                 --zsurl="http://x.y.z" \
                                 --zskey="admin" \
                                 --zssecret="<secret-hash>" \
-                                --http="timeout&sslverify=0"
+                                --http="timeout=40&sslverify=0"
 ```
 
 Output formats
