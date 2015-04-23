@@ -1,7 +1,17 @@
-<phpunit bootstrap="./bootstrap.php" colors="true" convertWarningsToExceptions="false">
-    <testsuites>
-        <testsuite name="Client Test Suite">
-            <directory suffix="Test.php">./ClientTest</directory>
-        </testsuite>
-    </testsuites>
+<phpunit bootstrap="./bootstrap.php" colors="true"
+	convertWarningsToExceptions="false">
+	<testsuites>
+		<testsuite name="Client Test Suite">
+			<directory suffix="Test.php">./ClientTest</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+		<whitelist>
+			<directory suffix=".php">module</directory>
+			<exclude>
+				<directory suffix=".php">vendor</directory>
+			</exclude>
+		</whitelist>
+	</filter>
 </phpunit>
