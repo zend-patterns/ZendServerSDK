@@ -1,4 +1,4 @@
-Into
+Intro
 ====
 ZendServerSDK, aka zs-client, is a command line application that communicates with
 Zend Server's WebAPI. It can run on all modern Operating Systems(OS) such
@@ -24,7 +24,9 @@ wget https://github.com/zend-patterns/ZendServerSDK/raw/master/bin/zs-client.pha
 ```
 
 Development Version
---------
+-------------------
+[![Build Status](https://travis-ci.org/zend-patterns/ZendServerSDK.svg?branch=master)](https://travis-ci.org/zend-patterns/ZendServerSDK)
+
 Clone the latest source code
 ```
 git clone https://github.com/zend-patterns/ZendServerSDK.git
