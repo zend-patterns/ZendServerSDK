@@ -11,82 +11,28 @@ PHP version >=5.3.3 with enabled phar module.
 Installation
 ============
 
-
-Stable Version
---------
-You can copy locally the latest stable in a stand-alone file from:
+You can copy locally the latest stable version as a stand-alone file from:
 https://github.com/zend-patterns/ZendServerSDK/raw/master/bin/zs-client.phar
 
-On Linux you just need to execute the following command:
+On Linux you can execute the following command:
 
-```
+```sh
 wget https://github.com/zend-patterns/ZendServerSDK/raw/master/bin/zs-client.phar
 ```
 
-Development Version
--------------------
+Contributing
+===========
 [![Build Status](https://travis-ci.org/zend-patterns/ZendServerSDK.svg?branch=master)](https://travis-ci.org/zend-patterns/ZendServerSDK)
-
-Clone the latest source code
-```
-git clone https://github.com/zend-patterns/ZendServerSDK.git
-```
-
-Then change the directory to the newly created one
-```
-cd ZendServerSDK
-```
-	
-Install composer
-```
-wget http://getcomposer.org/composer.phar
-```
-
-Get all dependant packages.
-```
-php composer.phar install --no-dev
-```
-
+If you wish to contribute to the project, please read the 
+[CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 Usage
 ============
 
-Stable Version
----------
-
 Run the phar file with --help to see the available commands:
-```
+```sh
 php zs-client.phar  --help
 ```
-
-See below for more options. 
-Notice: When using the stable version remember to use zs-client.phar instead of bin/zs-client.php.
-
-Development Version
----------
-Run the following, from the directory where this file is located,  to see all commands:
-
-```
-php bin/zs-client.php  --help
-```
-
-If you want to see information about certain command only, then run:
-
-```
-php bin/zs-client.php  <commandName> --help
-```
-
-Compile
-============
-You can pack the source code into one stand-alone file that php can read. 
-Run the following command to produce the zs-client.phar file.
-
-```
-php bin/create-phar.php
-```
-
-The generated file should be saved under bin/zs-client.phar. You can copy it
-and use it without the need to have the other PHP files.
 
 Use Cases
 ============
@@ -100,7 +46,7 @@ can contain information about the version of Zend Server.
 
 To add a target run the following command:
 ```
-php bin/zs-client.php addTarget --target="<put-here-unique-name>" \
+php bin/zs-client.phar addTarget --target="<put-here-unique-name>" \
                                 --zskey="<put-here-the-webapi-key-name>" \
                                 --zssecret="<put-here-the-webapi-key-hash>" \
                                 --zsurl="<(optional)put-here-valid-url>" \
@@ -110,7 +56,7 @@ To update a target run the command with the same --target value and provide the
 new values.
 
 zsurl: if not specified, the value `http://localhost:10081` is used.
-zsversion: if not specified, the value `6.1` is used.
+zsversion: if not specified, the latest Zend Server version will be used.
 
 The information about the available targets is saved in the home directory of 
 the current user in a file named .zsapi.ini.
@@ -121,7 +67,7 @@ Once a target has been defined, specify it in subsequent commands by adding
 its unique name to the argument list, as in this example:
 
 ```
-php bin/zs-client.php monitorGetIssuesListPredefinedFilter \
+php bin/zs-client.phar monitorGetIssuesListPredefinedFilter \
                              --target="<unique-name-from-addTarget-command>" \
                              --filterId="Resources Issues"
 ```
@@ -136,7 +82,7 @@ Below are the steps that you need to take:
 
 ### Enable Deployment Support
 ```
-php bin/zs-client.php initZpk --folder="<folder-where-the-PHP-code-is>"
+php bin/zs-client.phar initZpk --folder="<folder-where-the-PHP-code-is>"
 ```
 
 This will add two new files in the specified folder: deployment.xml and deployment.properties.
@@ -148,7 +94,7 @@ the XML data to match your application name, version, etc.
 ### Create Package
 Run the following command.
 ```
-php bin/zs-client.php packZpk --folder="<folder-where-the-PHP-code-is>" --destination="<folder-where-the-package-will-be-created>"
+php bin/zs-client.phar packZpk --folder="<folder-where-the-PHP-code-is>" --destination="<folder-where-the-package-will-be-created>"
 ```
 It will output the name of the newly created package file. You have to use this name to install
 or update an existing application on Zend Server. If you want to use other name for
@@ -159,7 +105,7 @@ There is experimental integration with composer that allows you to download the 
 download them and convert them to zpk files. The above command with composer integration will look like this
 
 ```
-php bin/zs-client.php packZpk --folder="<folder-where-the-PHP-code-is>" \
+php bin/zs-client.phar packZpk --folder="<folder-where-the-PHP-code-is>" \
 			      --destination="<folder-where-the-package-will-be-created>" \
                               --composer
 ```
@@ -180,7 +126,7 @@ Example:
 ### Deploy Package
 Run the following command to install a package.
 ```
-php bin/zs-client.php installApp --zpk="<location-of-the-zpk-file>" \
+php bin/zs-client.phar installApp --zpk="<location-of-the-zpk-file>" \
                                  --target="<the-name-of-the-target>" \
                                  --baseUri="<baseUri>"
 ```
@@ -189,7 +135,7 @@ installation can be passed using --userParams="{provide-params-as-query-string}"
 For example if you want to pass parameter APPLICATION_ENV and DB_TYPE then you can 
 use the following 
 ```
-php bin/zs-client.php installApp --zpk="<location-of-the-zpk-file>" \
+php bin/zs-client.phar installApp --zpk="<location-of-the-zpk-file>" \
                                  --target="<the-name-of-the-target>" \
                                  --baseUri="<baseUri>" \
                                  --userParams="APPLICATION_ENV=staging&DB_TYPE=mysql"
@@ -199,12 +145,12 @@ If you use the composer integration then packZpk can create multiple packages, i
 deploy these newly created packages in the correct order.
 
 ```
-ZPKS=`php bin/zs-client.php packZpk --folder="<folder-where-the-PHP-code-is>" \
+ZPKS=`php bin/zs-client.phar packZpk --folder="<folder-where-the-PHP-code-is>" \
 			      	        --destination="<folder-where-the-package-will-be-created>" \
 	                                --composer`;
 
 for i in $ZPKS; do 
-	php bin/zs-client.php installApp --zpk="$i" \
+	php bin/zs-client.phar installApp --zpk="$i" \
                                  --target="<the-name-of-the-target>" \
                                  --baseUri="<baseUri>" \
                                  --userParams="APPLICATION_ENV=staging&DB_TYPE=mysql"
@@ -219,7 +165,7 @@ In some cases we may expect slower communication between the client and the serv
 In that case we can set explicitly the http timeout to a bigger value. The example below shows how to set it to 40 seconds.
 
 ```
-php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
+php bin/zs-client.phar getSystemInfo --target="<name-of-the-target> \
                                     --http="timeout=40" 
 
 ```
@@ -229,7 +175,7 @@ In most cases the HTTPS access to your Zend Server will use self-signed certific
 In order to instruct the client to accept the SSL certificate you can do the following.
 
 ```
-php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
+php bin/zs-client.phar getSystemInfo --target="<name-of-the-target> \
                                     --http="sslverify=0" 
 
 ```
@@ -238,7 +184,7 @@ php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
 If you want to combine multiple HTTP options in the same request then you can format the value of the http parameter as a valid 
 HTTP query string. Request with timeout of 40 seconds and acceptance of self-signed certificates will look like this.
 ```
-php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
+php bin/zs-client.phar getSystemInfo --target="<name-of-the-target> \
                                     --http="timeout=40&sslverify=0"
 ```
 
@@ -246,7 +192,7 @@ php bin/zs-client.php getSystemInfo --target="<name-of-the-target> \
 If you want to keep the http options saved to a target then when defining or updating the target define also the http parameter. 
 Format the value as valid HTTP query string. Take a look at the following example.
 ```
-php bin/zs-client.php addTarget --target="<name-of-the-target> \
+php bin/zs-client.phar addTarget --target="<name-of-the-target> \
                                 --zsurl="http://x.y.z" \
                                 --zskey="admin" \
                                 --zssecret="<secret-hash>" \
@@ -260,7 +206,7 @@ json and kv(key value). To specify the desired format you have to use the --outp
 
 Example:
 ```
-php bin/zs-client.php getSystemInfo --target=zserver --output-format=kv
+php bin/zs-client.phar getSystemInfo --target=zserver --output-format=kv
 ```
 
 Will return

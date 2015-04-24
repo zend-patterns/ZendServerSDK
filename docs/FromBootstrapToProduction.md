@@ -129,4 +129,4 @@ php zs-client.phar command:all
 
 Additional information about all available WebAPI commands can be found here:
 
-http://files.zend.com/help/Zend-Server-6/zend-server.htm#supported_methods.htm 
+http://files.zend.com/help/Zend-Server/zend-server.htm#supported_methods.htm 
