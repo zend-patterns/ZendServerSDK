@@ -37,6 +37,85 @@ return array(
                                     'ingore-target-load' => true,
                                 )
                             ),
+                            'updateTarget' => array(
+                                'options' => array(
+                                    'route' => 'updateTarget --target= [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=]',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-target-controller',
+                                        'action' => 'update',
+                                    ),
+                                    'arrays' => array(
+                                        'http'
+                                    ),
+                                    'info' => array(
+                                        'Updates the settings of existing target.',
+                                        array('--target', 'The unique name of the target'),
+                                        array('--zsurl','The Zend Server URL. If not specified then it will be http://localhost:10081'),
+                                        array('--zskey', 'The name of the API key'),
+                                        array('--zssecret', 'The hash of the API key'),
+                                        array('--http', 'Optional array with additional HTTP client parameters. Example: --http="timeout=60&sslverifypeer=0" ')
+                                    ),
+                                    'group'=>'target',
+                                    'no-target' => true,
+                                )
+                            ),
+                            'removeTarget' => array(
+                                'options' => array(
+                                    'route' => 'removeTarget --target=',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-target-controller',
+                                        'action' => 'remove',
+                                    ),
+                                    'info' => array(
+                                        'Removes a target from the list. If the target does not exist the shell exit code is 1.',
+                                        array('--target', 'The unique name of the target'),
+                                    ),
+                                    'group'=>'target',
+                                    'no-target' => true,
+                                )
+                            ),
+                            'removeAllTargets' => array(
+                                'options' => array(
+                                    'route' => 'removeAllTargets',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-target-controller',
+                                        'action' => 'removeAll',
+                                    ),
+                                    'info' => array(
+                                        'Removes all defined targets.',
+                                    ),
+                                    'group'=>'target',
+                                    'no-target' => true,
+                                )
+                            ),
+                            'listTargets' => array(
+                                'options' => array(
+                                    'route' => 'listTargets',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-target-controller',
+                                        'action' => 'list',
+                                    ),
+                                    'info' => array(
+                                        'List all defined targets',
+                                    ),
+                                    'group'=>'target',
+                                    'no-target' => true,
+                                )
+                            ),
+                            'targetFileLocation' => array(
+                                'options' => array(
+                                    'route' => 'targetFileLocation',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-target-controller',
+                                        'action' => 'location',
+                                    ),
+                                    'info' => array(
+                                        'Shows the location of the file used to save the target information.',
+                                    ),
+                                    'group'=>'target',
+                                    'no-target' => true,
+                                )
+                            ),
                             'installApp' => array(
                                 'options' => array(
                                     'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=] [--wait]',
@@ -256,6 +335,9 @@ return array(
                 'path' => 'Client\Service\PathInvokable',
                 'composer' => 'Client\Service\ComposerInvokable',
                 'Composer\File' => 'Client\Service\Composer\File',
+             ),
+             'factories' => array(
+                 'target' => 'Client\Service\TargetFactory',
              )
         ),
 

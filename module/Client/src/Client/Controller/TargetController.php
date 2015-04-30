@@ -2,9 +2,8 @@
 namespace Client\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
-use Zend\Config\Writer\Ini as ConfigWriter;
-use Zend\Config\Reader\Ini as ConfigReader;
 use Zend\Config\Exception as ConfigException;
+use Client\Service\TargetInvokable;
 
 /**
  * Main Console Controller
@@ -14,19 +13,22 @@ use Zend\Config\Exception as ConfigException;
 class TargetController extends AbstractActionController
 {
     /**
+     * @var TargetInvokable
+     */
+    protected $targetService;
+
+    /**
      * Adding a API Key
      */
     public function addAction()
     {
-        $appConfig  = $this->serviceLocator->get('config');
         $target = $this->getRequest()->getParam('target');
-
         // Read the current configuration
         $data = array();
         try {
-            $reader = new ConfigReader();
-            $data = $reader->fromFile($appConfig['zsapi']['file']);
-        } catch (ConfigException\RuntimeException $ex) {
+            $data = $this->getTargetService()->load();
+        } catch (ConfigException $ex) {
+
         }
 
         $data[$target] = array();
@@ -52,12 +54,90 @@ class TargetController extends AbstractActionController
 
         $httpOptions = $this->getRequest()->getParam('http');
         if (is_array($httpOptions)) {
-            foreach ($httpOptions as $key=>$name) {
-                $data[$target]['http'][$key] = $name;
+            foreach ($httpOptions as $key => $value) {
+                $data[$target]['http'][$key] = $value;
             }
         }
 
-        $config = new ConfigWriter();
-        $config->toFile($appConfig['zsapi']['file'], $data);
+       $this->getTargetService()->save($data);
     }
+
+    public function updateAction()
+    {
+        $target = $this->getRequest()->getParam('target');
+        $data = $this->getTargetService()->load();
+
+        if(!isset($data[$target])) {
+            throw new \Zend\Console\Exception\RuntimeException("Target '$target' is not existing!");
+        }
+
+        foreach (array('zsurl','zskey','zssecret', 'zsversion') as $key) {
+            $value = $this->getRequest()->getParam($key);
+            if ($value) {
+                $data[$target][$key] = $value;
+            }
+        }
+
+        $httpOptions = $this->getRequest()->getParam('http');
+        if (is_array($httpOptions)) {
+            foreach ($httpOptions as $key=> $value) {
+                $data[$target]['http'][$key] = $value;
+            }
+        }
+
+        $this->getTargetService()->save($data);
+    }
+
+    public function removeAction()
+    {
+        $target = $this->getRequest()->getParam('target');
+        $list = $this->getTargetService()->load();
+        if(isset($list[$target])) {
+            unset($list[$target]);
+            $this->getTargetService()->save($list);
+            return;
+        }
+
+        return $this->getResponse()->setErrorLevel(1);
+    }
+
+    public function removeAllAction()
+    {
+        $this->getTargetService()->save(array());
+    }
+
+    public function listAction()
+    {
+        $list = $this->getTargetService()->load();
+        $content = "Name           |            URL \n";
+        $content.= "--------------------------------\n";
+        foreach ($list as $name => $data) {
+            $content .= "$name => {$data['zsurl']}\n";
+        }
+
+        $this->getResponse()->setContent($content);
+        return $this->getResponse();
+    }
+
+    public function locationAction()
+    {
+        $configFile = $this->getTargetService()->getConfigFile();
+
+        return $this->getResponse()->setContent($configFile."\n");
+    }
+
+    public function getTargetService()
+    {
+        if(!$this->targetService) {
+            $this->targetService = $this->serviceLocator->get('target');
+        }
+        return $this->targetService;
+    }
+
+    public function setTargetService($targetService)
+    {
+        $this->targetService = $targetService;
+    }
+
+
 }
