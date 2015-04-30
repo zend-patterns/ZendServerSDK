@@ -28,7 +28,6 @@ class TargetController extends AbstractActionController
         try {
             $data = $this->getTargetService()->load();
         } catch (ConfigException $ex) {
-
         }
 
         $data[$target] = array();
@@ -59,7 +58,7 @@ class TargetController extends AbstractActionController
             }
         }
 
-       $this->getTargetService()->save($data);
+        $this->getTargetService()->save($data);
     }
 
     public function updateAction()
@@ -67,7 +66,7 @@ class TargetController extends AbstractActionController
         $target = $this->getRequest()->getParam('target');
         $data = $this->getTargetService()->load();
 
-        if(!isset($data[$target])) {
+        if (!isset($data[$target])) {
             throw new \Zend\Console\Exception\RuntimeException("Target '$target' is not existing!");
         }
 
@@ -92,7 +91,7 @@ class TargetController extends AbstractActionController
     {
         $target = $this->getRequest()->getParam('target');
         $list = $this->getTargetService()->load();
-        if(isset($list[$target])) {
+        if (isset($list[$target])) {
             unset($list[$target]);
             $this->getTargetService()->save($list);
             return;
@@ -128,7 +127,7 @@ class TargetController extends AbstractActionController
 
     public function getTargetService()
     {
-        if(!$this->targetService) {
+        if (!$this->targetService) {
             $this->targetService = $this->serviceLocator->get('target');
         }
         return $this->targetService;
@@ -138,6 +137,4 @@ class TargetController extends AbstractActionController
     {
         $this->targetService = $targetService;
     }
-
-
 }

@@ -22,20 +22,20 @@ class TargetControllerTest extends AbstractConsoleControllerTestCase
         $targetService = new TargetInvokable();
         $targetService->setConfigFile($this->tempFile);
 
-        $testData = array (
-            'delme' => array (
+        $testData = array(
+            'delme' => array(
                 'zsurl' => 'http://del.me',
                 'zssecret' => 'Secret',
                 'zskey'    => 'Name',
                 'zsversion' => '1.1'
             ),
-            'listme' => array (
+            'listme' => array(
                 'zsurl' => 'http://list.me',
                 'zssecret' => 'Secret',
                 'zskey'    => 'Name',
                 'zsversion' => '1.1'
             ),
-            'updateme' => array (
+            'updateme' => array(
                 'zsurl' => 'http://update.me',
                 'zssecret' => 'Secret',
                 'zskey'    => 'Name',
@@ -57,7 +57,7 @@ class TargetControllerTest extends AbstractConsoleControllerTestCase
 
     public function tearDown()
     {
-      @unlink($this->tempFile);
+        @unlink($this->tempFile);
     }
 
     public function testUpdateRemoveAction()
@@ -103,7 +103,7 @@ class TargetControllerTest extends AbstractConsoleControllerTestCase
     public function testRemoveAllAction()
     {
         $data = $this->targetService->load();
-        $this->assertNotCount(0,$data);
+        $this->assertNotCount(0, $data);
 
         $result = $this->dispatch("removeAllTargets");
         $this->assertControllerName('webapi-target-controller');
@@ -111,7 +111,7 @@ class TargetControllerTest extends AbstractConsoleControllerTestCase
         $this->assertResponseStatusCode(0);
 
         $data = $this->targetService->load();
-        $this->assertCount(0,$data);
+        $this->assertCount(0, $data);
     }
 
     public function testLocationAction()
@@ -126,6 +126,6 @@ class TargetControllerTest extends AbstractConsoleControllerTestCase
         $content = $this->getResponse()->getContent();
         $content = trim($content);
 
-        $this->assertEquals($content,$location);
+        $this->assertEquals($content, $location);
     }
 }

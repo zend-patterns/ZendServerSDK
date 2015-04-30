@@ -13,7 +13,7 @@ before_script:
   - mkdir -p build/coverage
 
 script:
-  - vendor/bin/php-cs-fixer fix -v --dry-run . 
+  - vendor/bin/php-cs-fixer fix -v --dry-run --level=psr2 . 
   - vendor/bin/phpunit -c module/Client/tests/phpunit.xml --coverage-clover build/coverage/coverage.xml
 
 after_script:
