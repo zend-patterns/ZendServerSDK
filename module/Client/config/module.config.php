@@ -202,7 +202,7 @@ return array(
                                         'action' => 'verify',
                                     ),
                                     'info' => array(
-                                        'Verifies the deployment.xml and the existance of the files that have to be packed as described in the deployment.properties file.',
+                                        'Verifies the deployment.xml and the existence of the files that have to be packed as described in the deployment.properties file.',
                                         array('--from','Folder where the source code and the deployment.xml is located OR existing ZPK file.'),
                                     ),
                                     'files' => array(
@@ -293,6 +293,7 @@ return array(
                                                     'action' => 'phar'
                                             ),
                                             'group'=>'client',
+                                            'no-target' => true,
                                             'info' => array(
                                                     'This command updates the phar file to the latest version.',
                                             ),
@@ -307,6 +308,7 @@ return array(
                                                 'action' => 'gettingStarted'
                                         ),
                                         'group'=>'manual',
+                                        'no-target' => true,
                                         'info' => array(
                                                 'Run this command to get started with the tool',
                                         ),
@@ -320,6 +322,7 @@ return array(
                                                 'action' => 'autocomplete'
                                         ),
                                         'group'=>'manual',
+                                        'no-target' => true,
                                         'info' => array(
                                                 'Run this command to get the bash file needed for auto-completion',
                                         ),
