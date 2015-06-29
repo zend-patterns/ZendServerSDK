@@ -1,2 +1,2 @@
 del zs-client.phar
-php create-phar.php
+php -d phar.readonly=0 create-phar.php
