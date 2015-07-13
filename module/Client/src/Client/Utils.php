@@ -12,10 +12,10 @@ abstract class Utils
      * @param string $string
      * @param array $data
      */
-    public static function parseString($string, &$data)
+    public static function parseString($string, &$data, $delimiter = '&')
     {
-        // check if the values is provided like a query string
-        $pairs = explode('&', $string);
+        // check if the values are provided like a query string
+        $pairs = explode($delimiter, $string);
         foreach ($pairs as $pair) {
             list($k, $v) = explode('=', $pair);
 

@@ -229,4 +229,54 @@ serverLicenseInfo[edition]=ENTERPRISE
 managerLicenseInfo[evaluation]=
 ````
 
+Providing array values
+======================
+Some commands accept arrays as arguments. 
+
+For example configurationExtensionsOn allows you turn on multiple extensions at
+the same time. The code below turns on bcmath and tidy:
+```
+php bin/zs-client.phar configurationExtensionsOn --target=zserver --extensions=bcmath,tidy
+``` 
+
+Notice the syntax of the extensions value. It is a list of items having comma as delimiter.
+If for some reason you want to replace the comma with another delimiter this can be done by 
+adding the new delimiter enclosed in smaller than (<) and bigger than (>). 
+In the example below we use semicolon as delimiter:
+```
+php bin/zs-client.phar configurationExtensionsOn --target=zserver --extensions=bcmath;tidy<;>
+``` 
+
+If needed you  can pass more complicated array data. For example a PHP array like the one below ...
+```php
+$data = array (
+   'x' => array(
+      'a' => 1,
+      'b' => 2,
+   ),
+   y => 3
+);
+```
+
+... can be represented in the command line using the following syntax.
+```
+php bin/zs-client.phar installApp --userParams='x[a]=1&x[b]=2&y=3' --target=zserver ...
+```
+
+Here the default delimiter is &. If you want to use custom delimiter, 
+semicolon for example, then you can specify it similar to the previous example:
+```
+php bin/zs-client.phar installApp --userParams='x[a]=1;x[b]=2;y=3<;>' --target=zserver ...
+```
+
+Notice about delimiters: Choose your delimiter wisely. 
+* Choose custom delimiter only if the default ones ("," and "&") do not work for you.
+* A delimiter should not be special character that is interpreted by your shell.
+* A delimiter should not be special character that is removed silently by your shell.
+* A delimiter should not be one of the characters that are already in the data.
+
+Feedback
+========
 For questions and feedback write to slavey (at) zend DOT com.
+
+ 

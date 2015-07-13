@@ -91,14 +91,28 @@ EOT;
             foreach ($config['console']['router']['routes'][$routeName]['options']['arrays'] as $arrayParam) {
                 if ($value = $match->getParam($arrayParam)) {
                     $data = array();
-                    if (strpos($value, '&')===false & strpos($value, '=')===false) {
-                        // the value is comma separated values
-                        $data = explode(',', $value);
+
+                    // if the data ends with <char(s)> then we have special delimiter
+                    $delimiter = '&'; // Ex: "x[1]=2&y[b]=z"
+                    if (strpos($value, '=')===false) {
+                        // when we do not have pairs the delimiter in such situations
+                        // is set to "comma" by default
+                        $delimiter = ','; // Ex: "x,y,z"
+                    }
+                    if(preg_match("/<(.*?)>$/", $value, $m)) { // Ex: "x[1]=2|y[b]=z<|>" - the delimiter is | and the pairs are x[1]=2 and y[b]=z
+                        $delimiter = $m[1];
+                        $value = substr($value, 0,strlen($value)-strlen("<$delimiter>"));
+                    }
+
+                    if (strpos($value, '=')===false) {
+                        // we do not have pairs
+                        $data = explode($delimiter, $value);
                         foreach ($data as $i=>$v) {
                             $data[$i] = trim($v);
                         }
                     } else {
-                        Utils::parseString($value, $data);
+                        // Ex: x=1 y[1]=2 y[2]=3
+                        Utils::parseString($value, $data, $delimiter);
                     }
 
                     $match->setParam($arrayParam, $data);
