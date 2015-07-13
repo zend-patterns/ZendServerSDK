@@ -10,7 +10,6 @@ use Client\src\Client\Service\Composer\Extra\ParamFactory;
  */
 class ComposerInvokable
 {
-
     private $extraParamFactory;
 
     private $extraParamCollector;

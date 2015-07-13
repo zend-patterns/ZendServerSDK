@@ -8,7 +8,6 @@ use Zend\File\ClassFileLocator;
 
 class File
 {
-
     protected $scripts = array();
 
     protected function getScriptsDir($baseDir)

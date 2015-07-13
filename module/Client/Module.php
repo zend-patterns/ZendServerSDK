@@ -99,9 +99,9 @@ EOT;
                         // is set to "comma" by default
                         $delimiter = ','; // Ex: "x,y,z"
                     }
-                    if(preg_match("/<(.*?)>$/", $value, $m)) { // Ex: "x[1]=2|y[b]=z<|>" - the delimiter is | and the pairs are x[1]=2 and y[b]=z
+                    if (preg_match("/<(.*?)>$/", $value, $m)) { // Ex: "x[1]=2|y[b]=z<|>" - the delimiter is | and the pairs are x[1]=2 and y[b]=z
                         $delimiter = $m[1];
-                        $value = substr($value, 0,strlen($value)-strlen("<$delimiter>"));
+                        $value = substr($value, 0, strlen($value)-strlen("<$delimiter>"));
                     }
 
                     if (strpos($value, '=')===false) {

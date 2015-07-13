@@ -66,7 +66,7 @@ class ArgumentsControllerTest extends AbstractConsoleControllerTestCase
 
         $routeMatch = $this->getApplication()->getMvcEvent()->getRouteMatch();
         $singleParam = $routeMatch->getParam('singleParam');
-        $this->assertEquals($singleParam,'Test');
+        $this->assertEquals($singleParam, 'Test');
     }
 
     public function testArrayParamAction()
@@ -78,7 +78,7 @@ class ArgumentsControllerTest extends AbstractConsoleControllerTestCase
         $routeMatch = $this->getApplication()->getMvcEvent()->getRouteMatch();
         $arrayParam = $routeMatch->getParam('arrayParam');
 
-        $this->assertEquals($arrayParam,array('x','y','z'));
+        $this->assertEquals($arrayParam, array('x','y','z'));
     }
 
     public function testArrayParamCustomDelimiterAction()
@@ -90,7 +90,7 @@ class ArgumentsControllerTest extends AbstractConsoleControllerTestCase
         $routeMatch = $this->getApplication()->getMvcEvent()->getRouteMatch();
         $arrayParam = $routeMatch->getParam('arrayParam');
 
-        $this->assertEquals($arrayParam,array('x','y','z'));
+        $this->assertEquals($arrayParam, array('x','y','z'));
     }
 
     public function testArrayAssocParamAction()
@@ -102,7 +102,7 @@ class ArgumentsControllerTest extends AbstractConsoleControllerTestCase
         $routeMatch = $this->getApplication()->getMvcEvent()->getRouteMatch();
         $arrayParam = $routeMatch->getParam('arrayParam');
 
-        $this->assertEquals($arrayParam,array('x' => array('a'=>0, 'b'=>1 ),'y'=> 2));
+        $this->assertEquals($arrayParam, array('x' => array('a'=>0, 'b'=>1 ),'y'=> 2));
     }
 
     public function testArrayAssocParamCustomDelimiterAction()
@@ -114,6 +114,6 @@ class ArgumentsControllerTest extends AbstractConsoleControllerTestCase
         $routeMatch = $this->getApplication()->getMvcEvent()->getRouteMatch();
         $arrayParam = $routeMatch->getParam('arrayParam');
 
-        $this->assertEquals($arrayParam,array('x' => array('a'=>0, 'b'=>1 ),'y'=> 2));
+        $this->assertEquals($arrayParam, array('x' => array('a'=>0, 'b'=>1 ),'y'=> 2));
     }
 }

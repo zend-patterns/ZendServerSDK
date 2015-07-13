@@ -16,7 +16,6 @@ class ManualControllerTest extends AbstractConsoleControllerTestCase
             include __DIR__.'/../../config/application.config.php'
         );
         parent::setUp();
-
     }
 
     public function tearDown()

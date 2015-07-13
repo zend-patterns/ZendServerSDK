@@ -15,7 +15,6 @@ use Zend\Http\Client\Adapter\Curl;
  */
 class UpdateController extends AbstractActionController
 {
-
     public function pharAction()
     {
         $client = $this->serviceLocator->get('zendServerClient');
