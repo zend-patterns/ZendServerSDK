@@ -275,6 +275,14 @@ Notice about delimiters: Choose your delimiter wisely.
 * A delimiter should not be special character that is removed silently by your shell.
 * A delimiter should not be one of the characters that are already in the data.
 
+Deployment properties syntax
+============================
+In the `deployment.properties` file one can specify the files that will become part of the
+application or part of the deployment scripts. 
+Read [this document](https://github.com/zendtech/zendserver-sdk-java/wiki/Deployment-Properties-File) for more information.
+Make sure to read about the way [scriptsdir.includes](https://github.com/zend-patterns/ZendServerSDK/issues/60) values are processed.  
+
+
 Feedback
 ========
 For questions and feedback write to slavey (at) zend DOT com.

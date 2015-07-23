@@ -305,7 +305,7 @@ class ZpkInvokable
         $includeMap = array();
         if ($type == self::TYPE_LIBRARY) {
             // Include all files and folders for the library
-           $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
+            $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
             $appDir = '';
         }
         $includeMap['appdir'] = $this->getAppPaths($appDir, $properties['appdir.includes']);
@@ -325,8 +325,22 @@ class ZpkInvokable
                 $excludes = $properties[$type.'.excludes'];
             }
 
+            $excludedEndings = array();
+            foreach ($excludes as $exclude) {
+                $exclude = trim($exclude);
+                $exclude = rtrim($exclude, '/'); # no trailing slashes
+                if (strlen($exclude) == 0) {
+                    continue;
+                }
+                // We support **/<something> syntax. It means all entries ending with <something>
+                // will be excluded from the list of files
+                if (preg_match("/^\*\*\/(.*?)$/", $exclude, $matches)) {
+                    $excludedEndings[$matches[1]] = strlen($matches[1]);
+                }
+            }
+
             foreach ($paths as $localPath => $zpkPath) {
-                $this->addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes);
+                $this->addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes, $excludedEndings);
             }
         }
 
@@ -445,11 +459,16 @@ class ZpkInvokable
      * @param string     $directory
      * @param string     $baseDir
      */
-    protected function addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes = array())
+    protected function addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes = array(), $excludedEndings=array())
     {
         $localPath = $this->normalizePath($localPath);
         if (in_array($localPath, $excludes)) {
             return;
+        }
+        foreach ($excludedEndings as $exclude => $length) {
+            if (substr($localPath, -$length) === $exclude) {
+                return;
+            }
         }
 
         $fullPath = $sourceFolder.'/'.$localPath;
@@ -467,17 +486,26 @@ class ZpkInvokable
 
         // we are dealing with directories
         $entries = scandir($fullPath);
-        if (count($entries) <= 2) {
+        // filter entries
+        foreach ($entries as $idx => $name) {
+            if (in_array($name, array('.','..'))) {
+                unset($entries[$idx]);
+                continue;
+            }
+
+            foreach ($excludedEndings as $exclude => $length) {
+                if ($name === $exclude) {
+                    unset($entries[$idx]);
+                }
+            }
+        }
+        if (count($entries) == 0) {
             $zpk->addEmptyDir($zpkPath);
             return;
         }
 
         foreach ($entries as $name) {
-            if (in_array($name, array('.','..'))) {
-                continue;
-            }
-
-            $this->addPathToZpk($zpk, $sourceFolder, $localPath.'/'.$name, $zpkPath.'/'.$name, $excludes);
+            $this->addPathToZpk($zpk, $sourceFolder, $localPath.'/'.$name, $zpkPath.'/'.$name, $excludes, $excludedEndings);
         }
     }
 
