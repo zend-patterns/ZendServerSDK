@@ -304,8 +304,6 @@ class ZpkInvokable
         // Get the include map
         $includeMap = array();
         if ($type == self::TYPE_LIBRARY) {
-            // Include all files and folders for the library
-            $properties['appdir.includes'] = array_diff(scandir($sourceFolder), array('.','..','deployment.properties'));
             $appDir = '';
         }
         $includeMap['appdir'] = $this->getAppPaths($appDir, $properties['appdir.includes']);

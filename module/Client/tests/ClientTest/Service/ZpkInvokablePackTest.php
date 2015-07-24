@@ -53,13 +53,17 @@ class ZpkInvokablePackTest extends ZpkTestCase
     {
         $this->zpkService->updateMeta($this->tempDir, array('type'=>'library'));
 
+        // Remove SubDir from the included directories
+        $propContent = file_get_contents($this->tempDir.'/deployment.properties');
+        $propContent = str_replace('SubDir,\\', 'public,\\', $propContent);
+        file_put_contents($this->tempDir.'/deployment.properties', $propContent);
+
         $zpkPath = $this->zpkService->pack($this->tempDir, $this->tempDir);
         $zpkFiles = $this->getZpkEntriesRecursively($zpkPath);
 
         $actual = array_keys($zpkFiles);
         $expected   = array(
             'deployment.xml',
-            'SubDir/SubSubDir/Test.php',
             '/EmptyDir/',
             'public/.htaccess',
             'composer.json',
