@@ -463,10 +463,10 @@ class ZpkInvokable
         if (in_array($localPath, $excludes)) {
             return;
         }
-        foreach ($excludedEndings as $exclude => $length) {
-            if (substr($localPath, -$length) === $exclude) {
-                return;
-            }
+
+        $parts = explode('/', trim($localPath, '/'));
+        if (in_array($parts[count($parts)-1], $excludedEndings)) {
+            return;
         }
 
         $fullPath = $sourceFolder.'/'.$localPath;

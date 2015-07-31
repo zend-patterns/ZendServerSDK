@@ -36,9 +36,11 @@ class ZpkInvokablePackTest extends ZpkTestCase
             'deployment.xml',
             'data/composer.json',
             'data/SubDir/SubSubDir/Test.php',
+            'data/module/FoderEndingWith.svn/content.txt',
             'data/EmptyDir/',
             'data/public/.htaccess',
             'data/public/index.php',
+            'data/module/fileEndingWith.svn',
             'data/module/Client/autoload_classmap.php',
             'scriptsdir/zend/scripts/pre_activate.php',
             'scriptsdir/zend/scripts/post_stage.php',
@@ -46,6 +48,8 @@ class ZpkInvokablePackTest extends ZpkTestCase
         );
 
         $this->assertEquals(array_diff($actual, $expected), array());
+        $this->assertEquals(array_diff($expected, $actual), array());
+
         $this->assertContains('data/EmptyDir/', $actual, 'Unable to find EmptyDir.');
     }
 
@@ -67,19 +71,17 @@ class ZpkInvokablePackTest extends ZpkTestCase
             '/EmptyDir/',
             'public/.htaccess',
             'composer.json',
+            'module/FoderEndingWith.svn/content.txt',
+            'module/fileEndingWith.svn',
             'module/Client/autoload_classmap.php',
             'public/index.php',
             'scriptsdir/zend/scripts/pre_activate.php',
             'scriptsdir/zend/scripts/post_stage.php',
             'scriptsdir/zend/pre_stage.php',
-            'scripts/pre_stage.php',
-            'scripts/post_stage.php',
-            'scripts/pre_activate.php',
-            'scripts1/pre_stage.php',
-            'scripts2/pre_stage.php',
         );
 
         $this->assertEquals(array_diff($actual, $expected), array());
+        $this->assertEquals(array_diff($expected, $actual), array());
         $this->assertContains('/EmptyDir/', $actual, 'Unable to find EmptyDir.');
     }
 
