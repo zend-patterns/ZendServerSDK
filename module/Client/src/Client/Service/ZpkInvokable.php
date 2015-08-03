@@ -351,11 +351,7 @@ class ZpkInvokable
                 $excludes = $properties[$type . '.excludes'];
             }
 
-            $excludedPatterns = array(
-                "**/.svn" => ".svn",
-                "**/.git" => ".git",
-                "**/.cvs" => ".cvs"
-            );
+            $excludedPatterns = array();
             $normalizedExclude = array();
             foreach ($excludes as $index => $exclude) {
                 $exclude = trim($exclude);
