@@ -700,7 +700,7 @@ class ZpkInvokable
                 $index ++;
             }
             $expression = $expression . ")";
-            return "/^(.*)(\\/|\\\\)" . $expression . "(.*)$/";
+            return "/^(.*)(\\/|\\\\)" . $expression . "((\\/|\\\\)(.*))?$/";
         }
         return "";
     }

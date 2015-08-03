@@ -41,9 +41,50 @@ class ZpkInvokablePackTest extends ZpkTestCase
             'data/public/.htaccess',
             'data/public/index.php',
             'data/module/fileEndingWith.svn',
+            'data/module/.svntobeincluded/content.txt',
             'data/module/Client/autoload_classmap.php',
             'scriptsdir/zend/scripts/pre_activate.php',
             'scriptsdir/zend/scripts/post_stage.php',
+            'scriptsdir/zend/pre_stage.php',
+        );
+
+        $this->assertEquals(array_diff($actual, $expected), array());
+        $this->assertEquals(array_diff($expected, $actual), array());
+
+        $this->assertContains('data/EmptyDir/', $actual, 'Unable to find EmptyDir.');
+    }
+
+    public function testProjectPackNoSvnExclusions()
+    {
+        //remove the **/.svn from the excluded properties
+        $propContent = file_get_contents($this->tempDir.'/deployment.properties');
+        $propContent = str_replace('**/.svn,', '', $propContent);
+        file_put_contents($this->tempDir.'/deployment.properties', $propContent);
+
+        $zpkPath = $this->zpkService->pack($this->tempDir, $this->tempDir);
+        $zpkFiles = $this->getZpkEntriesRecursively($zpkPath);
+
+        $actual = array_keys($zpkFiles);
+        $expected   = array(
+            'deployment.xml',
+            'data/composer.json',
+            'data/SubDir/.svn/NOT_IN_THE_PACKAGE',
+            'data/SubDir/SubSubDir/.svn/NOT_IN_THE_PACKAGE',
+            'data/SubDir/SubSubDir/Test.php',
+            'data/module/FolderEndingWith.svn/content.txt',
+            'data/module/FolderEndingWith.svn/.svn/NOT_IN_THE_PACKAGE',
+            'data/module/.svn/NOT_IN_THE_PACKAGE',
+            'data/EmptyDir/',
+            'data/public/.htaccess',
+            'data/public/index.php',
+            'data/public/.svn/NOT_IN_THE_PACKAGE',
+            'data/module/fileEndingWith.svn',
+            'data/module/.svntobeincluded/content.txt',
+            'data/module/Client/autoload_classmap.php',
+            'data/module/Client/.svn/NOT_IN_THE_PACKAGE',
+            'scriptsdir/zend/scripts/pre_activate.php',
+            'scriptsdir/zend/scripts/post_stage.php',
+            'scriptsdir/zend/scripts/.svn/NOT_IN_THE_PACKAGE',
             'scriptsdir/zend/pre_stage.php',
         );
 
@@ -73,6 +114,7 @@ class ZpkInvokablePackTest extends ZpkTestCase
             'composer.json',
             'module/FolderEndingWith.svn/content.txt',
             'module/fileEndingWith.svn',
+            'module/.svntobeincluded/content.txt',
             'module/Client/autoload_classmap.php',
             'public/index.php',
             'scriptsdir/zend/scripts/pre_activate.php',
