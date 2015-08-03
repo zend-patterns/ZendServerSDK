@@ -220,21 +220,26 @@ class ZpkInvokable
      *
      * @param string $sourceFolder
      */
-    public function create($sourceFolder, array $updates = null, array $properties = null)
+    public function create($sourceFolder, array $updates = null,
+        array $properties = null)
     {
         if (file_exists($sourceFolder . "/deployment.xml")) {
-            error_log('WARNING: The specified directory already has deployment.xml.');
+            error_log('WARNING: The specified directory already has
+                deployment.xml.');
 
             return false;
         }
 
         if (! is_dir($sourceFolder)) {
-            throw new RuntimeException('The source folder parameter must be real directory.');
+            throw new RuntimeException('The source folder parameter must be a
+                real directory.');
         }
 
         ErrorHandler::start();
-        copy(__DIR__ . '/../../../config/zpk/deployment.xml', $sourceFolder . "/deployment.xml");
-        copy(__DIR__ . '/../../../config/zpk/deployment.properties', $sourceFolder . "/deployment.properties");
+        copy(__DIR__ . '/../../../config/zpk/deployment.xml',
+            $sourceFolder . "/deployment.xml");
+        copy(__DIR__ . '/../../../config/zpk/deployment.properties',
+            $sourceFolder . "/deployment.properties");
         if ($updates !== null) {
             $file = $sourceFolder . "/deployment.xml";
             $content = $this->updateXML($file, $updates);
@@ -260,14 +265,17 @@ class ZpkInvokable
      *
      * @return string path to the created zpk
      */
-    public function pack($sourceFolder, $destinationFolder = ".", $fileName = null, array $extraProperties = null, $customVersion = "")
+    public function pack($sourceFolder, $destinationFolder = ".",
+        $fileName = null, array $extraProperties = null, $customVersion = "")
     {
         if (! file_exists($sourceFolder . "/deployment.xml")) {
-            throw new RuntimeException('The specified directory does not have deployment.xml.');
+            throw new RuntimeException('The specified directory does not have
+                deployment.xml.');
         }
 
         // get the current meta information
-        $xml = new \SimpleXMLElement(file_get_contents($sourceFolder . "/deployment.xml"));
+        $xml = new \SimpleXMLElement(file_get_contents($sourceFolder .
+            "/deployment.xml"));
         $name = sprintf("%s", $xml->name);
         $version = sprintf("%s", $xml->version->release);
         $appDir = trim(sprintf("%s", $xml->appdir));
@@ -279,12 +287,15 @@ class ZpkInvokable
             $version = $customVersion;
             $xml->version->release = $version;
             $xml->asXML($sourceFolder . "/deployment.xml");
-            $fixedContent = $this->updateXML($sourceFolder . "/deployment.xml", array());
+            $fixedContent = $this->updateXML($sourceFolder . "/deployment.xml",
+                array());
             if ($fixedContent) {
-                file_put_contents($sourceFolder . "/deployment.xml", $fixedContent);
+                file_put_contents($sourceFolder . "/deployment.xml",
+                    $fixedContent);
             }
         }
-        $properties = $this->getProperties($sourceFolder . "/deployment.properties");
+        $properties = $this->getProperties($sourceFolder .
+            "/deployment.properties");
         if ($extraProperties !== null) {
             $properties = array_merge_recursive($properties, $extraProperties);
             foreach ($properties as $key => $value) {
@@ -306,7 +317,9 @@ class ZpkInvokable
         $ext = new \ReflectionExtension('zip');
         $zipVersion = $ext->getVersion();
         if (! version_compare($zipVersion, '1.11.0', '>=')) {
-            error_log("WARNING: Non-Ascii file/folder names are supported only with PHP zip extension >=1.11.0 (your version is: $zipVersion)\n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
+            error_log("WARNING: Non-Ascii file/folder names are supported only
+                with PHP zip extension >=1.11.0 (your version is: $zipVersion)
+                \n\t(http://pecl.php.net/package-changelog.php?package=zip&release=1.11.0)");
         }
 
         $zpk = new \ZipArchive();
@@ -322,11 +335,13 @@ class ZpkInvokable
         if ($type == self::TYPE_LIBRARY) {
             $appDir = '';
         }
-        $includeMap['appdir'] = $this->getAppPaths($appDir, $properties['appdir.includes']);
+        $includeMap['appdir'] = $this->getAppPaths($appDir,
+            $properties['appdir.includes']);
 
         // get script paths
         if (! empty($scriptsDir) && isset($properties['scriptsdir.includes'])) {
-            $includeMap['scriptsdir'] = $this->getScriptPaths($scriptsDir, $properties['scriptsdir.includes'], $sourceFolder);
+            $includeMap['scriptsdir'] = $this->getScriptPaths($scriptsDir,
+                $properties['scriptsdir.includes'], $sourceFolder);
         }
 
         ErrorHandler::start();
@@ -336,7 +351,6 @@ class ZpkInvokable
                 $excludes = $properties[$type . '.excludes'];
             }
 
-            // according to the docs, these should be the default exclusion patterns
             $excludedPatterns = array(
                 "**/.svn" => ".svn",
                 "**/.git" => ".git",
@@ -346,25 +360,27 @@ class ZpkInvokable
             foreach ($excludes as $index => $exclude) {
                 $exclude = trim($exclude);
                 $exclude = rtrim($exclude, '/'); // no trailing slashes
-                if (strlen($exclude) == 0) {}                 // if it is a pattern (**/something)
-                else
+                if (strlen($exclude) == 0) {} else
                     if (preg_match("/^\*\*\/(.*?)$/", $exclude, $matches)) {
                         $excludedPatterns[$exclude] = $matches[1];
                         unset($excludes[$index]);
                     } else {
-                        $normalizedExclude[$index] = $this->normalizePath($exclude);
+                        $normalizedExclude[$index] =
+                        $this->normalizePath($exclude);
                     }
             }
             $excludes = $normalizedExclude;
-            // doing some work in order to create a single regex that includes all the patterns
-            $excludedExpression = $this->createRegexExpression($excludedPatterns);
+            $excludedExpression =
+                $this->createRegexExpression($excludedPatterns);
             foreach ($paths as $localPath => $zpkPath) {
-                $this->addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes, $excludedExpression);
+                $this->addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath,
+                    $excludes, $excludedExpression);
             }
         }
 
         if (! $zpk->close()) {
-            throw new RuntimeException('Failed creating zpk file: ' . $outZipPath . ". " . $zpk->getStatusString());
+            throw new RuntimeException('Failed creating zpk file: '
+                . $outZipPath . ". " . $zpk->getStatusString());
         }
         ErrorHandler::stop(true);
 
@@ -430,8 +446,9 @@ class ZpkInvokable
      * @param string $path
      *            path to start looking for files
      * @param string $baseDir
-     *            if this is set then it will be prepended to the path during search,
-     *            but it will not be included in the returned list of files
+     *            if this is set then it will be prepended to the path during
+     *            search, but it will not be included in the returned list
+     *            of files
      * @return array list of files
      */
     private function getFilesOnly($path, $baseDir = '')
@@ -449,7 +466,10 @@ class ZpkInvokable
         }
 
         $files = array();
-        $paths = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+        $paths = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path,
+                RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST);
 
         foreach ($paths as $pathInfo) {
             if (! $pathInfo->isFile()) {
@@ -482,14 +502,13 @@ class ZpkInvokable
      * @param string $baseDir
      * @param string $excludedExpression
      */
-    protected function addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath, $excludes = array(), $excludedExpression = null)
+    protected function addPathToZpk($zpk, $sourceFolder, $localPath, $zpkPath,
+        $excludes = array(), $excludedExpression = null)
     {
         $localPath = $this->normalizePath($localPath);
-        // compare the whole path with the excluded expression
         if (in_array($localPath, $excludes)) {
             return;
         }
-        // matches if the local path contains the expression that should be excluded
         if ($excludedExpression) {
             if (preg_match($excludedExpression, $localPath)) {
                 return;
@@ -500,13 +519,15 @@ class ZpkInvokable
         if (is_file($fullPath)) {
             $success = $zpk->addFile($fullPath, $this->fixZipPath($zpkPath));
             if (! $success) {
-                throw new RuntimeException("Path '$fullPath' cannot be added to zpk");
+                throw new RuntimeException("Path '$fullPath'
+                    cannot be added to zpk");
             }
             return;
         }
 
         if (! is_dir($fullPath)) {
-            throw new RuntimeException("Path '$fullPath' does not exist. Verify your deployment.properties!");
+            throw new RuntimeException("Path '$fullPath' does not exist.
+                Verify your deployment.properties!");
         }
 
         // we are dealing with directories
@@ -520,6 +541,12 @@ class ZpkInvokable
                 unset($entries[$idx]);
                 continue;
             }
+
+            foreach ($excludes as $exclude => $length) {
+                if ($name === $exclude) {
+                    unset($entries[$idx]);
+                }
+            }
         }
         if (count($entries) == 0) {
             $zpk->addEmptyDir($zpkPath);
@@ -527,7 +554,8 @@ class ZpkInvokable
         }
 
         foreach ($entries as $name) {
-            $this->addPathToZpk($zpk, $sourceFolder, $localPath . '/' . $name, $zpkPath . '/' . $name, $excludes, $excludedExpression);
+            $this->addPathToZpk($zpk, $sourceFolder, $localPath . '/' . $name,
+                $zpkPath . '/' . $name, $excludes, $excludedExpression);
         }
     }
 
@@ -658,7 +686,7 @@ class ZpkInvokable
 
     /**
      * Creates a regular expression to be matched if \*\*\/<something> pattern
-     * (or patterns) was defined on apddirs.exclude or scriptsdir.exclude.
+     * was defined on apddirs.exclude or scriptsdir.exclude.
      *
      * @param array $excludedPatterns
      *            The array with patterns

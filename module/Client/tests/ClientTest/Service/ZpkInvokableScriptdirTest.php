@@ -13,19 +13,20 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
     {
         parent::setUp();
 
+        //if DIRECTORY_SEPARATOR is not used, the test does not work on windows
         $this->includes = array(
-            'dir1/test1.php',
+            'dir1' . DIRECTORY_SEPARATOR .  'test1.php',
             'dir2',
-            'dir2/test1.php',
-            'dir2/test2.php',
+            'dir2' . DIRECTORY_SEPARATOR .  'test1.php',
+            'dir2' . DIRECTORY_SEPARATOR .  'test2.php',
         );
 
         foreach ($this->includes as $include) {
-            $fullPath = $this->tempDir.'/'.$include;
+            $fullPath = $this->tempDir . '/' . $include;
             if (preg_match("/\.php$/", $include)) {
                 $dir = dirname($include);
-                if ($dir && !file_exists($this->tempDir.'/'.$dir)) {
-                    mkdir($this->tempDir.'/'.$dir);
+                if ($dir && !file_exists($this->tempDir . '/' . $dir)) {
+                    mkdir($this->tempDir . '/' . $dir);
                 }
                 touch($fullPath);
                 continue;
@@ -43,7 +44,7 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
         $scriptsDir = 'scripts';
         $includes = array($this->includes[0]);
         $expected   = array(
-            $this->includes[0] => $scriptsDir.'/'.basename($this->includes[0])
+            $this->includes[0] => $scriptsDir . '/' .basename($this->includes[0])
         );
 
         $actual = $this->zpkService->getScriptPaths($scriptsDir,
@@ -60,8 +61,8 @@ class ZpkInvokableScriptdirTest extends ZpkTestCase
             $this->includes[1]
         );
         $expected   = array(
-            $this->includes[2] => $scriptsDir.'/'.basename($this->includes[2]),
-            $this->includes[3] => $scriptsDir.'/'.basename($this->includes[3]),
+            $this->includes[2] => $scriptsDir . '/' . basename($this->includes[2]),
+            $this->includes[3] => $scriptsDir . '/' . basename($this->includes[3]),
         );
 
         $actual = $this->zpkService->getScriptPaths($scriptsDir,
