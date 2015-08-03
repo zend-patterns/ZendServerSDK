@@ -11,7 +11,6 @@ use Zend\Console\Exception\RuntimeException;
  */
 class ZpkInvokable
 {
-
     const TYPE_LIBRARY = 'library';
 
     protected static $keyOrder;
@@ -356,7 +355,7 @@ class ZpkInvokable
             foreach ($excludes as $index => $exclude) {
                 $exclude = trim($exclude);
                 $exclude = rtrim($exclude, '/'); // no trailing slashes
-                if (strlen($exclude) == 0) {} else
+                if (strlen($exclude) > 0) {
                     if (preg_match("/^\*\*\/(.*?)$/", $exclude, $matches)) {
                         $excludedPatterns[$exclude] = $matches[1];
                         unset($excludes[$index]);
@@ -364,6 +363,7 @@ class ZpkInvokable
                         $normalizedExclude[$index] =
                         $this->normalizePath($exclude);
                     }
+                }
             }
             $excludes = $normalizedExclude;
             $excludedExpression =
