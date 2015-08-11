@@ -7,6 +7,7 @@ return array(
                         'webapi-app-controller' => 'Client\Controller\AppController',
                         'webapi-api-controller' => 'Client\Controller\ApiController',
                         'webapi-lib-controller' => 'Client\Controller\LibController',
+                        'webapi-plugin-controller' => 'Client\Controller\PluginController',
                         'client-update-controller' => 'Client\Controller\UpdateController',
                         'client-manual-controller' => 'Client\Controller\ManualController',
                  )
@@ -327,7 +328,73 @@ return array(
                                                 'Run this command to get the bash file needed for auto-completion',
                                         ),
                                 ),
-                            )
+                            ),
+
+                            'initPlugin' => array(
+                                'options' => array(
+                                    'route' => 'initPlugin [--folder=]',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-plugin-controller',
+                                        'action' => 'init',
+                                        'folder' => '.',
+                                    ),
+                                    'info' => array(
+                                        'Creates new plugin skeleton',
+                                        array('--folder','Folder where the source code will be located')
+                                    ),
+                                    'files' => array(
+                                        'folder'
+                                    ),
+                                    'no-target' => true,
+                                    'group' => 'plugins'
+                                ),
+                            ),
+                            'packPlugin'   => array(
+                                'options' => array(
+                                    'route' => 'packPlugin [--folder=] [--destination=] [--name=]',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-plugin-controller',
+                                        'action' => 'pack',
+                                        'folder' => '.',
+                                        'destination' => '.',
+                                    ),
+                                    'info' => array(
+                                        'Creates a ZIP plugin package from the code in `folder`',
+                                        array('--folder','Folder where the source code is located'),
+                                        array('--destination','Folder in which to save the created ZIP file'),
+                                        array('--name','The name of the plugin. If not provided the name will be constructed from the name of the application and its version.'),
+                                    ),
+                                    'files' => array(
+                                        'folder', 'destination'
+                                    ),
+                                    'no-target' => true,
+                                    'group' => 'plugins'
+                                ),
+                            ),
+                            'installPlugin' => array(
+                                'options' => array(
+                                    'route' => 'installPlugin --pluginPackage= [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=] [--wait]',
+                                    'defaults' => array(
+                                        'controller' => 'webapi-plugin-controller',
+                                        'action' => 'install'
+                                    ),
+                                    'group'=>'high-level',
+                                    'async' => true,
+                                    'info' => array(
+                                        'This command installs or updates a plugin',
+                                        array('--pluginPackage', 'The package file'),
+                                        array('--http', 'Allows you to set http connection parameters'),
+                                        array('--wait', 'If this option is present then the client will wait until the operation finishes successfully on all servers.'.
+                                            'By default this option is not present which means that the client will return results and exit as soon as the server has reported that it started to handle the task.'),
+                                    ),
+                                    'arrays' => array(
+                                        'http'
+                                    ),
+                                    'files' => array(
+                                        'pluginPackage',
+                                    )
+                                )
+                            ),
                         ),
                 )
         ),
