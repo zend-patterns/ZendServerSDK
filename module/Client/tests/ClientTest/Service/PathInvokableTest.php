@@ -25,6 +25,7 @@ class PathInvokableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->pathService->getAbsolute('tmp/a/b'), getcwd().'/tmp/a/b');
 
         $this->pathService->setWindows(true);
+        //only this test passes on windows, the two above and the other below don't.
         $this->assertEquals($this->pathService->getAbsolute('E:\\tmp'), 'E:\\tmp');
         $this->assertEquals($this->pathService->getAbsolute('tmp\\'), getcwd().DIRECTORY_SEPARATOR.'tmp\\');
     }

@@ -67,7 +67,7 @@ class TargetController extends AbstractActionController
         $data = $this->getTargetService()->load();
 
         if (!isset($data[$target])) {
-            throw new \Zend\Console\Exception\RuntimeException("Target '$target' is not existing!");
+            throw new \Zend\Console\Exception\RuntimeException("Target '$target' does not exist!");
         }
 
         foreach (array('zsurl','zskey','zssecret', 'zsversion') as $key) {
