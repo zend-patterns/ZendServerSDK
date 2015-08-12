@@ -218,7 +218,7 @@ class ZpkInvokable
         }
 
         if (!is_dir($sourceFolder)) {
-            throw new RuntimeException('The source folder parameter must be real directory.');
+            throw new RuntimeException('The source folder parameter must be a real directory.');
         }
 
         ErrorHandler::start();
@@ -479,7 +479,7 @@ class ZpkInvokable
         }
 
         if (!is_dir($fullPath)) {
-            throw new RuntimeException("Path '$fullPath' is not existing. Verify your deployment.properties!");
+            throw new RuntimeException("Path '$fullPath' does not exist. Verify your deployment.properties!");
         }
 
         // we are dealing with directories

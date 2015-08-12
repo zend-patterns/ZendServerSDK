@@ -108,7 +108,7 @@ class AppController extends AbstractActionController
 
         $status = (string)$xml->responseData->applicationsList->applicationInfo->status;
         if (stripos($status, 'error')!==false) {
-            throw new \Exception(sprintf("Got error '%s' during deployment.\nThe followin error message is reported from the server:\n%s", $status, $xml->responseData->applicationsList->applicationInfo->messageList->error));
+            throw new \Exception(sprintf("Got error '%s' during deployment.\nThe following error message is reported from the server:\n%s", $status, $xml->responseData->applicationsList->applicationInfo->messageList->error));
         }
 
         if ($status !='deployed') {
