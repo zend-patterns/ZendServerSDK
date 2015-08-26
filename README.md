@@ -282,7 +282,17 @@ application or part of the deployment scripts.
 Read [this document](https://github.com/zendtech/zendserver-sdk-java/wiki/Deployment-Properties-File) for more information.
 Make sure to read about the way [scriptsdir.includes](https://github.com/zend-patterns/ZendServerSDK/issues/60) values are processed.  
 
+For application excludes we support following wildcard syntax:
 
+* `**/{something}` - will exclude all entries that have base name {something}, 
+  no matter if they are files or folders, 
+  Example: **/.svn excludes all folders and files with the name `.svn`. This is true
+  for `/.svn`, `public/.svn` or `module/folder-with-file/.svn`. 
+  If the entry is folder then the content of that folder and sub-folders will be excluded too.
+* `*{something}` - will exclude all entries ending with {something} in their name.
+   Example: `*.fla`  will exclude all files ending with `.fla`, like  `video.fla`.
+   or directories, like `more.fla`.
+   
 Feedback
 ========
 For questions and feedback write to slavey (at) zend DOT com.
