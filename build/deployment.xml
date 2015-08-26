@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package version="2.0" xmlns="http://www.zend.com/server/deployment-descriptor/1.0">
+  <type>library</type>
+  <name>ZendServerSDK</name>
+  <summary>Pure ZF2 CLI for zpk creation and webapi client</summary>
+  <description>Pure ZF2 CLI for zpk creation and webapi client</description>
+  <version>
+    <release>#VERSION#</release>
+  </version>
+  <eula>LICENSE.txt</eula>
+  <libdir>library</libdir>
+  <updateurl>http://downloads.zend.com/zend-server-sdk/zend-server-sdk.json</updateurl>
+   <dependencies>
+    <required>
+		<php>
+			<min>5.3.3</min>
+		</php>
+    </required>
+  </dependencies>  
+</package>
