@@ -1,3 +1,17 @@
+Table of Contents
+=================
+- [Intro](#intro)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [Usage](#usage)
+- [Use Cases](#use-cases)
+- [HTTP tuning](#http-tuning)
+- [Output formats](#output-formats)
+- [Providing array values](#providing-array-values)
+- [Deployment properties syntax](#deployment-properties-syntax)
+- [Feedback](#feedback)
+
 Intro
 ====
 ZendServerSDK, aka zs-client, is a command line application that communicates with
