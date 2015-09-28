@@ -31,7 +31,7 @@ class TargetController extends AbstractActionController
         }
 
         $data[$target] = array();
-        foreach (array('zsurl','zskey','zssecret', 'zsversion') as $key) {
+        foreach (array('zsurl', 'zskey', 'zssecret', 'zsversion') as $key) {
             $value = $this->getRequest()->getParam($key);
             if ($value) {
                 $data[$target][$key] = $value;
@@ -70,7 +70,7 @@ class TargetController extends AbstractActionController
             throw new \Zend\Console\Exception\RuntimeException("Target '$target' does not exist!");
         }
 
-        foreach (array('zsurl','zskey','zssecret', 'zsversion') as $key) {
+        foreach (array('zsurl', 'zskey', 'zssecret', 'zsversion') as $key) {
             $value = $this->getRequest()->getParam($key);
             if ($value) {
                 $data[$target][$key] = $value;

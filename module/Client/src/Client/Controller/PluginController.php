@@ -136,7 +136,7 @@ class PluginController extends AbstractActionController
 
         if ($wait) {
             $xml = new \SimpleXMLElement($response->getBody());
-            $this->repeater()->doUntil(array($this,'onWaitInstall'),
+            $this->repeater()->doUntil(array($this, 'onWaitInstall'),
                                                    array('pluginId'=> (string)$xml->responseData->plugin->id)
                                                   );
         }

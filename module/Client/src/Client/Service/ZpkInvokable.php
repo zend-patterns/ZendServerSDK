@@ -499,7 +499,7 @@ class ZpkInvokable
         $entries = scandir($fullPath);
         // filter entries
         foreach ($entries as $idx => $name) {
-            if (in_array($name, array('.','..'))) {
+            if (in_array($name, array('.', '..'))) {
                 unset($entries[$idx]);
                 continue;
             }

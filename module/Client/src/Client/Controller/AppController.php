@@ -86,7 +86,7 @@ class AppController extends AbstractActionController
         }
 
         if ($wait) {
-            $response = $this->repeater()->doUntil(array($this,'onWaitInstall'), array('appId'=>sprintf("%s", $appId)));
+            $response = $this->repeater()->doUntil(array($this, 'onWaitInstall'), array('appId'=>sprintf("%s", $appId)));
         }
 
         return $response;

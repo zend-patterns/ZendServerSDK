@@ -169,7 +169,7 @@ class ZpkController extends AbstractActionController
                         error_log('WARNING: If you have user parameters then you have to use --composer-dist-files to point to the YAML dist files.');
                     } else {
                         // Read the parameters from composer-dist-files are specified it gets the parameters from them and puts them as zpk parameters (with default values)
-                        $yaml = new YamlReader(array('Spyc','YAMLLoadString'));
+                        $yaml = new YamlReader(array('Spyc', 'YAMLLoadString'));
                         foreach ($distFiles as $file) {
                             $data = $yaml->fromFile($file);
                             $userParams = array_merge($userParams, $data['parameters']);

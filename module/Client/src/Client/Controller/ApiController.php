@@ -95,7 +95,7 @@ class ApiController extends DefaultApiController
             $keyService = $this->getServiceLocator()->get('defaultApiKey');
             $keyService->setName($name);
             $keyService->setKey($key);
-            $this->repeater()->doUntil(array($this,'onWaitBootstrapSingleServer'));
+            $this->repeater()->doUntil(array($this, 'onWaitBootstrapSingleServer'));
         }
 
         return $response;
@@ -106,7 +106,7 @@ class ApiController extends DefaultApiController
     {
         // check if the cluster DB is up and ready to be used
         if ($this->params('wait-db')) {
-            $this->repeater()->doUntil(array($this,'onWaitClusterDb'),
+            $this->repeater()->doUntil(array($this, 'onWaitClusterDb'),
                                        array(
                                            'dbHost'=>$args['dbHost'],
                                            'dbUsername'=>$args['dbUsername'],
@@ -128,7 +128,7 @@ class ApiController extends DefaultApiController
             $keyService->setName(sprintf("%s", $response->responseData->clusterAdminKey->name));
             $keyService->setKey(sprintf("%s", $response->responseData->clusterAdminKey->hash));
             $serverId = sprintf("%d", $response->responseData->serverInfo->id);
-            $this->repeater()->doUntil(array($this,'onWaitServerAddToCluster'), array('serverId'=>$serverId));
+            $this->repeater()->doUntil(array($this, 'onWaitServerAddToCluster'), array('serverId'=>$serverId));
         }
 
         return $response;
@@ -147,7 +147,7 @@ class ApiController extends DefaultApiController
         $response = $this->sendApiRequest($args);
 
         if ($wait) {
-            $this->repeater()->doUntil(array($this,'onWaitClusterRemoveServer'),
+            $this->repeater()->doUntil(array($this, 'onWaitClusterRemoveServer'),
                                                    array(
                                                         'serverCount'=> $serverCount
                                                     ));
