@@ -504,6 +504,11 @@ class ZpkInvokable
                 continue;
             }
 
+            if (in_array($localPath.'/'.$name, $excludes)) {
+                unset($entries[$idx]);
+                continue;
+            }
+
             foreach ($excludedEndings as $exclude => $length) {
                 if ($name === $exclude) {
                     unset($entries[$idx]);
