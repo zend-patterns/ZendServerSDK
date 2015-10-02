@@ -1,4 +1,5 @@
 <?php
+
 namespace Client;
 
 use Zend\Stdlib\ArrayUtils;
@@ -10,7 +11,7 @@ abstract class Utils
      * This one does not replace dots and spaces in key name with underscores.
      *
      * @param string $string
-     * @param array $data
+     * @param array  $data
      */
     public static function parseString($string, &$data, $delimiter = '&')
     {
@@ -31,5 +32,38 @@ abstract class Utils
                 $data[$k] = $v;
             }
         }
+    }
+
+    /**
+     * Represents an array as key value pairs.
+     *
+     * @param array  $items
+     * @param string $nested
+     * @param string $prefix
+     *
+     * @return string
+     */
+    public static function array2KV(array $items, $nested = false, $prefix = '')
+    {
+        $output = '';
+        foreach ($items as $k => $v) {
+            if ($nested) {
+                $k = "[{$k}]";
+            }
+            $k = $prefix.$k;
+            if (is_scalar($v)) {
+                $output .= "$k=$v\n";
+            } elseif (is_array($v)) {
+                foreach ($v as $k1 => $v1) {
+                    if (is_scalar($v1)) {
+                        $output .= $k.'['.$k1."]=$v1\n";
+                    } elseif (is_array($v1)) {
+                        $output .= self::array2KV($v1, true, $k.'['.$k1.']');
+                    }
+                }
+            }
+        }
+
+        return $output;
     }
 }

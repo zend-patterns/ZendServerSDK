@@ -224,17 +224,7 @@ EOT;
             $content = $response->getContent();
             $data = json_decode($content, true);
             if (isset($data['responseData'])) {
-                $responseData = $data['responseData'];
-                $rootKey = key($responseData);
-                foreach ($responseData[$rootKey] as $k=>$v) {
-                    if (is_scalar($v)) {
-                        $output .= "$k=$v\n";
-                    } elseif (is_array($v)) {
-                        foreach ($v as $k1=>$v1) {
-                            $output .= $k."[".$k1."]=$v1\n";
-                        }
-                    }
-                }
+                $output = Utils::array2KV($data['responseData']);
             }
 
             $response->setContent($output);
