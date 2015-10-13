@@ -31,7 +31,7 @@ class PathInvokable
             ($isWindows && !preg_match("/^[a-z]:\\\/i", $path))
         ) { // if we have relative path
             $cwd = $this->getCwd();
-            $path = $cwd.'/'.$path;
+            $path = $cwd.DIRECTORY_SEPARATOR.$path;
         }
 
         $finalPath = realpath($path);
