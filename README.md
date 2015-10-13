@@ -36,9 +36,9 @@ wget https://github.com/zend-patterns/ZendServerSDK/raw/master/bin/zs-client.pha
 
 Contributing
 ===========
-[![Build Status](https://travis-ci.org/zend-patterns/ZendServerSDK.svg?branch=master)](https://travis-ci.org/zend-patterns/ZendServerSDK)
-If you wish to contribute to the project, please read the 
-[CONTRIBUTING.md](CONTRIBUTING.md) file.
+Linux: [![Build Status](https://travis-ci.org/zend-patterns/ZendServerSDK.svg?branch=master)](https://travis-ci.org/zend-patterns/ZendServerSDK)  and Windows: [![Build status](https://ci.appveyor.com/api/projects/status/5i47sts7w9w6opua?svg=true)](https://ci.appveyor.com/project/slaff/zendserversdk)
+
+If you wish to contribute to the project, please read the [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 Usage
 ============
