@@ -119,10 +119,11 @@ return array(
                             ),
                             'installApp' => array(
                                 'options' => array(
-                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=] [--wait]',
+                                    'route' => 'installApp --zpk= --baseUri= [--userParams=] [--userAppName=] [--createVhost=] [--defaultServer=] [--ignoreFailures=] [--target=] [--zsurl=] [--zskey=] [--zssecret=] [--zsversion=] [--http=] [--wait] [--safe]',
                                     'defaults' => array(
                                         'controller' => 'webapi-app-controller',
-                                        'action' => 'install'
+                                        'action' => 'install',
+                                        'safe'   => false,
                                     ),
                                     'group'=>'high-level',
                                     'async' => true,
@@ -146,6 +147,7 @@ return array(
                                         array('--http', 'Allows you to set http connection parameters'),
                                         array('--wait', 'If this option is present then the client will wait until the operation finishes successfully on all servers.'.
                                                         'By default this option is not present which means that the client will return results and exit as soon as the server has reported that it started to handle the task.'),
+                                        array('--safe', 'Deploys the application only when there is not current deployment running for this application'),
                                     ),
                                     'arrays' => array(
                                         'userParams',

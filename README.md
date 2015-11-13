@@ -154,6 +154,27 @@ php bin/zs-client.phar installApp --zpk="<location-of-the-zpk-file>" \
                                  --baseUri="<baseUri>" \
                                  --userParams="APPLICATION_ENV=staging&DB_TYPE=mysql"
 ```
+
+#### Safe Package Deployment ####
+If you deploy a new version of your zpk if the old version is still being deployed then 
+this can lead to unpredictable results. In order to prevent this you can use the `--safe` flag.
+If it is present zs-client will check if there is a current deployment going on for this app
+and will exit if that is the case. 
+
+Example:
+```
+php bin/zs-client.phar installApp --zpk="<location-of-the-zpk-file>" --safe ...
+```
+
+If you want to be safe AND want to wait for the previous deployment to finish then 
+you can use the --safe and --wait flags together.  
+
+Example:
+```
+php bin/zs-client.phar installApp --zpk="<location-of-the-zpk-file>" --safe --wait ...
+```
+
+
 #### Deploy Multiple Packages
 If you use the composer integration then packZpk can create multiple packages, instead of one. Below is a suggestion how you can
 deploy these newly created packages in the correct order.
