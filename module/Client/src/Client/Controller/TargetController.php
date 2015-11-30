@@ -27,7 +27,7 @@ class TargetController extends AbstractActionController
         $data = array();
         try {
             $data = $this->getTargetService()->load();
-        } catch (ConfigException $ex) {
+        } catch (ConfigException\RuntimeException $ex) {
         }
 
         $data[$target] = array();
