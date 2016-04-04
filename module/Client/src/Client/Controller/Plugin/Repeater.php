@@ -5,7 +5,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
 class Repeater extends AbstractPlugin
 {
-    public function doUntil($callback, array $params=array(), $maxWait=180, $sleep=2)
+    public function doUntil($callback, array $params=array(), $maxWait=1800, $sleep=2)
     {
         $start = time();
         while (true) {
