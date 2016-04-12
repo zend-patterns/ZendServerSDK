@@ -33,7 +33,6 @@
 		"phpunit/phpunit" : "4.1.*",
 		"fabpot/php-cs-fixer": "1.10.*",
 		"zendframework/zendframework" : "~2.4",
-		"satooshi/php-coveralls": "dev-master",
 		"phpunit/phpcov": "2.0.*"
 	},
 	"autoload" : {
