@@ -24,6 +24,7 @@ git clone $APP_BASE_DIR
 cd ZendServerSDK/
 git checkout $BRANCH
 wget http://getcomposer.org/composer.phar
+php composer.phar global require fxp/composer-asset-plugin --no-plugins
 php composer.phar install --no-dev
 # Update the library to the latest git version from master
 (cd vendor/zenddevops/webapi/; git pull origin master)
