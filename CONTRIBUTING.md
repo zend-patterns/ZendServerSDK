@@ -90,7 +90,7 @@ php bin/create-phar.php
 The generated file should be saved under bin/zs-client.phar. You can copy it
 and use it without the need to have the other PHP files.
 
-## CONTIBUTE NEW CODE
+## CONTRIBUTE NEW CODE
 If you want to contribute new changes to the code the fastest way will be to [fork](https://github.com/zend-patterns/ZendServerSDK/#fork-destination-box) our 
 repository then make the changes in the fork and create a [pull request](https://help.github.com/articles/using-pull-requests/). 
 
