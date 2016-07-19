@@ -193,6 +193,23 @@ EOT;
             }
             $targetConfig[$key] = $match->getParam($key);
         }
+        
+        // Check if there is a port set in the URL and if not set a default one
+        $url = parse_url($targetConfig['zsurl']);
+        if (!isset($url['port'])) {
+            if (strtolower($url['scheme']) == "https") {
+                $url['port'] = 10082;
+            } else {
+                $url['port'] = 10081;
+            }
+        
+            error_log(sprintf("NOTICE: zsurl parameter does not specify port. Using default port %d.",
+                $url['port']));
+        
+            $targetConfig['zsurl'] = sprintf("%s://%s:%s%s%",
+                $url['scheme'], $url['host'], $url['port'], $url['path'],
+                (isset($url['query'])? '?'.$url['query']: ''));
+        }
 
         $outputFormat = $match->getParam('output-format', 'xml');
         if ($outputFormat =='kv') {
