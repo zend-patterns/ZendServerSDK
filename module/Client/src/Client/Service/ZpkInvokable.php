@@ -472,7 +472,7 @@ class ZpkInvokable
         }
 
         $parts = explode('/', trim($localPath, '/'));
-        if (in_array($parts[count($parts)-1], $excludedEndings)) {
+        if (in_array($parts[count($parts)-1], array_keys($excludedEndings))) {
             return;
         }
 
