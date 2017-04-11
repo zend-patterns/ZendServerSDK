@@ -30,7 +30,7 @@ platform: Any CPU
 # Install scripts
 install:
   ## Set PHP.
-  - cinst php
+  - choco install -y php
   - SET PATH=C:\tools\php\;%PATH%
   - cd C:\tools\php
   - copy php.ini-production php.ini
