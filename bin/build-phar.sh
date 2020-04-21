@@ -28,6 +28,8 @@ php composer.phar global require fxp/composer-asset-plugin --no-plugins
 php composer.phar install --no-dev
 # Update the library to the latest git version from master
 (cd vendor/zenddevops/webapi/; git pull origin master)
+# Manually fix the zend-stdlib issue
+(cd vendor/zendframework/zend-stdlib/; git apply ../../../.patches/zend-stdlib.patch)
 php -d phar.readonly=0 bin/create-phar.php 
 
 read -p "Do you want to commit-n-push the newly compiled phar file (Y/n)?" RESULT

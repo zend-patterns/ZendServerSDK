@@ -1,0 +1,13 @@
+diff --git a/src/ArrayObject.php b/src/ArrayObject.php
+index e890084..1e93ba0 100644
+--- a/src/ArrayObject.php
++++ b/src/ArrayObject.php
+@@ -423,7 +423,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
+                     $this->setIteratorClass($v);
+                     break;
+                 case 'protectedProperties':
+-                    continue;
++                    break;
+                 default:
+                     $this->__set($k, $v);
+             }
