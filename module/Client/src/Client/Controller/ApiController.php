@@ -79,11 +79,8 @@ class ApiController extends DefaultApiController
 
         $response = $this->sendApiRequest($args);
         $data = $response->responseData->bootstrap;
-        $content = '';
-        if (sprintf('%s', $data->success) == "true") {
-            $name = sprintf("%s", $data->apiKey->name);
-            $key = sprintf("%s", $data->apiKey->hash);
-        }
+        $name = sprintf("%s", $data->apiKey->name);
+        $key = sprintf("%s", $data->apiKey->hash);
 
         if (isset($args['simple-output'])) {
             $response = new Response();
@@ -91,7 +88,7 @@ class ApiController extends DefaultApiController
         }
 
         $wait = $this->params('wait');
-        if ($wait) {
+        if ($wait && sprintf('%s', $data->success) != "true") {
             $keyService = $this->getServiceLocator()->get('defaultApiKey');
             $keyService->setName($name);
             $keyService->setKey($key);
