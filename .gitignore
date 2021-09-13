@@ -5,3 +5,4 @@ vendor/
 .buildpath
 .settings
 php-cs-fixer.phar
+.idea
