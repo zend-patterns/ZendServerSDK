@@ -97,6 +97,9 @@ class PluginController extends AbstractActionController
                 $relativePath = substr($filePath, strlen($root) + 1);
 
                 $zip->addFile($filePath, $relativePath);
+                if(PHP_MAJOR_VERSION >= 7) {
+                    $zip->setCompressionName($relativePath, \ZipArchive::CM_REDUCE_4);
+                }
             }
         }
         $zip->close();
