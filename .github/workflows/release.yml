@@ -34,15 +34,25 @@ jobs:
     - name: Build ZPK file
       run: php ./bin/build-zpk.php
 
-    - name: "TODO: Push back the compiled Phar and ZPK to repository"
+    - name: Store compiled Phar and ZPK files
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        DIFF=$(git diff)
+        if [ "${GITHUB_HEAD_REF}" == "master" ]; then
+          echo "Not pushing to master branch"
+          exit 0
+        fi
+
+        DIFF=$(git diff bin/zs-client.phar build/ZendServerSDK.zpk)
         if [ -n "$DIFF" ]; then
+          set -x
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git config user.email "release@zend.com"
           git config user.name "Automated Release"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git stash
+          git fetch origin ${GITHUB_HEAD_REF}
+          git checkout ${GITHUB_HEAD_REF}
+          git stash pop
           git commit -a -m "Update phar and zpk"
-          git push
+          git push origin ${GITHUB_HEAD_REF}
         fi
