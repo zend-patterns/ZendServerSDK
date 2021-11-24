@@ -35,5 +35,14 @@ jobs:
       run: php ./bin/build-zpk.php
 
     - name: "TODO: Push back the compiled Phar and ZPK to repository"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo $(pwd)
+        DIFF=$(git diff)
+        if [ -n "$DIFF" ]; then
+          git config user.email "release@zend.com"
+          git config user.name "Automated Release"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git commit -a -m "Update phar and zpk"
+          git push
+        fi
