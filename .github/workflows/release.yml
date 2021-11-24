@@ -1,0 +1,39 @@
+name: Automatic Releases
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Setup PHP 7.1
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.1'
+
+    - name: Environment
+      run: |
+        env
+
+    - name: Get Source Code
+      uses: actions/checkout@v2
+
+    - name: Get Composer Dependencies
+      run: |
+        composer install --no-dev
+        # Manually fix the zend-stdlib issue
+        (cd vendor/zendframework/zend-stdlib/; patch -p1 < ../../../.patches/zend-stdlib.patch)
+
+    - name: Build Phar file
+      run: php -d phar.readonly=0 bin/create-phar.php
+
+    - name: Build ZPK file
+      run: php ./bin/build-zpk.php
+
+    - name: "TODO: Push back the compiled Phar and ZPK to repository"
+      run: |
+        echo $(pwd)
