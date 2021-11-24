@@ -31,6 +31,13 @@ jobs:
     - name: Build Phar file
       run: php -d phar.readonly=0 bin/create-phar.php
 
+    - name: Test Phar file
+      run: |
+          (cp bin/zs-client.phar /tmp && \
+           /tmp/zs-client.phar targetFileLocation  && \
+           rm /tmp/zs-client.phar
+          )
+
     - name: Build ZPK file
       run: php ./bin/build-zpk.php
 
