@@ -1,0 +1,65 @@
+name: Automatic Releases
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Setup PHP 7.1
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.1'
+
+    - name: Environment
+      run: |
+        env
+
+    - name: Get Source Code
+      uses: actions/checkout@v2
+
+    - name: Get Composer Dependencies
+      run: |
+        composer install --no-dev
+        # Manually fix the zend-stdlib issue
+        (cd vendor/zendframework/zend-stdlib/; patch -p1 < ../../../.patches/zend-stdlib.patch)
+
+    - name: Build Phar file
+      run: php -d phar.readonly=0 bin/create-phar.php
+
+    - name: Test Phar file
+      run: |
+          (cp bin/zs-client.phar /tmp && \
+           /tmp/zs-client.phar targetFileLocation  && \
+           rm /tmp/zs-client.phar
+          )
+
+    - name: Build ZPK file
+      run: php ./bin/build-zpk.php
+
+    - name: Store compiled Phar and ZPK files
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        if [ "${GITHUB_HEAD_REF}" != "master" ]; then
+          echo "Not on master branch, skipping upload";
+          exit 0;
+        fi
+
+        set -x
+        DIFF=$(git diff bin/zs-client.phar build/ZendServerSDK.zpk)
+        if [ -n "$DIFF" ]; then
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git config user.email "release@zend.com"
+          git config user.name "Automated Release"
+          git stash
+          git fetch origin ${GITHUB_HEAD_REF}
+          git checkout ${GITHUB_HEAD_REF}
+          git stash pop
+          git commit -a -m "Update phar and zpk"
+          git push origin ${GITHUB_HEAD_REF}
+        fi
