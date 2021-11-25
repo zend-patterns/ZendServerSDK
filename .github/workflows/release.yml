@@ -45,6 +45,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        if [ "${GITHUB_HEAD_REF}" != "master" ]; then
+          echo "Not on master branch, skipping upload";
+          exit 0;
+        fi
+
         set -x
         DIFF=$(git diff bin/zs-client.phar build/ZendServerSDK.zpk)
         if [ -n "$DIFF" ]; then
