@@ -45,7 +45,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        if [ "${GITHUB_HEAD_REF}" != "master" ]; then
+        if [ "${GITHUB_REF_NAME}" != "master" ]; then
           echo "Not on master branch, skipping upload";
           exit 0;
         fi
@@ -57,9 +57,9 @@ jobs:
           git config user.email "release@zend.com"
           git config user.name "Automated Release"
           git stash
-          git fetch origin ${GITHUB_HEAD_REF}
-          git checkout ${GITHUB_HEAD_REF}
+          git fetch origin ${GITHUB_REF_NAME}
+          git checkout ${GITHUB_REF_NAME}
           git stash pop
           git commit -a -m "Update phar and zpk"
-          git push origin ${GITHUB_HEAD_REF}
+          git push origin ${GITHUB_REF_NAME}
         fi
