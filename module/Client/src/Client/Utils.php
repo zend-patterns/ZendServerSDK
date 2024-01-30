@@ -16,10 +16,11 @@ abstract class Utils
     public static function parseString($string, &$data, $delimiter = '&')
     {
         // check if the values are provided like a query string
+        $string = str_replace('&amp;', chr(0x7f) . chr(0xff) . chr(0x7f), $string); // escaped ampersand
         $pairs = explode($delimiter, $string);
         foreach ($pairs as $pair) {
             list($k, $v) = explode('=', $pair);
-
+            $v = str_replace(chr(0x7f) . chr(0xff) . chr(0x7f), '&', $v); // replace escaped ampersand
             if (preg_match("/^(.*?)((\[(.*?)\])+)$/m", $k, $m)) {
                 $parts = explode('][', rtrim(ltrim($m[2], '['), ']'));
                 $json = '{"'.implode('":{"', $parts).'": '.json_encode($v).str_pad('', count($parts), '}');
