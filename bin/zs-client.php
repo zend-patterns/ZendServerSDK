@@ -16,7 +16,7 @@ if (!$timeZone) {
     ini_set('date.timezone', 'UTC');
 }
 
-set_include_path(get_include_path(). PATH_SEPARATOR . getcwd());
+set_include_path(getcwd() . PATH_SEPARATOR . get_include_path());
 
 $basePath = dirname(__DIR__);
 if (!defined('PHAR')) {
@@ -24,7 +24,7 @@ if (!defined('PHAR')) {
     chdir($basePath);
 }
 
-require_once "vendor/autoload.php";
+require_once __DIR__ . '/vendor/autoload.php';
 
 if (file_exists("config/application.config.php")) {
     $appConfig = require "config/application.config.php";
